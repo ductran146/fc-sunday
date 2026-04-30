@@ -558,7 +558,7 @@
       "losers": [
         {
           "memberId": 1,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 2,
@@ -844,7 +844,7 @@
       "losers": [
         {
           "memberId": 1,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 6,
