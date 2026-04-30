@@ -112,24 +112,20 @@ function mkInit() {
 
 /* ─── HELPERS ────────────────────────────────── */
 function fmt(n) {
-  if (!n) return '0đ';
+  if (!n && n !== 0) return '0đ';
   const sign = n < 0 ? '-' : '';
   const abs  = Math.abs(n);
-  if (abs >= 1000000) {
-    const v = abs / 1000000;
-    return sign + (Number.isInteger(v) ? v : v.toFixed(1)).toString().replace('.',',') + ' tr đ';
-  }
-  if (abs >= 1000) return sign + Math.round(abs/1000) + 'k đ';
-  return sign + abs.toLocaleString('vi') + 'đ';
+  // Luôn hiển thị số đầy đủ với dấu chấm phân cách ngàn
+  return sign + abs.toLocaleString('vi-VN') + 'đ';
 }
 function fmtNum(n) {
-  // Format số thuần (không convert sang text): dùng cho số dư lớn
   if (!n && n !== 0) return '0';
   const sign = n < 0 ? '-' : '';
   const abs  = Math.abs(n);
   return sign + abs.toLocaleString('vi-VN');
 }
 function fmtS(n) {
+  // Chỉ dùng cho chart axis label — giữ rút gọn để không tràn trục
   if (!n) return '0';
   const sign = n < 0 ? '-' : '';
   const abs  = Math.abs(n);

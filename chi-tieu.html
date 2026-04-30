@@ -55,29 +55,31 @@
       </div>
     </div>
     <div class="page">
+      <!-- Form + Chart (full width trên mobile, nửa trái trên desktop) -->
       <div class="chi-layout">
         <!-- LEFT -->
         <div class="chi-left">
           <!-- Form -->
           <div class="card">
-            <div style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:16px">Thêm khoản chi</div>
-            <!-- Loại quỹ — nổi bật ở trên cùng -->
+            <div style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:14px">Thêm khoản chi</div>
+            <!-- Fund picker -->
             <div class="form-group">
               <label class="form-label">Trừ vào quỹ *</label>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="fund-picker">
-                <div class="fund-opt fund-opt-active" id="fopt-thang" onclick="selectFund('thang')"
-                  style="border:2px solid var(--p-600);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .15s;background:var(--p-50)">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div id="fopt-thang" onclick="selectFund('thang')"
+                  style="border:2px solid var(--p-600);border-radius:10px;padding:10px 12px;cursor:pointer;background:var(--p-50);transition:all .15s">
                   <div style="font-size:13px;font-weight:700;color:var(--p-700)">💰 Quỹ hàng tháng</div>
                   <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Sân bóng, thiết bị...</div>
                 </div>
-                <div class="fund-opt" id="fopt-bia" onclick="selectFund('bia')"
-                  style="border:2px solid var(--gray-200);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .15s;background:#fff">
+                <div id="fopt-bia" onclick="selectFund('bia')"
+                  style="border:2px solid var(--gray-200);border-radius:10px;padding:10px 12px;cursor:pointer;background:#fff;transition:all .15s">
                   <div style="font-size:13px;font-weight:700;color:var(--gray-600)">🍺 Quỹ bia</div>
                   <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Liên hoan, bia...</div>
                 </div>
               </div>
               <input type="hidden" id="ci-fund" value="thang">
             </div>
+            <!-- Ngày + Hạng mục -->
             <div class="form-row">
               <div class="form-group" style="margin:0">
                 <label class="form-label">Ngày chi</label>
@@ -98,26 +100,29 @@
                 </select>
               </div>
             </div>
+            <!-- Số tiền -->
             <div class="form-group">
               <label class="form-label">Số tiền (đ) *</label>
-              <input class="form-control" id="ci-amt" type="number" step="50000" placeholder="500000">
+              <input class="form-control" id="ci-amt" type="number" step="50000" placeholder="500000" inputmode="numeric">
               <div style="font-size:11px;color:var(--gray-400);margin-top:4px">Nhập số <b>âm</b> (−) cho tiền đầu kỳ / ủng hộ thêm → sẽ được <b>cộng</b> vào quỹ</div>
             </div>
+            <!-- Ghi chú -->
             <div class="form-group">
               <label class="form-label">Ghi chú</label>
               <input class="form-control" id="ci-note" placeholder="Mô tả khoản chi…">
             </div>
-            <button class="btn btn-p btn-full" onclick="addChi()">+ Thêm khoản chi</button>
+            <button class="btn btn-p btn-full" style="height:44px;font-size:15px" onclick="addChi()">+ Thêm khoản chi</button>
           </div>
-          <!-- Chart -->
-          <div class="card">
+          <!-- Chart — ẩn trên mobile, hiện trên desktop -->
+          <div class="card chi-chart-card">
             <div style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:12px">Chi tiêu theo hạng mục</div>
             <div class="chart-wrap"><canvas id="cCC"></canvas></div>
           </div>
         </div>
-        <!-- RIGHT -->
+
+        <!-- RIGHT: Lịch sử chi tiêu -->
         <div class="chi-right">
-          <div class="tbl-outer" style="flex:1;margin-bottom:0">
+          <div class="tbl-outer" style="margin-bottom:0">
             <div class="tbl-title">
               <span class="tbl-title-text">Lịch sử chi tiêu</span>
               <span class="chip chip-r" id="chi-total-chip">—</span>
@@ -130,6 +135,12 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Chart trên mobile (riêng biệt, bên dưới bảng) -->
+      <div class="card chi-chart-mobile" style="margin-top:16px">
+        <div style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:12px">Chi tiêu theo hạng mục</div>
+        <div class="chart-wrap"><canvas id="cCC2"></canvas></div>
       </div>
     </div>
   </div>
@@ -150,7 +161,7 @@
 <div id="toast"></div>
 <script src="app.js"></script>
 <script>
-let _cCC;
+let _cCC, _cCC2;
 const FUND_LABEL = { thang: '💰 Quỹ tháng', bia: '🍺 Quỹ bia' };
 const FUND_CHIP  = { thang: 'chip-p', bia: 'chip-w' };
 
@@ -264,12 +275,24 @@ function renderCharts() {
   const labels = Object.keys(groups).filter(k=>groups[k]>0);
   const data   = labels.map(k=>groups[k]);
   const colors = labels.map(k=>CAT_COLORS[k]||'#6b7280');
+
+  const chartOpts = {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:true,position:'right',labels:{font:{size:12,family:'Pretendard'},boxWidth:12,padding:8}}, tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.raw)}} }
+  };
+
+  // Desktop chart (trong chi-left)
   if (_cCC) _cCC.destroy();
-  _cCC = new Chart($el('cCC'), {
-    type:'doughnut',
-    data:{ labels, datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#fff'}] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:true,position:'right',labels:{font:{size:12,family:'Pretendard'},boxWidth:12,padding:8}}, tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.raw)}} } }
-  });
+  const el1 = $el('cCC');
+  if (el1) {
+    _cCC = new Chart(el1, { type:'doughnut', data:{ labels, datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#fff'}] }, options: chartOpts });
+  }
+  // Mobile chart (bên dưới bảng)
+  if (_cCC2) _cCC2.destroy();
+  const el2 = $el('cCC2');
+  if (el2) {
+    _cCC2 = new Chart(el2, { type:'doughnut', data:{ labels, datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#fff'}] }, options: chartOpts });
+  }
 }
 // Set today default
 window.addEventListener('DOMContentLoaded', () => {

@@ -633,7 +633,21 @@ td.clickable { cursor: pointer; }
 }
 .chi-left { display: flex; flex-direction: column; gap: 16px; }
 .chi-right { display: flex; flex-direction: column; }
-.chi-list { flex: 1; overflow-y: auto; max-height: calc(100dvh - 200px); }
+/* Desktop: chart trong left column, mobile chart ẩn */
+.chi-chart-mobile { display: none; }
+.chi-chart-card   { display: block; }
+
+@media (max-width: 768px) {
+  .chi-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  /* Ẩn chart trong left column trên mobile */
+  .chi-chart-card { display: none; }
+  /* Hiện chart riêng bên dưới bảng */
+  .chi-chart-mobile { display: block; }
+  .chi-list { max-height: 360px; }
+}
 
 /* Form */
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
