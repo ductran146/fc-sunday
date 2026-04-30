@@ -380,7 +380,7 @@ function submitLogin() {
   const u = ($el('login-user')?.value || '').trim().toLowerCase();
   const p = ($el('login-pass')?.value || '').trim();
   const err = $el('login-error');
-  if (u === 'maylaai' && p === 'conboduc') {
+  if (u === 'taola' && p === 'conboduc') {
     const rem = $el('login-remember')?.checked;
     if (rem) localStorage.setItem('fc_auth','1');
     else     sessionStorage.setItem('fc_auth','1');
