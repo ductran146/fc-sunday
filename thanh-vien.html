@@ -240,13 +240,17 @@ function renderMembers() {
       <td class="tr bold" style="background:${totalDebt?'#fffbeb':'#f0fdf5'};color:${totalDebt?'var(--c-danger)':'var(--p-700)'}">
         ${totalDebt ? `<span style="font-size:13px">${fmt(totalDebt)}</span>` : '<span style="font-size:12px">Không nợ ✓</span>'}
       </td>
-      <td class="tc" style="padding:6px 8px">
-        <div style="display:flex;gap:4px;justify-content:center;align-items:center;flex-wrap:nowrap">
-          <button class="btn btn-g btn-ic btn-sm" id="mem-edit-${m.id}" onclick="startMemInline(${m.id})" title="Sửa tên" style="flex-shrink:0">✏</button>
-          <button class="btn btn-p btn-ic btn-sm" id="mem-save-${m.id}" onclick="saveMemberInline(${m.id})" title="Lưu" style="display:none;flex-shrink:0">✓</button>
-          ${totalDebt ? `<button onclick="openPayDebt(${m.id})" title="Thanh toán nợ"
-            style="flex-shrink:0;background:#0e9fe9;color:#fff;border:1px solid #0e9fe9;padding:4px 8px;font-size:11px;font-weight:700;border-radius:6px;white-space:nowrap;font-family:inherit;cursor:pointer;line-height:1.2">💳 Thanh toán</button>` : ''}
-          <button class="btn btn-d btn-ic btn-sm del-btn" onclick="delMem(${m.id})" title="Xóa" style="flex-shrink:0">🗑</button>
+      <td style="padding:6px 10px">
+        <div style="display:grid;grid-template-columns:28px 1fr 28px;gap:4px;align-items:center">
+          <button class="btn btn-g btn-ic btn-sm" id="mem-edit-${m.id}" onclick="startMemInline(${m.id})" title="Sửa tên">✏</button>
+          <button class="btn btn-p btn-ic btn-sm" id="mem-save-${m.id}" onclick="saveMemberInline(${m.id})" title="Lưu" style="display:none">✓</button>
+          <div>
+            ${totalDebt
+              ? `<button onclick="openPayDebt(${m.id})" title="Thanh toán nợ"
+                  style="width:100%;background:#0e9fe9;color:#fff;border:1px solid #0e9fe9;padding:4px 8px;font-size:11px;font-weight:700;border-radius:6px;white-space:nowrap;font-family:inherit;cursor:pointer;line-height:1.4">💳 Thanh toán</button>`
+              : ''}
+          </div>
+          <button class="btn btn-d btn-ic btn-sm del-btn" onclick="delMem(${m.id})" title="Xóa">🗑</button>
         </div>
       </td>
     </tr>`;
