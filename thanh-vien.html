@@ -77,12 +77,30 @@
               <th class="tc">Trận thua</th>
               <th class="tr">Nợ quỹ bia</th>
               <th class="tr" style="color:var(--c-danger)">Tổng nợ</th>
-              <th class="tc" style="width:96px">Thao tác</th>
+              <th class="tc" style="width:120px">Thao tác</th>
             </tr></thead>
             <tbody id="tb-mem"></tbody>
           </table>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAY DEBT MODAL -->
+<div class="ov" id="ov-pay-debt">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <span class="modal-title">💳 Thanh toán nợ</span>
+      <button class="modal-close" onclick="closeOv('ov-pay-debt')">×</button>
+    </div>
+    <div id="pay-debt-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-g" onclick="closeOv('ov-pay-debt')">Hủy</button>
+      <button class="btn btn-sm" id="btn-confirm-pay" onclick="confirmPayDebt()"
+        style="flex:1;height:40px;background:#0e9fe9;color:#fff;border-color:#0e9fe9;font-size:14px;border-radius:8px;font-weight:700;font-family:inherit;cursor:pointer">
+        ✓ Xác nhận thanh toán
+      </button>
     </div>
   </div>
 </div>
@@ -210,9 +228,11 @@ function renderMembers() {
         ${totalDebt ? `<span style="font-size:13px">${fmt(totalDebt)}</span>` : '<span style="font-size:12px">Không nợ ✓</span>'}
       </td>
       <td class="tc">
-        <div style="display:flex;gap:4px;justify-content:center">
+        <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap">
           <button class="btn btn-g btn-ic btn-sm" id="mem-edit-${m.id}" onclick="startMemInline(${m.id})" title="Sửa tên">✏</button>
           <button class="btn btn-p btn-ic btn-sm" id="mem-save-${m.id}" onclick="saveMemberInline(${m.id})" title="Lưu" style="display:none">✓</button>
+          ${totalDebt ? `<button class="btn btn-sm del-btn" onclick="openPayDebt(${m.id})" title="Thanh toán nợ"
+            style="background:#0e9fe9;color:#fff;border-color:#0e9fe9;padding:4px 8px;font-size:11px;border-radius:6px;opacity:1">💳</button>` : ''}
           <button class="btn btn-d btn-ic btn-sm del-btn" onclick="delMem(${m.id})" title="Xóa">🗑</button>
         </div>
       </td>
@@ -282,7 +302,107 @@ function saveMember() {
   showToast('✓ Đã thêm thành viên', 'green');
   renderAll();
 }
-// Close modal on overlay click
+// ─── THANH TOÁN NỢ ───────────────────────────
+let _payDebtMid = null;
+
+function openPayDebt(id) {
+  if (!_requireAuth()) return;
+  const m = S.members.find(x => x.id === id);
+  if (!m) return;
+
+  const debtFee   = memberDebtFee(id, _year);
+  const debtFine  = memberDebtFine(id);
+  const totalDebt = debtFee + debtFine;
+  if (!totalDebt) { showToast('Thành viên này không có nợ', 'default'); return; }
+
+  _payDebtMid = id;
+
+  // Tính chi tiết nợ quỹ tháng
+  const req    = Math.max(0, Math.min(monthsRequired(_year), 12) - memberExemptCount(id, _year));
+  const paid   = memberPaidCount(id, _year);
+  const debtMonths = req - paid; // số tháng chưa đóng
+  const unpaidMatches = (S.matches||[]).filter(match =>
+    (match.losers||[]).some(l => l.memberId === id && !l.paid)
+  );
+
+  // Render chi tiết
+  let html = `
+    <div style="background:var(--gray-50);border-radius:10px;padding:16px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:12px">
+        ${esc(m.name)}
+      </div>`;
+
+  if (debtFee > 0) {
+    html += `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--gray-700)">💰 Nợ quỹ tháng</div>
+          <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Còn thiếu ${debtMonths} tháng × 200.000đ</div>
+        </div>
+        <div style="font-size:14px;font-weight:700;color:var(--c-warning)">${fmt(debtFee)}</div>
+      </div>`;
+  }
+
+  if (debtFine > 0) {
+    const matchList = unpaidMatches.map(match => {
+      const d = fmtDate(match.date);
+      const cnt = (match.losers||[]).filter(l=>l.memberId===id&&!l.paid).length;
+      return `<div style="font-size:11px;color:var(--gray-400)">· Trận ${d}: ${cnt} lần × 50k</div>`;
+    }).join('');
+    html += `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--gray-700)">🍺 Nợ quỹ bia</div>
+          <div style="margin-top:4px">${matchList}</div>
+        </div>
+        <div style="font-size:14px;font-weight:700;color:var(--c-warning);flex-shrink:0;margin-left:12px">${fmt(debtFine)}</div>
+      </div>`;
+  }
+
+  html += `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 0">
+        <div style="font-size:14px;font-weight:700;color:var(--gray-800)">Tổng thanh toán</div>
+        <div style="font-size:18px;font-weight:800;color:var(--c-danger)">${fmt(totalDebt)}</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--gray-400);text-align:center;margin-bottom:4px">
+      Xác nhận sẽ tự động cập nhật trạng thái đóng quỹ tháng và quỹ bia
+    </div>`;
+
+  $el('pay-debt-body').innerHTML = html;
+  openOv('ov-pay-debt');
+}
+
+function confirmPayDebt() {
+  const id = _payDebtMid;
+  if (!id || !_requireAuth()) return;
+
+  // 1. Thanh toán nợ quỹ tháng — tick đủ các tháng còn thiếu
+  const req    = Math.max(0, Math.min(monthsRequired(_year), 12) - memberExemptCount(id, _year));
+  for (let i = 0; i < req; i++) {
+    if (getTT(id, i, _year) === 0) {
+      setTT(id, i, 1, _year); // đánh dấu đã đóng
+    }
+  }
+
+  // 2. Thanh toán nợ quỹ bia — đánh dấu paid=true tất cả trận chưa nộp
+  S.matches = S.matches.map(match => ({
+    ...match,
+    losers: (match.losers||[]).map(l =>
+      l.memberId === id && !l.paid ? { ...l, paid: true } : l
+    )
+  }));
+
+  saveS();
+  closeOv('ov-pay-debt');
+  showToast(`✓ Đã thanh toán nợ cho ${S.members.find(m=>m.id===id)?.name}`, 'green');
+  renderAll();
+}
+
+// ─── ĐÓng overlay khi click ngoài ──────────
+$el('ov-pay-debt')?.addEventListener('click', e => {
+  if (e.target === $el('ov-pay-debt')) closeOv('ov-pay-debt');
+});
 $el('ov-mem')?.addEventListener('click', e=>{ if(e.target===$el('ov-mem')) closeOv('ov-mem'); });
 wireLoginModal();
 initApp();
