@@ -44,7 +44,7 @@
     },
     {
       "id": 7,
-      "name": "Hinh",
+      "name": "Chiến",
       "phone": "",
       "status": "active",
       "note": ""
@@ -144,7 +144,7 @@
       "id": 22,
       "name": "Nam",
       "phone": "",
-      "status": "inactive",
+      "status": "active",
       "note": ""
     },
     {
@@ -162,18 +162,25 @@
       "note": ""
     },
     {
-      "id": 27,
-      "name": "Chiến",
+      "id": 25,
+      "name": "Hoàng",
+      "phone": "",
+      "status": "left",
+      "note": ""
+    },
+    {
+      "id": 26,
+      "name": "Tặng",
       "phone": "",
       "status": "active",
       "note": ""
     }
   ],
-  "nextMid": 28,
+  "nextMid": 27,
   "thuThang": {
     "1": [
       1,
-      2,
+      1,
       1,
       1,
       0,
@@ -187,7 +194,7 @@
     ],
     "2": [
       1,
-      2,
+      1,
       1,
       1,
       1,
@@ -200,20 +207,6 @@
       0
     ],
     "3": [
-      1,
-      2,
-      1,
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    "4": [
       1,
       1,
       1,
@@ -229,9 +222,9 @@
     ],
     "5": [
       1,
-      2,
       1,
       1,
+      0,
       0,
       0,
       0,
@@ -243,7 +236,7 @@
     ],
     "6": [
       1,
-      2,
+      1,
       1,
       0,
       0,
@@ -257,7 +250,7 @@
     ],
     "7": [
       1,
-      2,
+      1,
       1,
       0,
       0,
@@ -271,9 +264,9 @@
     ],
     "8": [
       1,
-      2,
       1,
       1,
+      0,
       0,
       0,
       0,
@@ -285,23 +278,9 @@
     ],
     "9": [
       1,
-      2,
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    "10": [
       1,
       1,
-      1,
-      1,
+      0,
       0,
       0,
       0,
@@ -313,7 +292,7 @@
     ],
     "12": [
       1,
-      2,
+      1,
       1,
       1,
       0,
@@ -327,7 +306,7 @@
     ],
     "13": [
       1,
-      2,
+      1,
       1,
       1,
       0,
@@ -341,9 +320,9 @@
     ],
     "14": [
       1,
-      2,
       1,
-      2,
+      1,
+      0,
       0,
       0,
       0,
@@ -355,7 +334,7 @@
     ],
     "15": [
       1,
-      2,
+      1,
       1,
       1,
       0,
@@ -369,7 +348,7 @@
     ],
     "16": [
       1,
-      2,
+      1,
       0,
       0,
       0,
@@ -383,10 +362,10 @@
     ],
     "17": [
       1,
-      2,
       1,
       1,
-      1,
+      0,
+      0,
       0,
       0,
       0,
@@ -397,9 +376,9 @@
     ],
     "18": [
       1,
-      2,
       1,
       1,
+      0,
       0,
       0,
       0,
@@ -411,9 +390,9 @@
     ],
     "19": [
       1,
-      2,
-      1,
-      1,
+      0,
+      0,
+      0,
       0,
       0,
       0,
@@ -425,7 +404,7 @@
     ],
     "20": [
       1,
-      2,
+      1,
       1,
       1,
       0,
@@ -439,7 +418,7 @@
     ],
     "21": [
       1,
-      2,
+      1,
       1,
       0,
       0,
@@ -453,7 +432,7 @@
     ],
     "22": [
       1,
-      2,
+      1,
       1,
       0,
       0,
@@ -466,9 +445,9 @@
       0
     ],
     "23": [
-      0,
-      2,
-      0,
+      1,
+      1,
+      1,
       0,
       0,
       0,
@@ -481,9 +460,9 @@
     ],
     "24": [
       1,
-      2,
       1,
-      0,
+      1,
+      1,
       0,
       0,
       0,
@@ -493,9 +472,9 @@
       0,
       0
     ],
-    "27": [
+    "26": [
       1,
-      2,
+      1,
       1,
       1,
       0,
@@ -508,373 +487,10 @@
       0
     ]
   },
-  "matches": [
-    {
-      "id": 1,
-      "monthIdx": 3,
-      "date": "2026-04-24",
-      "note": "",
-      "losers": [
-        {
-          "memberId": 2,
-          "paid": true
-        },
-        {
-          "memberId": 3,
-          "paid": true
-        },
-        {
-          "memberId": 5,
-          "paid": false
-        },
-        {
-          "memberId": 18,
-          "paid": false
-        },
-        {
-          "memberId": 20,
-          "paid": true
-        },
-        {
-          "memberId": 24,
-          "paid": true
-        }
-      ],
-      "thuThem": 0,
-      "ghiChuThem": ""
-    },
-    {
-      "id": 2,
-      "monthIdx": 3,
-      "date": "2026-04-10",
-      "note": "",
-      "losers": [
-        {
-          "memberId": 1,
-          "paid": true
-        },
-        {
-          "memberId": 2,
-          "paid": true
-        },
-        {
-          "memberId": 3,
-          "paid": true
-        },
-        {
-          "memberId": 6,
-          "paid": false
-        },
-        {
-          "memberId": 8,
-          "paid": false
-        },
-        {
-          "memberId": 19,
-          "paid": true
-        },
-        {
-          "memberId": 23,
-          "paid": false
-        }
-      ],
-      "thuThem": 50000,
-      "ghiChuThem": "thu thêm bạn Hiếu"
-    },
-    {
-      "id": 3,
-      "monthIdx": 3,
-      "date": "2026-04-03",
-      "note": "",
-      "losers": [
-        {
-          "memberId": 4,
-          "paid": true
-        },
-        {
-          "memberId": 6,
-          "paid": false
-        },
-        {
-          "memberId": 8,
-          "paid": false
-        },
-        {
-          "memberId": 18,
-          "paid": false
-        },
-        {
-          "memberId": 20,
-          "paid": true
-        },
-        {
-          "memberId": 24,
-          "paid": true
-        },
-        {
-          "memberId": 27,
-          "paid": false
-        }
-      ],
-      "thuThem": 0,
-      "ghiChuThem": ""
-    },
-    {
-      "id": 4,
-      "monthIdx": 2,
-      "date": "2026-03-27",
-      "note": "",
-      "losers": [
-        {
-          "memberId": 2,
-          "paid": true
-        },
-        {
-          "memberId": 3,
-          "paid": true
-        },
-        {
-          "memberId": 9,
-          "paid": true
-        },
-        {
-          "memberId": 18,
-          "paid": true
-        },
-        {
-          "memberId": 20,
-          "paid": true
-        },
-        {
-          "memberId": 21,
-          "paid": false
-        },
-        {
-          "memberId": 24,
-          "paid": true
-        },
-        {
-          "memberId": 27,
-          "paid": false
-        }
-      ],
-      "thuThem": 50000,
-      "ghiChuThem": "Thu thêm em Cường"
-    },
-    {
-      "id": 5,
-      "monthIdx": 2,
-      "date": "2026-03-20",
-      "note": "",
-      "losers": [
-        {
-          "memberId": 5,
-          "paid": true
-        },
-        {
-          "memberId": 8,
-          "paid": true
-        },
-        {
-          "memberId": 12,
-          "paid": true
-        },
-        {
-          "memberId": 13,
-          "paid": true
-        },
-        {
-          "memberId": 18,
-          "paid": true
-        },
-        {
-          "memberId": 20,
-          "paid": true
-        },
-        {
-          "memberId": 21,
-          "paid": false
-        },
-        {
-          "memberId": 27,
-          "paid": false
-        }
-      ],
-      "thuThem": 0,
-      "ghiChuThem": ""
-    },
-    {
-      "id": 6,
-      "monthIdx": 2,
-      "date": "2026-03-13",
-      "note": "",
-      "losers": [
-        {
-          "memberId": 2,
-          "paid": true
-        },
-        {
-          "memberId": 3,
-          "paid": true
-        },
-        {
-          "memberId": 4,
-          "paid": true
-        },
-        {
-          "memberId": 9,
-          "paid": true
-        },
-        {
-          "memberId": 14,
-          "paid": true
-        },
-        {
-          "memberId": 16,
-          "paid": false
-        },
-        {
-          "memberId": 18,
-          "paid": true
-        },
-        {
-          "memberId": 19,
-          "paid": true
-        },
-        {
-          "memberId": 24,
-          "paid": true
-        },
-        {
-          "memberId": 27,
-          "paid": true
-        }
-      ],
-      "thuThem": 0,
-      "ghiChuThem": ""
-    },
-    {
-      "id": 7,
-      "monthIdx": 2,
-      "date": "2026-03-06",
-      "note": "",
-      "losers": [
-        {
-          "memberId": 3,
-          "paid": true
-        },
-        {
-          "memberId": 6,
-          "paid": false
-        },
-        {
-          "memberId": 9,
-          "paid": true
-        },
-        {
-          "memberId": 15,
-          "paid": true
-        },
-        {
-          "memberId": 18,
-          "paid": true
-        },
-        {
-          "memberId": 19,
-          "paid": true
-        },
-        {
-          "memberId": 21,
-          "paid": true
-        },
-        {
-          "memberId": 24,
-          "paid": true
-        },
-        {
-          "memberId": 27,
-          "paid": true
-        }
-      ],
-      "thuThem": 0,
-      "ghiChuThem": ""
-    },
-    {
-      "id": 8,
-      "monthIdx": 1,
-      "date": "2026-02-27",
-      "note": "",
-      "losers": [
-        {
-          "memberId": 2,
-          "paid": true
-        },
-        {
-          "memberId": 5,
-          "paid": true
-        },
-        {
-          "memberId": 14,
-          "paid": true
-        },
-        {
-          "memberId": 20,
-          "paid": true
-        },
-        {
-          "memberId": 21,
-          "paid": true
-        }
-      ],
-      "thuThem": 100000,
-      "ghiChuThem": "thu thêm của Thông Lao và em Cường Buồn"
-    },
-    {
-      "id": 9,
-      "monthIdx": 1,
-      "date": "2026-02-06",
-      "note": "",
-      "losers": [
-        {
-          "memberId": 1,
-          "paid": true
-        },
-        {
-          "memberId": 6,
-          "paid": false
-        },
-        {
-          "memberId": 8,
-          "paid": true
-        },
-        {
-          "memberId": 10,
-          "paid": true
-        },
-        {
-          "memberId": 13,
-          "paid": true
-        },
-        {
-          "memberId": 23,
-          "paid": false
-        }
-      ],
-      "thuThem": 0,
-      "ghiChuThem": ""
-    }
-  ],
-  "nextMaid": 10,
-  "chiTieu": [
-    {
-      "id": 1,
-      "date": "2026-04-30",
-      "cat": "Sân bóng",
-      "amount": 9160000,
-      "note": "Thanh toán tiền sân từ 01/2026 đến 04/2026"
-    }
-  ],
-  "nextCid": 2,
+  "matches": [],
+  "nextMaid": 1,
+  "chiTieu": [],
+  "nextCid": 1,
   "_meta": {
     "version": "1.0",
     "lastUpdated": "2026-04-30",
