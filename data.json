@@ -141,13 +141,6 @@
       "note": ""
     },
     {
-      "id": 22,
-      "name": "Nam",
-      "phone": "",
-      "status": "inactive",
-      "note": ""
-    },
-    {
       "id": 23,
       "name": "Thái",
       "phone": "",
@@ -451,20 +444,6 @@
       0,
       0
     ],
-    "22": [
-      1,
-      2,
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
     "23": [
       0,
       2,
@@ -567,7 +546,7 @@
         },
         {
           "memberId": 8,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 19,
@@ -597,7 +576,7 @@
         },
         {
           "memberId": 8,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 18,
