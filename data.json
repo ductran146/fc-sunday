@@ -44,7 +44,7 @@
     },
     {
       "id": 7,
-      "name": "Chiến",
+      "name": "Hinh",
       "phone": "",
       "status": "active",
       "note": ""
@@ -144,7 +144,7 @@
       "id": 22,
       "name": "Nam",
       "phone": "",
-      "status": "active",
+      "status": "inactive",
       "note": ""
     },
     {
@@ -169,14 +169,14 @@
       "note": ""
     },
     {
-      "id": 26,
-      "name": "Tặng",
+      "id": 27,
+      "name": "Chiến",
       "phone": "",
       "status": "active",
       "note": ""
     }
   ],
-  "nextMid": 27,
+  "nextMid": 28,
   "thuThang": {
     "1": [
       1,
@@ -463,20 +463,6 @@
       2,
       1,
       0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    "26": [
-      1,
-      2,
-      1,
-      1,
       0,
       0,
       0,
