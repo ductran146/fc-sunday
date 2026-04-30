@@ -32,23 +32,23 @@
         <span class="chip" id="data-badge"></span>
       </div>
       <div class="tb-actions">
-        <div id="data-toolbar" style="display:none;gap:8px;align-items:center">
+        <!-- Desktop toolbar (ẩn trên mobile) -->
+        <div class="tb-desktop-only" id="data-toolbar" style="display:none;gap:8px;align-items:center">
           <button class="btn btn-po btn-sm" onclick="importJSON()">⬆ Nhập JSON</button>
           <button class="btn btn-p btn-sm" onclick="exportJSON()">⬇ Xuất JSON</button>
           <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
         </div>
-        <button class="btn btn-p btn-sm" id="btn-gh-sync" onclick="syncToGitHub()" style="display:none;background:var(--p-950);border-color:var(--p-950);gap:6px">☁ Đồng bộ GitHub</button>
-        <button class="btn btn-g btn-sm" id="btn-gh-cfg" onclick="openGHSetup()" style="display:none" title="Cấu hình GitHub">⚙</button>
-        <button class="btn btn-g btn-sm" id="btn-refresh" onclick="refreshData()" title="Tải lại dữ liệu mới nhất" style="padding:6px 10px">🔄</button>
+        <button class="btn btn-p btn-sm tb-desktop-only" id="btn-gh-sync" onclick="syncToGitHub()" style="display:none;background:var(--p-950);border-color:var(--p-950)">☁ Đồng bộ GitHub</button>
+        <button class="btn btn-g btn-sm tb-desktop-only" id="btn-gh-cfg" onclick="openGHSetup()" style="display:none" title="Cấu hình GitHub">⚙</button>
+        <button class="btn btn-g btn-sm tb-desktop-only" id="btn-refresh" onclick="refreshData()" title="Tải lại dữ liệu mới nhất" style="padding:6px 10px">🔄</button>
         <div class="tb-more-wrap">
-          <button class="tb-more-btn" id="btn-more" onclick="toggleMoreMenu()" title="Thêm">⋯</button>
+          <button class="tb-more-btn" onclick="toggleMoreMenu()">···</button>
           <div class="tb-more-menu" id="more-menu">
-            <button class="tb-more-item" id="mm-refresh" onclick="refreshData();closeMoreMenu()">🔄 Tải lại dữ liệu</button>
-            <div class="tb-more-divider"></div>
-            <button class="tb-more-item hidden" id="mm-import" onclick="importJSON();closeMoreMenu()">⬆ Nhập JSON</button>
-            <button class="tb-more-item hidden" id="mm-export" onclick="exportJSON();closeMoreMenu()">⬇ Xuất JSON</button>
-            <button class="tb-more-item hidden" id="mm-sync" onclick="syncToGitHub();closeMoreMenu()">☁ Đồng bộ GitHub</button>
-            <button class="tb-more-item hidden" id="mm-cfg" onclick="openGHSetup();closeMoreMenu()">⚙ Cấu hình GitHub</button>
+            <button class="tb-more-item" onclick="refreshData();closeMoreMenu()">🔄 Tải lại dữ liệu</button>
+            <button class="tb-more-item" id="mm-import" style="display:none" onclick="importJSON();closeMoreMenu()">⬆ Nhập JSON</button>
+            <button class="tb-more-item" id="mm-export" style="display:none" onclick="exportJSON();closeMoreMenu()">⬇ Xuất JSON</button>
+            <button class="tb-more-item" id="mm-sync" style="display:none" onclick="syncToGitHub();closeMoreMenu()">☁ Đồng bộ GitHub</button>
+            <button class="tb-more-item" id="mm-cfg" style="display:none" onclick="openGHSetup();closeMoreMenu()">⚙ Cấu hình GitHub</button>
           </div>
         </div>
         <button class="btn-login-off" id="btn-login-off" onclick="openLoginModal()">👤 Đăng nhập</button>

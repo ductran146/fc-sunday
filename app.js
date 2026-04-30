@@ -349,10 +349,11 @@ function updateAuthUI() {
   if (toolbar) toolbar.style.display = _auth ? 'flex' : 'none';
   if (btnSync) btnSync.style.display = _auth ? 'inline-flex' : 'none';
   if (btnCfg)  btnCfg.style.display  = _auth ? 'inline-flex' : 'none';
-  // Sync more menu admin items
+  // More menu admin items: chỉ hiện khi login
+  const show = _auth ? 'flex' : 'none';
   ['mm-import','mm-export','mm-sync','mm-cfg'].forEach(id => {
     const el = $el(id);
-    if (el) el.classList.toggle('hidden', !_auth);
+    if (el) el.style.display = show;
   });
 }
 
@@ -360,17 +361,20 @@ function updateAuthUI() {
 function toggleMoreMenu() {
   const menu = $el('more-menu');
   if (!menu) return;
+  const isOpen = menu.classList.contains('open');
   menu.classList.toggle('open');
-  // Close when clicking outside
-  if (menu.classList.contains('open')) {
+  if (!isOpen) {
+    // Đóng khi tap ra ngoài — dùng touchend + click cho Safari iOS
     setTimeout(() => {
-      document.addEventListener('click', _closeMoreOutside, { once: true });
-    }, 0);
+      document.addEventListener('touchend', _closeMoreOutside, { once: true, passive: true });
+      document.addEventListener('click',    _closeMoreOutside, { once: true });
+    }, 50);
   }
 }
 function _closeMoreOutside(e) {
   const wrap = document.querySelector('.tb-more-wrap');
-  if (wrap && !wrap.contains(e.target)) closeMoreMenu();
+  if (wrap && wrap.contains(e.target)) return;
+  closeMoreMenu();
 }
 function closeMoreMenu() {
   const menu = $el('more-menu');
