@@ -67,9 +67,20 @@
           <span class="chip chip-p" id="mem-count-chip">25 người</span>
         </div>
         <div class="tbl-scroll">
-          <table>
+          <table style="table-layout:fixed;min-width:900px">
+            <colgroup>
+              <col style="width:44px">      <!-- # -->
+              <col style="width:160px">     <!-- Họ và tên -->
+              <col style="width:110px">     <!-- Trạng thái -->
+              <col style="width:100px">     <!-- Phí đã đóng -->
+              <col style="width:110px">     <!-- Nợ quỹ tháng -->
+              <col style="width:80px">      <!-- Trận thua -->
+              <col style="width:100px">     <!-- Nợ quỹ bia -->
+              <col style="width:110px">     <!-- Tổng nợ -->
+              <col style="width:190px">     <!-- Thao tác -->
+            </colgroup>
             <thead><tr>
-              <th class="tr" style="width:50px">#</th>
+              <th class="tr">#</th>
               <th>Họ và Tên</th>
               <th class="tc">Trạng thái</th>
               <th class="tr">Phí đã đóng</th>
@@ -77,7 +88,7 @@
               <th class="tc">Trận thua</th>
               <th class="tr">Nợ quỹ bia</th>
               <th class="tr" style="color:var(--c-danger)">Tổng nợ</th>
-              <th class="tc" style="width:150px">Thao tác</th>
+              <th class="tc">Thao tác</th>
             </tr></thead>
             <tbody id="tb-mem"></tbody>
           </table>
@@ -199,10 +210,12 @@ function renderMembers() {
 
     return `<tr id="mem-row-${m.id}">
       <td class="tr" style="color:var(--gray-400);font-weight:700">${idx+1}</td>
-      <td>
-        <span id="mem-name-${m.id}">${esc(m.name)}</span>
-        <input class="mem-name-inp" id="mem-inp-${m.id}" value="${esc(m.name)}" style="display:none"
-          onkeydown="if(event.key===\'Enter\')saveMemberInline(${m.id});if(event.key===\'Escape\')renderAll()">
+      <td style="overflow:hidden">
+        <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+          <span id="mem-name-${m.id}">${esc(m.name)}</span>
+          <input class="mem-name-inp" id="mem-inp-${m.id}" value="${esc(m.name)}" style="display:none;max-width:140px"
+            onkeydown="if(event.key===\'Enter\')saveMemberInline(${m.id});if(event.key===\'Escape\')renderAll()">
+        </div>
       </td>
       <td class="tc">
         <select class="status-sel ${statusMap[m.status]||'ss-a'}" onchange="chgStatusInline(${m.id},this)">${statusOpts}</select>
@@ -227,13 +240,13 @@ function renderMembers() {
       <td class="tr bold" style="background:${totalDebt?'#fffbeb':'#f0fdf5'};color:${totalDebt?'var(--c-danger)':'var(--p-700)'}">
         ${totalDebt ? `<span style="font-size:13px">${fmt(totalDebt)}</span>` : '<span style="font-size:12px">Không nợ ✓</span>'}
       </td>
-      <td class="tc">
-        <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap">
-          <button class="btn btn-g btn-ic btn-sm" id="mem-edit-${m.id}" onclick="startMemInline(${m.id})" title="Sửa tên">✏</button>
-          <button class="btn btn-p btn-ic btn-sm" id="mem-save-${m.id}" onclick="saveMemberInline(${m.id})" title="Lưu" style="display:none">✓</button>
-          ${totalDebt ? `<button class="btn btn-sm" onclick="openPayDebt(${m.id})" title="Thanh toán nợ"
-            style="background:#0e9fe9;color:#fff;border-color:#0e9fe9;padding:4px 10px;font-size:11px;border-radius:6px;white-space:nowrap;font-weight:700;font-family:inherit;cursor:pointer">💳 Thanh toán</button>` : ''}
-          <button class="btn btn-d btn-ic btn-sm del-btn" onclick="delMem(${m.id})" title="Xóa">🗑</button>
+      <td class="tc" style="padding:6px 8px">
+        <div style="display:flex;gap:4px;justify-content:center;align-items:center;flex-wrap:nowrap">
+          <button class="btn btn-g btn-ic btn-sm" id="mem-edit-${m.id}" onclick="startMemInline(${m.id})" title="Sửa tên" style="flex-shrink:0">✏</button>
+          <button class="btn btn-p btn-ic btn-sm" id="mem-save-${m.id}" onclick="saveMemberInline(${m.id})" title="Lưu" style="display:none;flex-shrink:0">✓</button>
+          ${totalDebt ? `<button onclick="openPayDebt(${m.id})" title="Thanh toán nợ"
+            style="flex-shrink:0;background:#0e9fe9;color:#fff;border:1px solid #0e9fe9;padding:4px 8px;font-size:11px;font-weight:700;border-radius:6px;white-space:nowrap;font-family:inherit;cursor:pointer;line-height:1.2">💳 Thanh toán</button>` : ''}
+          <button class="btn btn-d btn-ic btn-sm del-btn" onclick="delMem(${m.id})" title="Xóa" style="flex-shrink:0">🗑</button>
         </div>
       </td>
     </tr>`;
