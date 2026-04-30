@@ -67,27 +67,27 @@
               <label class="form-label">Trừ vào quỹ *</label>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
                 <div id="fopt-thang" onclick="selectFund('thang')"
-                  style="border:2px solid var(--p-600);border-radius:10px;padding:10px 12px;cursor:pointer;background:var(--p-50);transition:all .15s">
-                  <div style="font-size:13px;font-weight:700;color:var(--p-700)">💰 Quỹ hàng tháng</div>
+                  style="border:2px solid var(--p-600);border-radius:10px;padding:10px 12px;cursor:pointer;background:var(--p-50);transition:all .15s;min-width:0">
+                  <div style="font-size:13px;font-weight:700;color:var(--p-700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">💰 Quỹ hàng tháng</div>
                   <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Sân bóng, thiết bị...</div>
                 </div>
                 <div id="fopt-bia" onclick="selectFund('bia')"
-                  style="border:2px solid var(--gray-200);border-radius:10px;padding:10px 12px;cursor:pointer;background:#fff;transition:all .15s">
-                  <div style="font-size:13px;font-weight:700;color:var(--gray-600)">🍺 Quỹ bia</div>
+                  style="border:2px solid var(--gray-200);border-radius:10px;padding:10px 12px;cursor:pointer;background:#fff;transition:all .15s;min-width:0">
+                  <div style="font-size:13px;font-weight:700;color:var(--gray-600);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🍺 Quỹ bia</div>
                   <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Liên hoan, bia...</div>
                 </div>
               </div>
               <input type="hidden" id="ci-fund" value="thang">
             </div>
-            <!-- Ngày + Hạng mục -->
-            <div class="form-row">
+            <!-- Ngày + Hạng mục: 2 cột desktop, 1 cột mobile -->
+            <div class="chi-form-row">
               <div class="form-group" style="margin:0">
                 <label class="form-label">Ngày chi</label>
-                <input class="form-control" id="ci-date" type="date">
+                <input class="form-control" id="ci-date" type="date" style="height:44px">
               </div>
               <div class="form-group" style="margin:0">
                 <label class="form-label">Hạng mục</label>
-                <select class="form-control" id="ci-cat">
+                <select class="form-control" id="ci-cat" style="height:44px">
                   <option>Sân bóng</option>
                   <option>Thiết bị</option>
                   <option>Tiệc / Liên hoan</option>

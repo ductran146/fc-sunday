@@ -633,6 +633,15 @@ td.clickable { cursor: pointer; }
 }
 .chi-left { display: flex; flex-direction: column; gap: 16px; }
 .chi-right { display: flex; flex-direction: column; }
+
+/* Form row trong chi tiêu: 2 cột desktop, 1 cột mobile */
+.chi-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
 /* Desktop: chart trong left column, mobile chart ẩn */
 .chi-chart-mobile { display: none; }
 .chi-chart-card   { display: block; }
@@ -641,6 +650,11 @@ td.clickable { cursor: pointer; }
   .chi-layout {
     grid-template-columns: 1fr;
     gap: 16px;
+  }
+  /* Form fields: 1 cột trên mobile */
+  .chi-form-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
   /* Ẩn chart trong left column trên mobile */
   .chi-chart-card { display: none; }
