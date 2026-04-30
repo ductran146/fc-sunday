@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Thành viên — FC 2026</title>
+<title>Thành viên — FC Sunday</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="sb-overlay" onclick="closeSidebar()"></div>
 <div class="layout">
   <aside class="sidebar">
-    <div class="sb-brand"><div class="sb-logo">⚽</div><div class="sb-brand-text"><div class="sb-brand-name">FC Dashboard</div><div class="sb-brand-sub">Quỹ Đội Bóng 2026</div></div></div>
+    <div class="sb-brand"><div class="sb-logo">⚽</div><div class="sb-brand-text"><div class="sb-brand-name">FC Sunday</div><div class="sb-brand-sub">Tổng hợp thu chi quỹ đội bóng</div></div></div>
     <nav class="sb-nav">
       <div class="sb-section-label">Menu</div>
       <a class="sb-item" href="index.html"><span class="sb-icon">📊</span><span class="sb-label">Tổng quan</span><span class="sb-badge" id="sbg-da">—</span></a>
@@ -35,6 +35,8 @@
           <button class="btn btn-p btn-sm" onclick="exportJSON()">⬇ Xuất JSON</button>
           <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
         </div>
+        <button class="btn btn-p btn-sm" id="btn-gh-sync" onclick="syncToGitHub()" style="display:none;background:var(--p-950);border-color:var(--p-950);gap:6px">☁ Đồng bộ GitHub</button>
+        <button class="btn btn-g btn-sm" id="btn-gh-cfg" onclick="openGHSetup()" style="display:none" title="Cấu hình GitHub">⚙</button>
         <button class="btn-login-off" id="btn-login-off" onclick="openLoginModal()">👤 Đăng nhập</button>
         <button class="btn-login-on"  id="btn-login-on"  onclick="logout()" style="display:none">✓ ductm88</button>
       </div>
@@ -70,10 +72,11 @@
               <th class="tr" style="width:50px">#</th>
               <th>Họ và Tên</th>
               <th class="tc">Trạng thái</th>
-              <th class="tr">Phí đóng</th>
+              <th class="tr">Phí đã đóng</th>
+              <th class="tr" style="color:var(--c-warning)">Nợ quỹ tháng</th>
               <th class="tc">Trận thua</th>
-              <th class="tr">Tổng phạt</th>
-              <th class="tr">Chưa nộp</th>
+              <th class="tr">Nợ phạt thua</th>
+              <th class="tr" style="color:var(--c-danger)">Tổng nợ</th>
               <th class="tc" style="width:96px">Thao tác</th>
             </tr></thead>
             <tbody id="tb-mem"></tbody>
@@ -165,13 +168,14 @@ function renderMembers() {
   }
 
   tb.innerHTML = filtered.map((m, idx) => {
-    const paid = memberPaidMonths(m.id);
-    const paidAmt = paid * FEE;
-    const loss = memberTotalLoss(m.id);
-    const lossAmt = loss * FINE;
-    const unpaid = memberUnpaid(m.id);
-    const unpaidAmt = unpaid * FINE;
-    const statusMap = { active:'ss-a', inactive:'ss-i', left:'ss-l' };
+    const paidMonths = memberPaidMonths(m.id, _year);
+    const paidAmt    = memberPaidMonthsAll(m.id, _year) * FEE;
+    const debtFee    = memberDebtFee(m.id, _year);
+    const loss       = memberTotalLoss(m.id);
+    const unpaid     = memberUnpaid(m.id);
+    const unpaidAmt  = unpaid * FINE;
+    const totalDebt  = memberTotalDebt(m.id, _year);
+    const statusMap  = { active:'ss-a', inactive:'ss-i', left:'ss-l' };
     const statusOpts = `<option value="active"${m.status==='active'?' selected':''}>Hoạt động</option><option value="inactive"${m.status==='inactive'?' selected':''}>Tạm nghỉ</option><option value="left"${m.status==='left'?' selected':''}>Đã nghỉ</option>`;
 
     return `<tr id="mem-row-${m.id}">
@@ -179,22 +183,25 @@ function renderMembers() {
       <td>
         <span id="mem-name-${m.id}">${esc(m.name)}</span>
         <input class="mem-name-inp" id="mem-inp-${m.id}" value="${esc(m.name)}" style="display:none"
-          onkeydown="if(event.key==='Enter')saveMemberInline(${m.id});if(event.key==='Escape')renderAll()">
+          onkeydown="if(event.key===\'Enter\')saveMemberInline(${m.id});if(event.key===\'Escape\')renderAll()">
       </td>
       <td class="tc">
         <select class="status-sel ${statusMap[m.status]||'ss-a'}" onchange="chgStatusInline(${m.id},this)">${statusOpts}</select>
       </td>
-      <td class="tr bold" style="color:${paid?'var(--p-700)':'var(--gray-300)'}">
-        ${paid ? fmt(paidAmt) : '—'}
+      <td class="tr bold" style="color:${paidAmt?'var(--p-700)':'var(--gray-300)'}">
+        ${paidAmt ? fmt(paidAmt) : '—'}
+      </td>
+      <td class="tr" style="color:${debtFee?'var(--c-warning)':'var(--p-700)'}">
+        ${debtFee ? `<span style="font-weight:700">${fmt(debtFee)}</span>` : '<span style="color:var(--p-700);font-size:12px">Đủ ✓</span>'}
       </td>
       <td class="tc" style="color:${loss?'var(--c-danger)':'var(--gray-400)'}">
         ${loss ? `<span class="chip chip-r" style="font-size:11px">${loss}</span>` : '<span style="color:var(--gray-300)">—</span>'}
       </td>
-      <td class="tr" style="color:${loss?'var(--c-danger)':'var(--gray-400)'}">
-        ${lossAmt ? fmt(lossAmt) : '—'}
-      </td>
-      <td class="tr" style="color:${unpaid?'var(--c-warning)':'var(--p-700)'}">
+      <td class="tr" style="color:${unpaidAmt?'var(--c-warning)':'var(--p-700)'}">
         ${unpaidAmt ? fmt(unpaidAmt) : '<span style="color:var(--p-700);font-size:12px">Đủ ✓</span>'}
+      </td>
+      <td class="tr bold" style="background:${totalDebt?'#fffbeb':'#f0fdf5'};color:${totalDebt?'var(--c-danger)':'var(--p-700)'}">
+        ${totalDebt ? `<span style="font-size:13px">${fmt(totalDebt)}</span>` : '<span style="font-size:12px">Không nợ ✓</span>'}
       </td>
       <td class="tc">
         <div style="display:flex;gap:4px;justify-content:center">

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Thu phạt đội thua — FC 2026</title>
+<title>Thu phạt đội thua — FC Sunday</title>
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
@@ -11,7 +11,7 @@
 <div class="sb-overlay" onclick="closeSidebar()"></div>
 <div class="layout">
   <aside class="sidebar">
-    <div class="sb-brand"><div class="sb-logo">⚽</div><div class="sb-brand-text"><div class="sb-brand-name">FC Dashboard</div><div class="sb-brand-sub">Quỹ Đội Bóng 2026</div></div></div>
+    <div class="sb-brand"><div class="sb-logo">⚽</div><div class="sb-brand-text"><div class="sb-brand-name">FC Sunday</div><div class="sb-brand-sub">Tổng hợp thu chi quỹ đội bóng</div></div></div>
     <nav class="sb-nav">
       <div class="sb-section-label">Menu</div>
       <a class="sb-item" href="index.html"><span class="sb-icon">📊</span><span class="sb-label">Tổng quan</span><span class="sb-badge" id="sbg-da">—</span></a>
@@ -36,11 +36,18 @@
           <button class="btn btn-p btn-sm" onclick="exportJSON()">⬇ Xuất JSON</button>
           <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
         </div>
+        <button class="btn btn-p btn-sm" id="btn-gh-sync" onclick="syncToGitHub()" style="display:none;background:var(--p-950);border-color:var(--p-950);gap:6px">☁ Đồng bộ GitHub</button>
+        <button class="btn btn-g btn-sm" id="btn-gh-cfg" onclick="openGHSetup()" style="display:none" title="Cấu hình GitHub">⚙</button>
         <button class="btn-login-off" id="btn-login-off" onclick="openLoginModal()">👤 Đăng nhập</button>
         <button class="btn-login-on"  id="btn-login-on"  onclick="logout()" style="display:none">✓ ductm88</button>
       </div>
     </div>
     <div class="page">
+      <!-- YEAR FILTER -->
+      <div class="filter-bar" style="margin-bottom:16px">
+        <span style="font-size:12px;font-weight:700;color:var(--gray-400);white-space:nowrap">Năm:</span>
+        <div class="filter-tabs" id="year-tabs-tp"></div>
+      </div>
       <!-- Charts -->
       <div class="charts-grid" style="margin-bottom:20px">
         <div class="chart-card">
@@ -141,10 +148,16 @@ let _loserState = {}; // memberId -> 0|1|2
 
 function renderAll() {
   updateSidebarBadges();
+  buildYearSelector('year-tabs-tp', 'onYearChangeTP');
   renderPhatAccordion();
   renderPhatSummary();
   renderCharts();
 }
+window.onYearChangeTP = function() {
+  renderPhatAccordion();
+  renderPhatSummary();
+  renderCharts();
+};
 
 function renderPhatAccordion() {
   const list = $el('acc-list');

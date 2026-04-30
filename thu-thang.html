@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Thu hàng tháng — FC 2026</title>
+<title>Thu hàng tháng — FC Sunday</title>
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
@@ -11,7 +11,7 @@
 <div class="sb-overlay" onclick="closeSidebar()"></div>
 <div class="layout">
   <aside class="sidebar">
-    <div class="sb-brand"><div class="sb-logo">⚽</div><div class="sb-brand-text"><div class="sb-brand-name">FC Dashboard</div><div class="sb-brand-sub">Quỹ Đội Bóng 2026</div></div></div>
+    <div class="sb-brand"><div class="sb-logo">⚽</div><div class="sb-brand-text"><div class="sb-brand-name">FC Sunday</div><div class="sb-brand-sub">Tổng hợp thu chi quỹ đội bóng</div></div></div>
     <nav class="sb-nav">
       <div class="sb-section-label">Menu</div>
       <a class="sb-item" href="index.html"><span class="sb-icon">📊</span><span class="sb-label">Tổng quan</span><span class="sb-badge" id="sbg-da">—</span></a>
@@ -37,16 +37,22 @@
           <button class="btn btn-p btn-sm" onclick="exportJSON()">⬇ Xuất JSON</button>
           <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
         </div>
+        <button class="btn btn-p btn-sm" id="btn-gh-sync" onclick="syncToGitHub()" style="display:none;background:var(--p-950);border-color:var(--p-950);gap:6px">☁ Đồng bộ GitHub</button>
+        <button class="btn btn-g btn-sm" id="btn-gh-cfg" onclick="openGHSetup()" style="display:none" title="Cấu hình GitHub">⚙</button>
         <button class="btn-login-off" id="btn-login-off" onclick="openLoginModal()">👤 Đăng nhập</button>
         <button class="btn-login-on"  id="btn-login-on"  onclick="logout()" style="display:none">✓ ductm88</button>
       </div>
     </div>
     <div class="page">
-      <!-- FILTER -->
+      <!-- YEAR + FILTER -->
+      <div class="filter-bar" style="margin-bottom:10px">
+        <span style="font-size:12px;font-weight:700;color:var(--gray-400);white-space:nowrap">Năm:</span>
+        <div class="filter-tabs" id="year-tabs-tt"></div>
+      </div>
       <div class="filter-bar">
         <div class="filter-tabs">
           <button class="fbtn active" onclick="setFilter('all',this)">Tất cả</button>
-          <button class="fbtn" onclick="setFilter('full',this)">Đủ 12 tháng</button>
+          <button class="fbtn" onclick="setFilter('full',this)">Đủ tháng</button>
           <button class="fbtn" onclick="setFilter('partial',this)">Còn nợ</button>
         </div>
         <input class="search-box" id="s-tt" placeholder="Tìm tên…" oninput="renderTT()">
@@ -93,7 +99,7 @@ let _ttFilter = 'all', _cRate, _cMP;
 
 function setFilter(v, btn) {
   _ttFilter = v;
-  document.querySelectorAll('.filter-bar .fbtn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.filter-bar .filter-tabs:nth-child(2) .fbtn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderTT();
 }
@@ -101,22 +107,25 @@ function setFilter(v, btn) {
 function renderAll() {
   updateSidebarBadges();
   $set('chip-members', N());
+  buildYearSelector('year-tabs-tt', 'onYearChangeTT');
   renderTT();
   renderCharts();
 }
+window.onYearChangeTT = function() { renderTT(); renderCharts(); };
 
 function renderTT() {
-  const am = activeMembers();
+  const am     = activeMembers();
   const search = ($el('s-tt')?.value||'').toLowerCase().trim();
+
   let filtered = am.filter(m => {
     if (search && !m.name.toLowerCase().includes(search)) return false;
-    const paid = memberPaidMonths(m.id);
-    if (_ttFilter==='full') return paid===12;
-    if (_ttFilter==='partial') return paid<12;
+    const paid = memberPaidMonthsAll(m.id, _year); // tính cả 12 tháng
+    if (_ttFilter==='full')    return paid === 12;
+    if (_ttFilter==='partial') return paid < 12;
     return true;
   });
 
-  // Build header
+  // Header — tất cả 12 tháng bình thường
   const thead = document.querySelector('#tbl-tt thead');
   if (thead) {
     let hdr = '<tr><th>Họ và Tên</th>';
@@ -125,19 +134,18 @@ function renderTT() {
     thead.innerHTML = hdr;
   }
 
-  // Build rows
   const tb = $el('tb-tt');
   if (!tb) return;
   let html = '';
   for (const m of filtered) {
-    const paid = memberPaidMonths(m.id);
+    const paid  = memberPaidMonthsAll(m.id, _year); // đủ 12 tháng
     const total = paid * FEE;
-    let chipCls = paid===12?'chip-g':paid>=6?'chip-w':'chip-r';
+    let chipCls    = paid===12?'chip-g':paid>=6?'chip-w':'chip-r';
     let totalColor = paid===12?'var(--p-700)':paid>=6?'var(--c-warning)':'var(--c-danger)';
-    html += `<tr>
-      <td><div class="nm-cell"><span class="nm-idx">#${m.id}</span>${esc(m.name)}</div></td>`;
+
+    html += `<tr><td><div class="nm-cell"><span class="nm-idx">#${m.id}</span>${esc(m.name)}</div></td>`;
     for (let i=0;i<12;i++) {
-      const v = getTT(m.id, i);
+      const v = getTT(m.id, i, _year);
       html += `<td class="tc clickable" title="Click để đổi" data-a="tt" data-mid="${m.id}" data-mi="${i}">
         <span class="ic ${v?'ic-p':'ic-n'}">${v?'✓':''}</span></td>`;
     }
@@ -149,53 +157,53 @@ function renderTT() {
   let footHtml = '<tr class="tbl-foot"><td class="bold">TỔNG ĐÓNG</td>';
   let footTotal = 0;
   for (let i=0;i<12;i++) {
-    const n = am.reduce((s,m)=>s+getTT(m.id,i),0);
+    const n = am.reduce((s,m)=>s+getTT(m.id,i,_year),0);
     footHtml += `<td class="tc bold">${n}/${am.length}</td>`;
     footTotal += n * FEE;
   }
   footHtml += `<td class="tc">—</td><td class="tr bold">${fmt(footTotal)}</td></tr>`;
   tb.innerHTML = html + footHtml;
-
   $set('tt-total-chip', fmt(footTotal));
 }
 
-// Click delegation for toggle
+// Click delegation
 document.addEventListener('click', e => {
   const cell = e.target.closest('[data-a="tt"]');
   if (!cell) return;
   if (!_requireAuth()) return;
   const mid = +cell.dataset.mid, mi = +cell.dataset.mi;
-  const cur = getTT(mid, mi);
-  setTT(mid, mi, cur ? 0 : 1);
+  const cur = getTT(mid, mi, _year);
+  setTT(mid, mi, cur ? 0 : 1, _year);
   saveS();
   renderAll();
 });
 
 function renderCharts() {
-  const am = activeMembers();
-  const labels = MONTHS;
-  const rateData = Array.from({length:12}, (_,i) => {
-    const n = am.length;
-    if (!n) return 0;
-    const paid = am.reduce((s,m)=>s+getTT(m.id,i),0);
-    return Math.round(paid/n*100);
+  const am  = activeMembers();
+  const rateData   = Array.from({length:12}, (_,i) => {
+    if (!am.length) return 0;
+    return Math.round(am.reduce((s,m)=>s+getTT(m.id,i,_year),0)/am.length*100);
   });
   const rateColors = rateData.map(v => v>=80?'#00a887':v>=50?'#d97706':'#dc2626');
 
   if (_cRate) _cRate.destroy();
   _cRate = new Chart($el('cRate'), {
     type:'bar',
-    data:{ labels, datasets:[{ data:rateData, backgroundColor:rateColors, borderRadius:4 }] },
-    options:{ ...chartDefaults(), plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.raw+'%'}} }, scales:{ x:{grid:{display:false},ticks:{font:{size:11,family:'Pretendard'}}}, y:{max:100,grid:{color:'rgba(17,24,39,.05)'},ticks:{font:{size:11,family:'Pretendard'},callback:v=>v+'%'}} } }
+    data:{ labels:MONTHS, datasets:[{ data:rateData, backgroundColor:rateColors, borderRadius:4 }] },
+    options:{ ...chartDefaults(), plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.raw+'%'}} },
+      scales:{ x:{grid:{display:false},ticks:{font:{size:11,family:'Pretendard'}}},
+               y:{max:100,grid:{color:'rgba(17,24,39,.05)'},ticks:{font:{size:11,family:'Pretendard'},callback:v=>v+'%'}} } }
   });
 
   const memLabels = am.map(m => m.name.split(' ').pop());
-  const memData   = am.map(m => memberPaidMonths(m.id));
+  const memData   = am.map(m => memberPaidMonths(m.id, _year));
   if (_cMP) _cMP.destroy();
   _cMP = new Chart($el('cMP'), {
     type:'bar',
     data:{ labels:memLabels, datasets:[{ data:memData, backgroundColor:'#0e9fe9', borderRadius:4 }] },
-    options:{ ...chartDefaults(), plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false},ticks:{font:{size:10,family:'Pretendard'},maxRotation:45}}, y:{max:12,grid:{color:'rgba(17,24,39,.05)'},ticks:{font:{size:11,family:'Pretendard'}}} } }
+    options:{ ...chartDefaults(), plugins:{legend:{display:false}},
+      scales:{ x:{grid:{display:false},ticks:{font:{size:10,family:'Pretendard'},maxRotation:45}},
+               y:{max:12,grid:{color:'rgba(17,24,39,.05)'},ticks:{font:{size:11,family:'Pretendard'},stepSize:1}} } }
   });
 }
 

@@ -5,11 +5,55 @@
 /* ─── CONSTANTS ─────────────────────────────── */
 const MONTHS = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
 const MONTH_NAMES = Array.from({length:12},(_,i)=>`Tháng ${i+1}`);
-const FEE = 200000;
+const FEE  = 200000;
 const FINE = 50000;
+const BASE_YEAR = 2026; // năm đầu tiên của hệ thống
 const CATS = ['Sân bóng','Thiết bị','Tiệc / Liên hoan','Y tế','Phần thưởng','Khác'];
 const CAT_COLORS = {'Sân bóng':'#00a887','Thiết bị':'#0e9fe9','Tiệc / Liên hoan':'#d97706','Y tế':'#dc2626','Phần thưởng':'#0d5447','Khác':'#6b7280'};
 const CAT_CHIPS  = {'Sân bóng':'chip-p','Thiết bị':'chip-i','Tiệc / Liên hoan':'chip-w','Y tế':'chip-r','Phần thưởng':'chip-g','Khác':'chip-n'};
+
+/* ─── YEAR FILTER (dùng chung toàn app) ──────── */
+let _year = new Date().getFullYear();
+
+/* Trả về danh sách năm có dữ liệu (union matches + thuThang + chiTieu) */
+function availableYears() {
+  const set = new Set([BASE_YEAR]);
+  (S.matches||[]).forEach(m => {
+    if (m.date) set.add(parseInt(m.date.split('-')[0]));
+  });
+  (S.chiTieu||[]).forEach(c => {
+    if (c.date) set.add(parseInt(c.date.split('-')[0]));
+  });
+  // thuThang dùng key theo năm nếu có, còn mặc định là BASE_YEAR
+  set.add(new Date().getFullYear());
+  return [...set].sort((a,b)=>a-b);
+}
+
+/* thuThang key: "mid_year" cho đa năm, fallback sang "mid" cho data cũ (year=BASE_YEAR) */
+function _ttKey(mid, year) { return year === BASE_YEAR ? String(mid) : `${mid}_${year}`; }
+function getTT(mid, mi, year) {
+  year = year || _year;
+  const key = _ttKey(mid, year);
+  // fallback: nếu năm là BASE_YEAR thì cũng thử key cũ không có _year
+  const arr = S.thuThang[key] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
+  return arr[mi] || 0;
+}
+function setTT(mid, mi, v, year) {
+  year = year || _year;
+  const key = _ttKey(mid, year);
+  if (!S.thuThang[key]) S.thuThang[key] = Array(12).fill(0);
+  S.thuThang[key][mi] = v;
+}
+
+/* Số tháng phải đóng tính đến hiện tại trong năm đang xem */
+function monthsRequired(year) {
+  year = year || _year;
+  const now = new Date();
+  if (year < now.getFullYear()) return 12; // năm qua → tính đủ 12
+  if (year > now.getFullYear()) return 0;  // năm tương lai → chưa đến
+  return now.getMonth(); // 0-based: tháng 1 → index 0, hiện tại T5 → required=4 (T1-T4)
+}
+
 const DEFAULT_MEMBERS = [
   'Trường Captain','Đức Trần','Bình Phương','Tặng','Chương Bao',
   'Hiếu Đồng Kỵ','Chiến','Chất','Minh','Quyền','Luân','Hội',
@@ -73,27 +117,107 @@ function $set(id, v) { const el = document.getElementById(id); if (el) el.textCo
 function $el(id) { return document.getElementById(id); }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-/* ─── DATA HELPERS ───────────────────────────── */
+/* ─── DATA HELPERS (year-aware) ──────────────── */
 function activeMembers()    { return S.members.filter(m => m.status === 'active'); }
 function N()                { return activeMembers().length; }
-function getTT(mid, mi)     { return (S.thuThang[mid] || [])[mi] || 0; }
-function setTT(mid, mi, v)  { if (!S.thuThang[mid]) S.thuThang[mid] = Array(12).fill(0); S.thuThang[mid][mi] = v; }
-function memberPaidMonths(mid) { return (S.thuThang[mid] || []).reduce((s,v)=>s+v,0); }
-function thuThangMonthTotal(mi) { return activeMembers().reduce((s,m)=>s+getTT(m.id,mi),0) * FEE; }
-function thuThangGrand()    { let t=0; for(let i=0;i<12;i++) t+=thuThangMonthTotal(i); return t; }
-function matchesInMonth(mi) { return S.matches.filter(m=>m.monthIdx===mi); }
-function thuPhatMonth(mi)   { return matchesInMonth(mi).reduce((s,m)=>s+(m.losers||[]).length*FINE,0); }
-function thuPhatGrand()     { let t=0; for(let i=0;i<12;i++) t+=thuPhatMonth(i); return t; }
-// thuThem: thu thêm từ khách mời mỗi trận (cộng vào quỹ)
-function thuThemMonth(mi)   { return matchesInMonth(mi).reduce((s,m)=>s+(m.thuThem||0),0); }
-function thuThemGrand()     { let t=0; for(let i=0;i<12;i++) t+=thuThemMonth(i); return t; }
-// chiTotal: cho phép âm (âm = tiền đầu kỳ / ủng hộ thêm, được cộng vào quỹ)
-function chiTotal()         { return S.chiTieu.reduce((s,c)=>s+c.amount,0); }
-function chiMonth(mi)       { return S.chiTieu.filter(c=>c.date&&parseInt(c.date.split('-')[1])-1===mi).reduce((s,c)=>s+c.amount,0); }
-function totalTon()         { return thuThangGrand()+thuPhatGrand()+thuThemGrand()-chiTotal(); }
-function tonLuyKe(i)        { let t=0; for(let j=0;j<=i;j++) t+=thuThangMonthTotal(j)+thuPhatMonth(j)+thuThemMonth(j)-chiMonth(j); return t; }
-function memberTotalLoss(mid) { return S.matches.reduce((s,m)=>s+(m.losers||[]).filter(l=>l.memberId===mid).length,0); }
-function memberUnpaid(mid)  { return S.matches.reduce((s,m)=>s+(m.losers||[]).filter(l=>l.memberId===mid&&!l.paid).length,0); }
+
+function memberPaidMonths(mid, year) {
+  year = year || _year;
+  const req = monthsRequired(year);
+  let count = 0;
+  for (let i = 0; i < req; i++) count += getTT(mid, i, year);
+  return count;
+}
+function memberPaidMonthsAll(mid, year) {
+  // tổng đã đóng kể cả tháng tương lai (dùng hiển thị cột đã đóng đầy đủ)
+  year = year || _year;
+  const key = _ttKey(mid, year);
+  const arr = S.thuThang[key] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
+  return arr.reduce((s,v)=>s+v,0);
+}
+
+function thuThangMonthTotal(mi, year) {
+  year = year || _year;
+  return activeMembers().reduce((s,m)=>s+getTT(m.id,mi,year),0) * FEE;
+}
+function thuThangGrand(year) {
+  year = year || _year;
+  let t=0; for(let i=0;i<12;i++) t+=thuThangMonthTotal(i,year); return t;
+}
+
+function matchesInMonth(mi, year) {
+  year = year || _year;
+  return (S.matches||[]).filter(m => {
+    if (m.monthIdx !== mi) return false;
+    const y = m.date ? parseInt(m.date.split('-')[0]) : BASE_YEAR;
+    return y === year;
+  });
+}
+function matchesInYear(year) {
+  year = year || _year;
+  return (S.matches||[]).filter(m => {
+    const y = m.date ? parseInt(m.date.split('-')[0]) : BASE_YEAR;
+    return y === year;
+  });
+}
+function thuPhatMonth(mi, year) {
+  return matchesInMonth(mi, year||_year).reduce((s,m)=>s+(m.losers||[]).length*FINE,0);
+}
+function thuPhatGrand(year) {
+  year = year || _year; let t=0;
+  for(let i=0;i<12;i++) t+=thuPhatMonth(i,year); return t;
+}
+function thuThemMonth(mi, year) {
+  return matchesInMonth(mi, year||_year).reduce((s,m)=>s+(m.thuThem||0),0);
+}
+function thuThemGrand(year) {
+  year = year || _year; let t=0;
+  for(let i=0;i<12;i++) t+=thuThemMonth(i,year); return t;
+}
+
+function chiTieuInYear(year) {
+  year = year || _year;
+  return (S.chiTieu||[]).filter(c => c.date && parseInt(c.date.split('-')[0]) === year);
+}
+function chiTotal(year) {
+  return chiTieuInYear(year||_year).reduce((s,c)=>s+c.amount,0);
+}
+function chiMonth(mi, year) {
+  year = year || _year;
+  return chiTieuInYear(year).filter(c=>parseInt(c.date.split('-')[1])-1===mi).reduce((s,c)=>s+c.amount,0);
+}
+function totalTon(year) {
+  year = year || _year;
+  return thuThangGrand(year)+thuPhatGrand(year)+thuThemGrand(year)-chiTotal(year);
+}
+function tonLuyKe(i, year) {
+  year = year || _year;
+  let t=0; for(let j=0;j<=i;j++) t+=thuThangMonthTotal(j,year)+thuPhatMonth(j,year)+thuThemMonth(j,year)-chiMonth(j,year);
+  return t;
+}
+
+/* ─── MEMBER TOTAL ACROSS ALL YEARS ─────────── */
+function memberTotalLoss(mid) {
+  return (S.matches||[]).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.memberId===mid).length,0);
+}
+function memberUnpaid(mid) {
+  return (S.matches||[]).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.memberId===mid&&!l.paid).length,0);
+}
+
+/* ─── MEMBER DEBT (nợ quỹ tháng tính đến hiện tại, năm hiện tại) ── */
+function memberDebtFee(mid, year) {
+  // Số tháng phải đóng đến hiện tại - số tháng đã đóng = số tháng còn nợ
+  year = year || _year;
+  const req  = monthsRequired(year);
+  const paid = memberPaidMonths(mid, year); // chỉ tính đến req tháng
+  return Math.max(0, req - paid) * FEE;
+}
+function memberDebtFine(mid) {
+  return memberUnpaid(mid) * FINE;
+}
+function memberTotalDebt(mid, year) {
+  return memberDebtFee(mid, year||_year) + memberDebtFine(mid);
+}
 
 /* ─── PERSISTENCE ────────────────────────────── */
 function saveS() {
@@ -136,12 +260,16 @@ function _requireAuth() {
   return false;
 }
 function updateAuthUI() {
-  const btnOff = $el('btn-login-off');
-  const btnOn  = $el('btn-login-on');
+  const btnOff  = $el('btn-login-off');
+  const btnOn   = $el('btn-login-on');
   const toolbar = $el('data-toolbar');
-  if (btnOff) btnOff.style.display = _auth ? 'none' : 'flex';
-  if (btnOn)  btnOn.style.display  = _auth ? 'flex' : 'none';
+  const btnSync = $el('btn-gh-sync');
+  const btnCfg  = $el('btn-gh-cfg');
+  if (btnOff)  btnOff.style.display  = _auth ? 'none' : 'flex';
+  if (btnOn)   btnOn.style.display   = _auth ? 'flex' : 'none';
   if (toolbar) toolbar.style.display = _auth ? 'flex' : 'none';
+  if (btnSync) btnSync.style.display = _auth ? 'inline-flex' : 'none';
+  if (btnCfg)  btnCfg.style.display  = _auth ? 'inline-flex' : 'none';
 }
 function updateDataBadge() {
   const bdg = $el('data-badge');
@@ -221,6 +349,126 @@ function handleImport(e) {
   reader.readAsText(file);
 }
 
+/* ─── GITHUB SYNC ────────────────────────────── */
+// Lưu PAT và repo info vào localStorage (chỉ trên máy admin)
+function getGHConfig() {
+  try { return JSON.parse(localStorage.getItem('fc_gh') || 'null'); } catch(e) { return null; }
+}
+function saveGHConfig(cfg) { localStorage.setItem('fc_gh', JSON.stringify(cfg)); }
+
+function openGHSetup() {
+  if (!_requireAuth()) return;
+  const cfg = getGHConfig() || {};
+  const html = `
+    <div style="font-size:13px;color:var(--gray-600);margin-bottom:16px;line-height:1.6">
+      Nhập thông tin GitHub để đồng bộ <code>data.json</code> trực tiếp từ trình duyệt.<br>
+      Token lưu trên máy này, không gửi đi nơi nào khác.
+    </div>
+    <div class="form-group">
+      <label class="form-label">GitHub Personal Access Token</label>
+      <input class="form-control" id="gh-token" type="password" value="${esc(cfg.token||'')}" placeholder="ghp_xxxx...">
+      <div style="font-size:11px;color:var(--gray-400);margin-top:4px">Settings → Developer settings → Personal access tokens → quyền <b>repo</b></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Owner (tên tài khoản)</label>
+        <input class="form-control" id="gh-owner" value="${esc(cfg.owner||'')}" placeholder="ductm88">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Repository name</label>
+        <input class="form-control" id="gh-repo" value="${esc(cfg.repo||'')}" placeholder="fc2026">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Branch</label>
+      <input class="form-control" id="gh-branch" value="${esc(cfg.branch||'main')}" placeholder="main">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-g" onclick="closeOv('ov-gh-setup')">Hủy</button>
+      <button class="btn btn-p" onclick="saveGHSetup()">Lưu cấu hình</button>
+    </div>`;
+  let ov = $el('ov-gh-setup');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.className = 'ov'; ov.id = 'ov-gh-setup';
+    ov.innerHTML = `<div class="modal"><div class="modal-header"><span class="modal-title">⚙ Cấu hình GitHub Sync</span><button class="modal-close" onclick="closeOv('ov-gh-setup')">×</button></div><div id="gh-setup-body"></div></div>`;
+    ov.addEventListener('click', e => { if (e.target===ov) closeOv('ov-gh-setup'); });
+    document.body.appendChild(ov);
+  }
+  $el('gh-setup-body').innerHTML = html;
+  openOv('ov-gh-setup');
+}
+function saveGHSetup() {
+  const token  = $el('gh-token')?.value?.trim();
+  const owner  = $el('gh-owner')?.value?.trim();
+  const repo   = $el('gh-repo')?.value?.trim();
+  const branch = $el('gh-branch')?.value?.trim() || 'main';
+  if (!token||!owner||!repo) { showToast('Vui lòng điền đầy đủ thông tin', 'red'); return; }
+  saveGHConfig({ token, owner, repo, branch });
+  closeOv('ov-gh-setup');
+  showToast('✓ Đã lưu cấu hình GitHub', 'green');
+}
+
+async function syncToGitHub() {
+  if (!_requireAuth()) return;
+  const cfg = getGHConfig();
+  if (!cfg?.token) { openGHSetup(); return; }
+
+  const btn = $el('btn-gh-sync');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Đang đồng bộ...'; }
+
+  try {
+    S._meta = { version:'1.0', lastUpdated: new Date().toISOString().split('T')[0], updatedBy:'ductm88' };
+    saveS();
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(S, null, 2))));
+    const apiUrl  = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/data.json`;
+
+    // Lấy SHA hiện tại (cần để update file)
+    const headers = { 'Authorization': `token ${cfg.token}`, 'Content-Type': 'application/json' };
+    let sha = '';
+    try {
+      const getRes = await fetch(`${apiUrl}?ref=${cfg.branch}`, { headers });
+      if (getRes.ok) { const j = await getRes.json(); sha = j.sha || ''; }
+    } catch(e) {}
+
+    const body = { message: `Update data.json — ${new Date().toLocaleString('vi')}`, content, branch: cfg.branch };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(apiUrl, { method:'PUT', headers, body: JSON.stringify(body) });
+    if (!putRes.ok) {
+      const err = await putRes.json();
+      throw new Error(err.message || putRes.status);
+    }
+    _dataSrc = 'remote'; updateDataBadge();
+    showToast('✅ Đã đồng bộ lên GitHub thành công!', 'green');
+  } catch(err) {
+    showToast('❌ Lỗi: ' + err.message, 'red');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '☁ Đồng bộ GitHub'; }
+  }
+}
+
+/* ─── YEAR SELECTOR UI ───────────────────────── */
+function buildYearSelector(containerId, onChangeCallback) {
+  const el = $el(containerId);
+  if (!el) return;
+  const years = availableYears();
+  el.innerHTML = years.map(y =>
+    `<button class="fbtn${y===_year?' active':''}" onclick="_setYear(${y},'${containerId}','${onChangeCallback}')">${y}</button>`
+  ).join('');
+}
+function _setYear(y, containerId, cb) {
+  _year = y;
+  // re-highlight active button
+  const el = $el(containerId);
+  if (el) el.querySelectorAll('.fbtn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.textContent)===y);
+  });
+  // update sidebar year box
+  document.querySelectorAll('.sb-year-val').forEach(e => e.textContent = _year);
+  if (window[cb]) window[cb]();
+}
+
 /* ─── TOAST ──────────────────────────────────── */
 let _toastTimer;
 function showToast(msg, type='default') {
@@ -259,9 +507,9 @@ function closeSidebar() {
 
 /* ─── SIDEBAR BADGES ─────────────────────────── */
 function updateSidebarBadges() {
-  const thuThangMonths = Array.from({length:12},(_,i)=>thuThangMonthTotal(i)>0?1:0).reduce((a,b)=>a+b,0);
+  const thuThangMonths = Array.from({length:12},(_,i)=>thuThangMonthTotal(i,_year)>0?1:0).reduce((a,b)=>a+b,0);
   $set('sbg-tt', thuThangMonths || 0);
-  $set('sbg-tp', S.matches.length);
+  $set('sbg-tp', matchesInYear(_year).length);
   $set('sbg-ct', S.chiTieu.length);
   $set('sbg-tv', N());
 }
