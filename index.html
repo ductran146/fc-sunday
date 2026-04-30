@@ -23,7 +23,7 @@
       <div class="sb-section-label">Menu</div>
       <a class="sb-item active" href="index.html"><span class="sb-icon">📊</span><span class="sb-label">Tổng quan</span><span class="sb-badge" id="sbg-da">—</span></a>
       <a class="sb-item" href="thu-thang.html"><span class="sb-icon">💰</span><span class="sb-label">Thu hàng tháng</span><span class="sb-badge" id="sbg-tt">—</span></a>
-      <a class="sb-item" href="thu-phat.html"><span class="sb-icon">🟥</span><span class="sb-label">Thu phạt đội thua</span><span class="sb-badge" id="sbg-tp">—</span></a>
+      <a class="sb-item" href="thu-phat.html"><span class="sb-icon">🍺</span><span class="sb-label">Quỹ bia đội thua</span><span class="sb-badge" id="sbg-tp">—</span></a>
       <a class="sb-item" href="chi-tieu.html"><span class="sb-icon">📋</span><span class="sb-label">Chi tiêu</span><span class="sb-badge" id="sbg-ct">—</span></a>
       <a class="sb-item" href="thanh-vien.html"><span class="sb-icon">👥</span><span class="sb-label">Thành viên</span><span class="sb-badge" id="sbg-tv">—</span></a>
     </nav>
@@ -41,7 +41,7 @@
       <span class="tb-title">Tổng quan</span>
       <div class="tb-chips">
         <span class="chip chip-meta"><span class="chip-dot" style="background:var(--p-600)"></span> <span id="chip-members">25</span> thành viên</span>
-        <span class="chip chip-meta">200k/tháng · 50k/thua</span>
+        <span class="chip chip-meta">200k/tháng · 50k bia/thua</span>
         <span class="chip" id="data-badge"></span>
       </div>
       <div class="tb-actions">
@@ -62,18 +62,18 @@
         <div class="hero-watermark">⚽</div>
         <div class="hero-eyebrow">Tồn quỹ hiện tại</div>
         <div class="hero-amount" id="kpi-ton">—</div>
-        <div class="hero-sub">Thu phí + Thu phạt − Chi tiêu · Năm 2026</div>
+        <div class="hero-sub">Thu phí + Quỹ bia − Chi tiêu · Năm 2026</div>
         <div class="hero-divider"></div>
         <div class="hero-stats">
           <div><div class="hero-stat-label">Thu phí tháng</div><div class="hero-stat-val" id="kpi-thu-phi">—</div></div>
-          <div><div class="hero-stat-label">Thu phạt đội thua</div><div class="hero-stat-val" id="kpi-thu-phat">—</div></div>
+          <div><div class="hero-stat-label">Quỹ bia đội thua</div><div class="hero-stat-val" id="kpi-thu-phat">—</div></div>
           <div><div class="hero-stat-label">Thu thêm (khách mời)</div><div class="hero-stat-val" id="kpi-thu-them">—</div></div>
           <div><div class="hero-stat-label">Tổng chi tiêu (−ủng hộ)</div><div class="hero-stat-val" id="kpi-chi">—</div></div>
         </div>
       </div>
       <!-- KPI -->
       <div class="kpi-grid" id="kpi-grid">
-        <div class="kpi-card"><div class="kpi-accent" style="background:var(--p-600)"></div><div class="kpi-label">Tổng thu</div><div class="kpi-value" id="kd-tongthu">—</div><div class="kpi-hint">Phí tháng + Phạt thua</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--p-600)"></div><div class="kpi-label">Tổng thu</div><div class="kpi-value" id="kd-tongthu">—</div><div class="kpi-hint">Phí tháng + Quỹ bia</div></div>
         <div class="kpi-card"><div class="kpi-accent" style="background:var(--c-danger)"></div><div class="kpi-label">Số trận đã đá</div><div class="kpi-value" id="kd-tran">—</div><div class="kpi-hint">Cả năm 2026</div></div>
         <div class="kpi-card"><div class="kpi-accent" style="background:var(--c-warning)"></div><div class="kpi-label">Tỷ lệ thu phí TB</div><div class="kpi-value" id="kd-rate">—</div><div class="kpi-hint">Các tháng có dữ liệu</div></div>
         <div class="kpi-card"><div class="kpi-accent" style="background:var(--p-600)"></div><div class="kpi-label">Phí tháng / kỳ</div><div class="kpi-value" id="kd-phi-ky">—</div><div class="kpi-hint" id="kd-phi-ky-hint">—</div></div>
@@ -102,7 +102,7 @@
             <thead><tr>
               <th>Tháng</th>
               <th class="tr">Thu phí</th>
-              <th class="tr">Thu phạt</th>
+              <th class="tr">Quỹ bia</th>
               <th class="tr">Tổng thu</th>
               <th class="tr">Chi tiêu</th>
               <th class="tr">Tồn lũy kế</th>
@@ -208,7 +208,7 @@ function renderCharts() {
     type: 'bar',
     data: { labels, datasets: [
       { label:'Thu phí', data:phiData, backgroundColor:'#00a887', borderRadius:3, stack:'s' },
-      { label:'Thu phạt', data:phatData, backgroundColor:'#dc2626', borderRadius:3, stack:'s' }
+      { label:'Quỹ bia', data:phatData, backgroundColor:'#dc2626', borderRadius:3, stack:'s' }
     ]},
     options: { ...opts, plugins: { ...opts.plugins, legend:{display:false} }, scales: { ...opts.scales, x:{stacked:true,...opts.scales.x}, y:{stacked:true,...opts.scales.y} } }
   });

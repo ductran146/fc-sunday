@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Thu phạt đội thua — FC Sunday</title>
+<title>Quỹ bia đội thua — FC Sunday</title>
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
@@ -16,7 +16,7 @@
       <div class="sb-section-label">Menu</div>
       <a class="sb-item" href="index.html"><span class="sb-icon">📊</span><span class="sb-label">Tổng quan</span><span class="sb-badge" id="sbg-da">—</span></a>
       <a class="sb-item" href="thu-thang.html"><span class="sb-icon">💰</span><span class="sb-label">Thu hàng tháng</span><span class="sb-badge" id="sbg-tt">—</span></a>
-      <a class="sb-item active" href="thu-phat.html"><span class="sb-icon">🟥</span><span class="sb-label">Thu phạt đội thua</span><span class="sb-badge" id="sbg-tp">—</span></a>
+      <a class="sb-item active" href="thu-phat.html"><span class="sb-icon">🍺</span><span class="sb-label">Quỹ bia đội thua</span><span class="sb-badge" id="sbg-tp">—</span></a>
       <a class="sb-item" href="chi-tieu.html"><span class="sb-icon">📋</span><span class="sb-label">Chi tiêu</span><span class="sb-badge" id="sbg-ct">—</span></a>
       <a class="sb-item" href="thanh-vien.html"><span class="sb-icon">👥</span><span class="sb-label">Thành viên</span><span class="sb-badge" id="sbg-tv">—</span></a>
     </nav>
@@ -25,9 +25,9 @@
   <div class="content">
     <div class="topbar">
       <button class="tb-menu-btn" onclick="toggleSidebar()">☰</button>
-      <span class="tb-title">Thu phạt đội thua</span>
+      <span class="tb-title">Quỹ bia đội thua</span>
       <div class="tb-chips">
-        <span class="chip chip-meta">50k/người thua</span>
+        <span class="chip chip-meta">🍺 50k/người thua</span>
         <span class="chip" id="data-badge"></span>
       </div>
       <div class="tb-actions">
@@ -51,7 +51,7 @@
       <!-- Charts -->
       <div class="charts-grid" style="margin-bottom:20px">
         <div class="chart-card">
-          <div class="chart-title">Tổng phạt từng tháng</div>
+          <div class="chart-title">Quỹ bia từng tháng</div>
           <div class="chart-wrap"><canvas id="cPM"></canvas></div>
         </div>
         <div class="chart-card">
@@ -63,10 +63,10 @@
       <div class="acc-list" id="acc-list"></div>
       <!-- Summary table -->
       <div class="tbl-outer">
-        <div class="tbl-title"><span class="tbl-title-text">Tổng hợp phạt theo tháng</span><span class="chip chip-r" id="tp-grand">—</span></div>
+        <div class="tbl-title"><span class="tbl-title-text">Tổng hợp quỹ bia theo tháng</span><span class="chip chip-r" id="tp-grand">—</span></div>
         <div class="tbl-scroll">
           <table>
-            <thead><tr><th>Tháng</th><th class="tc">Số trận</th><th class="tr">Tổng phạt</th><th class="tr">Thu thêm</th><th class="tr">TB/trận</th><th class="tr">Chưa nộp</th></tr></thead>
+            <thead><tr><th>Tháng</th><th class="tc">Số trận</th><th class="tr">Tổng quỹ bia</th><th class="tr">Thu thêm</th><th class="tr">TB/trận</th><th class="tr">Chưa nộp</th></tr></thead>
             <tbody id="tb-phat-sum"></tbody>
           </table>
         </div>
@@ -211,7 +211,7 @@ function renderMatchCards(matches, mi) {
         ${thuThem ? `<div style="font-size:12px;color:var(--p-700);font-weight:600;margin-bottom:4px">💰 Thu thêm: +${fmt(thuThem)}${m.ghiChuThem?' — '+esc(m.ghiChuThem):''}</div>` : ''}
         <div class="match-footer">
           <div class="match-total">
-            Phạt: ${fmt(phatTotal)}
+            Quỹ bia: ${fmt(phatTotal)}
             ${thuThem ? ` · Thu thêm: <span style="color:var(--p-700)">+${fmt(thuThem)}</span> · Tổng: <b>${fmt(grandTotal)}</b>` : ''}
             ${unpaid ? ` · Nợ: <span style="color:var(--c-warning)">${fmt(unpaid)}</span>` : ''}
           </div>
