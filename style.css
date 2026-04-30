@@ -362,6 +362,59 @@ body {
 .tbl-scroll::-webkit-scrollbar { height: 5px; }
 .tbl-scroll::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 3px; }
 
+/* ─── STICKY COLUMNS ─────────────────────────── */
+/* Dùng cho bảng có sticky: thêm class .tbl-sticky vào <table> */
+.tbl-sticky { border-collapse: separate; border-spacing: 0; }
+
+/* Cột # (sticky-1) */
+.tbl-sticky .sticky-1 {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #fff;
+  min-width: 36px;
+  max-width: 36px;
+  width: 36px;
+}
+/* Cột Họ tên (sticky-2) */
+.tbl-sticky .sticky-2 {
+  position: sticky;
+  left: 36px;
+  z-index: 2;
+  background: #fff;
+  min-width: 160px;
+  max-width: 160px;
+  width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Header sticky cells — màu gray-50 */
+.tbl-sticky thead .sticky-1,
+.tbl-sticky thead .sticky-2 {
+  background: var(--gray-50);
+  z-index: 3;
+}
+/* Footer sticky cells — màu p-50 */
+.tbl-sticky .tbl-foot .sticky-1,
+.tbl-sticky .tbl-foot .sticky-2 {
+  background: var(--p-50);
+}
+/* Shadow phải khi scroll — thêm vào cột cuối sticky */
+.tbl-sticky .sticky-2::after {
+  content: '';
+  position: absolute;
+  top: 0; right: -8px; bottom: 0;
+  width: 8px;
+  background: linear-gradient(to right, rgba(17,24,39,.06), transparent);
+  pointer-events: none;
+}
+/* Row hover: cả sticky cell cũng đổi màu */
+.tbl-sticky tbody tr:hover .sticky-1,
+.tbl-sticky tbody tr:hover .sticky-2 {
+  background: var(--gray-50);
+}
+
 table { width: 100%; border-collapse: collapse; }
 thead tr { background: var(--gray-50); }
 th {

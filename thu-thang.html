@@ -70,7 +70,7 @@
           <span class="tbl-title-text">Danh sách đóng quỹ</span>
           <span class="chip chip-p" id="tt-total-chip">0đ</span>
         </div>
-        <div class="tbl-scroll"><table id="tbl-tt"><thead></thead><tbody id="tb-tt"></tbody></table></div>
+        <div class="tbl-scroll"><table id="tbl-tt" class="tbl-sticky"><thead></thead><tbody id="tb-tt"></tbody></table></div>
       </div>
       <!-- CHARTS -->
       <div class="charts-grid">
@@ -140,16 +140,16 @@ function renderTT() {
   // Header
   const thead = document.querySelector('#tbl-tt thead');
   if (thead) {
-    let hdr = '<tr><th>Họ và Tên</th>';
-    for (let i=0;i<12;i++) hdr += `<th class="tc">${MONTHS[i]}</th>`;
-    hdr += '<th class="tc">Đã đóng</th><th class="tr">Tổng tiền</th></tr>';
+    let hdr = '<tr><th class="sticky-1 tr">#</th><th class="sticky-2">Họ và Tên</th>';
+    for (let i=0;i<12;i++) hdr += `<th class="tc" style="min-width:44px">${MONTHS[i]}</th>`;
+    hdr += '<th class="tc" style="min-width:80px">Đã đóng</th><th class="tr" style="min-width:100px">Tổng tiền</th></tr>';
     thead.innerHTML = hdr;
   }
 
   const tb = $el('tb-tt');
   if (!tb) return;
   let html = '';
-  for (const m of filtered) {
+  for (const [idx, m] of filtered.entries()) {
     const paid  = memberPaidCount(m.id, _year);
     const exempt= memberExemptCount(m.id, _year);
     const req   = memberRequiredMonths(m.id, _year); // 12 - exempt
@@ -157,7 +157,7 @@ function renderTT() {
     let chipCls    = paid>=req?'chip-g':paid>=Math.ceil(req/2)?'chip-w':'chip-r';
     let totalColor = paid>=req?'var(--p-700)':'var(--c-warning)';
 
-    html += `<tr><td><div class="nm-cell"><span class="nm-idx">#${m.id}</span>${esc(m.name)}</div></td>`;
+    html += `<tr><td class="sticky-1 tr" style="font-weight:700;color:var(--gray-400)">${idx+1}</td><td class="sticky-2">${esc(m.name)}</td>`;
     for (let i=0;i<12;i++) {
       const v = getTT(m.id, i, _year);
       html += `<td class="tc clickable" title="${_icTitle(v)}" data-a="tt" data-mid="${m.id}" data-mi="${i}">
@@ -170,7 +170,7 @@ function renderTT() {
   }
 
   // Footer: chỉ tính ô=1 (đã đóng)
-  let footHtml = '<tr class="tbl-foot"><td class="bold">TỔNG ĐÓNG</td>';
+  let footHtml = '<tr class="tbl-foot"><td class="sticky-1 bold tc">Σ</td><td class="sticky-2 bold">TỔNG ĐÓNG</td>';
   let footTotal = 0;
   for (let i=0;i<12;i++) {
     const nPaid   = am.reduce((s,m)=>s+(getTT(m.id,i,_year)===1?1:0),0);
