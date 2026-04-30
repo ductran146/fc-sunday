@@ -220,6 +220,20 @@
       0,
       0
     ],
+    "4": [
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
     "5": [
       1,
       2,
@@ -290,6 +304,20 @@
       0,
       0
     ],
+    "10": [
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
     "12": [
       1,
       2,
@@ -335,7 +363,7 @@
     "15": [
       1,
       2,
-      0,
+      1,
       0,
       0,
       0,
@@ -498,7 +526,7 @@
         },
         {
           "memberId": 20,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 24,
@@ -536,7 +564,7 @@
         },
         {
           "memberId": 19,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 23,
@@ -554,7 +582,7 @@
       "losers": [
         {
           "memberId": 4,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 6,
@@ -570,7 +598,7 @@
         },
         {
           "memberId": 20,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 24,
@@ -600,7 +628,7 @@
         },
         {
           "memberId": 9,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 18,
@@ -704,7 +732,7 @@
         },
         {
           "memberId": 19,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 24,
@@ -738,7 +766,7 @@
         },
         {
           "memberId": 15,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 18,
@@ -746,7 +774,7 @@
         },
         {
           "memberId": 19,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 21,
@@ -814,7 +842,7 @@
         },
         {
           "memberId": 10,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 13,
