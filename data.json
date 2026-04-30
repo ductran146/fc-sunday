@@ -514,7 +514,7 @@
         },
         {
           "memberId": 3,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 5,
@@ -552,7 +552,7 @@
         },
         {
           "memberId": 3,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 6,
@@ -624,7 +624,7 @@
         },
         {
           "memberId": 3,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 9,
@@ -708,7 +708,7 @@
         },
         {
           "memberId": 3,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 4,
@@ -754,7 +754,7 @@
       "losers": [
         {
           "memberId": 3,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 6,
