@@ -72,13 +72,15 @@ function memberRequiredMonths(mid, year) {
   return 12 - memberExemptCount(mid, year);
 }
 
-/* Số tháng phải đóng tính đến hiện tại trong năm đang xem */
+/* Số tháng phải đóng tính từ đầu tháng hiện tại (inclusive)
+   VD: hôm nay 30/4 → 4 (T1,T2,T3,T4)
+       ngày mai  1/5 → 5 (T1,T2,T3,T4,T5) */
 function monthsRequired(year) {
   year = year || _year;
   const now = new Date();
-  if (year < now.getFullYear()) return 12; // năm qua → tính đủ 12
+  if (year < now.getFullYear()) return 12; // năm qua → đủ 12
   if (year > now.getFullYear()) return 0;  // năm tương lai → chưa đến
-  return now.getMonth(); // 0-based: tháng 1 → index 0, hiện tại T5 → required=4 (T1-T4)
+  return now.getMonth() + 1; // getMonth() 0-based: tháng 4 → 3, +1 → 4
 }
 
 const DEFAULT_MEMBERS = [
@@ -226,11 +228,14 @@ function memberUnpaid(mid) {
 function memberDebtFee(mid, year) {
   year = year || _year;
   const mem = S.members.find(m => m.id === mid);
-  // Tạm nghỉ hoặc đã nghỉ → không nợ quỹ tháng
+  // Tạm nghỉ / đã nghỉ → không nợ quỹ tháng
   if (!mem || mem.status !== 'active') return 0;
-  const required = memberRequiredMonths(mid, year); // 12 - số miễn
-  const paid     = memberPaidCount(mid, year);
-  return Math.max(0, required - paid) * FEE;
+  // Số tháng bắt buộc = min(monthsRequired, 12) - số tháng miễn
+  const req    = monthsRequired(year);                  // tháng tính đến hiện tại (1→12)
+  const exempt = memberExemptCount(mid, year);           // số ô = 2
+  const must   = Math.max(0, Math.min(req, 12) - exempt); // bắt buộc thực tế
+  const paid   = memberPaidCount(mid, year);             // số ô = 1
+  return Math.max(0, must - paid) * FEE;
 }
 function memberDebtFine(mid) {
   return memberUnpaid(mid) * FINE;

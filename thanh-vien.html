@@ -171,7 +171,7 @@ function renderMembers() {
     const paidAmt    = memberPaidCount(m.id, _year) * FEE;
     const debtFee    = memberDebtFee(m.id, _year);
     const exempt     = memberExemptCount(m.id, _year);
-    const reqMonths  = memberRequiredMonths(m.id, _year); // 0 nếu tạm nghỉ
+    const reqMonths  = Math.max(0, Math.min(monthsRequired(_year), 12) - exempt); // bắt buộc thực tế
     const loss       = memberTotalLoss(m.id);
     const unpaid     = memberUnpaid(m.id);
     const unpaidAmt  = unpaid * FINE;
