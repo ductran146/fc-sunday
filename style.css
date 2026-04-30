@@ -827,8 +827,8 @@ tbody tr:hover .del-btn { opacity: 1; }
 }
 @media (max-width: 600px) {
   .page { padding: 14px 12px 24px; }
-  .topbar { padding: 0 12px; gap: 8px; }
-  .tb-title { font-size: 15px; }
+  .topbar { padding: 0 10px; gap: 6px; }
+  .tb-title { font-size: 15px; flex: 1; }
   .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
   .kpi-grid-4 { grid-template-columns: 1fr 1fr; gap: 10px; }
   .kpi-value { font-size: 18px; }
@@ -839,4 +839,57 @@ tbody tr:hover .del-btn { opacity: 1; }
   .tb-chips { display: none; }
   .loser-grid { grid-template-columns: repeat(3, 1fr); }
   .modal { padding: 16px; }
+
+  /* Ẩn toàn bộ admin toolbar và refresh trên mobile */
+  #data-toolbar { display: none !important; }
+  #btn-gh-sync  { display: none !important; }
+  #btn-gh-cfg   { display: none !important; }
+  #btn-refresh  { display: none !important; }
+
+  /* Menu "⋯" trên mobile — thay thế các button trên */
+  .tb-more-btn { display: flex !important; }
+
+  /* Login button thu gọn — chỉ hiện icon */
+  .btn-login-off { padding: 6px 10px; font-size: 12px; }
+  .btn-login-on  { padding: 6px 10px; font-size: 12px; }
 }
+
+/* More menu dropdown */
+.tb-more-btn {
+  display: none;
+  background: none; border: 1px solid var(--border);
+  border-radius: 8px; padding: 5px 10px;
+  font-size: 18px; cursor: pointer;
+  color: var(--gray-600);
+  line-height: 1;
+  position: relative;
+}
+.tb-more-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px); right: 0;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sharp);
+  min-width: 200px;
+  z-index: 500;
+  overflow: hidden;
+}
+.tb-more-menu.open { display: block; }
+.tb-more-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px;
+  font-size: 14px; font-weight: 600;
+  color: var(--gray-700);
+  cursor: pointer;
+  border: none; background: none;
+  width: 100%; text-align: left;
+  font-family: inherit;
+  transition: background .12s;
+}
+.tb-more-item:hover { background: var(--gray-50); }
+.tb-more-item + .tb-more-item { border-top: 1px solid var(--border); }
+.tb-more-item.hidden { display: none; }
+.tb-more-divider { height: 1px; background: var(--border); }
+.tb-more-wrap { position: relative; }

@@ -349,6 +349,32 @@ function updateAuthUI() {
   if (toolbar) toolbar.style.display = _auth ? 'flex' : 'none';
   if (btnSync) btnSync.style.display = _auth ? 'inline-flex' : 'none';
   if (btnCfg)  btnCfg.style.display  = _auth ? 'inline-flex' : 'none';
+  // Sync more menu admin items
+  ['mm-import','mm-export','mm-sync','mm-cfg'].forEach(id => {
+    const el = $el(id);
+    if (el) el.classList.toggle('hidden', !_auth);
+  });
+}
+
+/* ─── MORE MENU (mobile) ─────────────────────── */
+function toggleMoreMenu() {
+  const menu = $el('more-menu');
+  if (!menu) return;
+  menu.classList.toggle('open');
+  // Close when clicking outside
+  if (menu.classList.contains('open')) {
+    setTimeout(() => {
+      document.addEventListener('click', _closeMoreOutside, { once: true });
+    }, 0);
+  }
+}
+function _closeMoreOutside(e) {
+  const wrap = document.querySelector('.tb-more-wrap');
+  if (wrap && !wrap.contains(e.target)) closeMoreMenu();
+}
+function closeMoreMenu() {
+  const menu = $el('more-menu');
+  if (menu) menu.classList.remove('open');
 }
 function updateDataBadge() {
   const bdg = $el('data-badge');

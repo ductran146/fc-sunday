@@ -39,8 +39,19 @@
         <button class="btn btn-p btn-sm" id="btn-gh-sync" onclick="syncToGitHub()" style="display:none;background:var(--p-950);border-color:var(--p-950);gap:6px">☁ Đồng bộ GitHub</button>
         <button class="btn btn-g btn-sm" id="btn-gh-cfg" onclick="openGHSetup()" style="display:none" title="Cấu hình GitHub">⚙</button>
         <button class="btn btn-g btn-sm" id="btn-refresh" onclick="refreshData()" title="Tải lại dữ liệu mới nhất" style="padding:6px 10px">🔄</button>
+        <div class="tb-more-wrap">
+          <button class="tb-more-btn" id="btn-more" onclick="toggleMoreMenu()" title="Thêm">⋯</button>
+          <div class="tb-more-menu" id="more-menu">
+            <button class="tb-more-item" id="mm-refresh" onclick="refreshData();closeMoreMenu()">🔄 Tải lại dữ liệu</button>
+            <div class="tb-more-divider"></div>
+            <button class="tb-more-item hidden" id="mm-import" onclick="importJSON();closeMoreMenu()">⬆ Nhập JSON</button>
+            <button class="tb-more-item hidden" id="mm-export" onclick="exportJSON();closeMoreMenu()">⬇ Xuất JSON</button>
+            <button class="tb-more-item hidden" id="mm-sync" onclick="syncToGitHub();closeMoreMenu()">☁ Đồng bộ GitHub</button>
+            <button class="tb-more-item hidden" id="mm-cfg" onclick="openGHSetup();closeMoreMenu()">⚙ Cấu hình GitHub</button>
+          </div>
+        </div>
         <button class="btn-login-off" id="btn-login-off" onclick="openLoginModal()">👤 Đăng nhập</button>
-        <button class="btn-login-on"  id="btn-login-on"  onclick="logout()" style="display:none">✓ ductm88</button>
+        <button class="btn-login-on"  id="btn-login-on"  onclick="logout()" style="display:none">✓ Taola</button>
       </div>
     </div>
     <div class="page">
@@ -130,7 +141,7 @@
     <div class="login-icon">⚽</div><div class="login-title">Đăng nhập</div>
     <div class="login-sub">Nhập thông tin để chỉnh sửa dữ liệu</div>
     <div class="login-error" id="login-error">⚠ Sai tên đăng nhập hoặc mật khẩu</div>
-    <div class="form-group"><label class="form-label">Tên đăng nhập</label><input class="form-control" id="login-user" placeholder="ductm88"></div>
+    <div class="form-group"><label class="form-label">Mày là ai?</label><input class="form-control" id="login-user" placeholder="mày là ai?" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
     <div class="form-group"><label class="form-label">Mật khẩu</label><div class="pw-wrap"><input class="form-control" id="login-pass" type="password" placeholder="••••••••"><button class="pw-toggle" type="button">👁</button></div></div>
     <div class="remember-row"><input type="checkbox" id="login-remember"><label for="login-remember">Lưu trạng thái đăng nhập</label></div>
     <button class="btn btn-p btn-full" style="height:40px" onclick="submitLogin()">Đăng nhập</button>
