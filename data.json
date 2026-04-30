@@ -1,0 +1,40 @@
+{
+  "members": [
+    { "id": 1,  "name": "Trường Captain",    "phone": "", "status": "active", "note": "" },
+    { "id": 2,  "name": "Đức Trần",          "phone": "", "status": "active", "note": "" },
+    { "id": 3,  "name": "Bình Phương",       "phone": "", "status": "active", "note": "" },
+    { "id": 4,  "name": "Tặng",              "phone": "", "status": "active", "note": "" },
+    { "id": 5,  "name": "Chương Bao",        "phone": "", "status": "active", "note": "" },
+    { "id": 6,  "name": "Hiếu Đồng Kỵ",     "phone": "", "status": "active", "note": "" },
+    { "id": 7,  "name": "Chiến",             "phone": "", "status": "active", "note": "" },
+    { "id": 8,  "name": "Chất",              "phone": "", "status": "active", "note": "" },
+    { "id": 9,  "name": "Minh",              "phone": "", "status": "active", "note": "" },
+    { "id": 10, "name": "Quyền",             "phone": "", "status": "active", "note": "" },
+    { "id": 11, "name": "Luân",              "phone": "", "status": "active", "note": "" },
+    { "id": 12, "name": "Hội",               "phone": "", "status": "active", "note": "" },
+    { "id": 13, "name": "Trường Xề",         "phone": "", "status": "active", "note": "" },
+    { "id": 14, "name": "Luân",              "phone": "", "status": "active", "note": "" },
+    { "id": 15, "name": "Hướng 88",          "phone": "", "status": "active", "note": "" },
+    { "id": 16, "name": "Tấn",               "phone": "", "status": "active", "note": "" },
+    { "id": 17, "name": "Hướng - Bạn Phúc",  "phone": "", "status": "active", "note": "" },
+    { "id": 18, "name": "Lý",                "phone": "", "status": "active", "note": "" },
+    { "id": 19, "name": "Duy",               "phone": "", "status": "active", "note": "" },
+    { "id": 20, "name": "Cường Buồn",        "phone": "", "status": "active", "note": "" },
+    { "id": 21, "name": "Long VNPT",         "phone": "", "status": "active", "note": "" },
+    { "id": 22, "name": "Nam",               "phone": "", "status": "active", "note": "" },
+    { "id": 23, "name": "Thái",              "phone": "", "status": "active", "note": "" },
+    { "id": 24, "name": "Phúc",              "phone": "", "status": "active", "note": "" },
+    { "id": 25, "name": "Hoàng",             "phone": "", "status": "active", "note": "" }
+  ],
+  "nextMid": 26,
+  "thuThang": {},
+  "matches": [],
+  "nextMaid": 1,
+  "chiTieu": [],
+  "nextCid": 1,
+  "_meta": {
+    "version": "1.0",
+    "lastUpdated": "2026-01-01",
+    "updatedBy": "ductm88"
+  }
+}

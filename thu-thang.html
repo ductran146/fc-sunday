@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thu hàng tháng — FC 2026</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="sb-overlay" onclick="closeSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-brand"><div class="sb-logo">⚽</div><div class="sb-brand-text"><div class="sb-brand-name">FC Dashboard</div><div class="sb-brand-sub">Quỹ Đội Bóng 2026</div></div></div>
+    <nav class="sb-nav">
+      <div class="sb-section-label">Menu</div>
+      <a class="sb-item" href="index.html"><span class="sb-icon">📊</span><span class="sb-label">Tổng quan</span><span class="sb-badge" id="sbg-da">—</span></a>
+      <a class="sb-item active" href="thu-thang.html"><span class="sb-icon">💰</span><span class="sb-label">Thu hàng tháng</span><span class="sb-badge" id="sbg-tt">—</span></a>
+      <a class="sb-item" href="thu-phat.html"><span class="sb-icon">🟥</span><span class="sb-label">Thu phạt đội thua</span><span class="sb-badge" id="sbg-tp">—</span></a>
+      <a class="sb-item" href="chi-tieu.html"><span class="sb-icon">📋</span><span class="sb-label">Chi tiêu</span><span class="sb-badge" id="sbg-ct">—</span></a>
+      <a class="sb-item" href="thanh-vien.html"><span class="sb-icon">👥</span><span class="sb-label">Thành viên</span><span class="sb-badge" id="sbg-tv">—</span></a>
+    </nav>
+    <div class="sb-footer"><div class="sb-year-box"><span class="sb-year-label">Năm tài chính</span><span class="sb-year-val">2026</span></div></div>
+  </aside>
+  <div class="content">
+    <div class="topbar">
+      <button class="tb-menu-btn" onclick="toggleSidebar()">☰</button>
+      <span class="tb-title">Thu hàng tháng</span>
+      <div class="tb-chips">
+        <span class="chip chip-meta"><span class="chip-dot" style="background:var(--p-600)"></span> <span id="chip-members">25</span> thành viên</span>
+        <span class="chip chip-meta">200k/tháng</span>
+        <span class="chip" id="data-badge"></span>
+      </div>
+      <div class="tb-actions">
+        <div id="data-toolbar" style="display:none;gap:8px;align-items:center">
+          <button class="btn btn-po btn-sm" onclick="importJSON()">⬆ Nhập JSON</button>
+          <button class="btn btn-p btn-sm" onclick="exportJSON()">⬇ Xuất JSON</button>
+          <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+        </div>
+        <button class="btn-login-off" id="btn-login-off" onclick="openLoginModal()">👤 Đăng nhập</button>
+        <button class="btn-login-on"  id="btn-login-on"  onclick="logout()" style="display:none">✓ ductm88</button>
+      </div>
+    </div>
+    <div class="page">
+      <!-- FILTER -->
+      <div class="filter-bar">
+        <div class="filter-tabs">
+          <button class="fbtn active" onclick="setFilter('all',this)">Tất cả</button>
+          <button class="fbtn" onclick="setFilter('full',this)">Đủ 12 tháng</button>
+          <button class="fbtn" onclick="setFilter('partial',this)">Còn nợ</button>
+        </div>
+        <input class="search-box" id="s-tt" placeholder="Tìm tên…" oninput="renderTT()">
+      </div>
+      <!-- TABLE -->
+      <div class="tbl-outer" style="margin-bottom:20px">
+        <div class="tbl-title">
+          <span class="tbl-title-text">Danh sách đóng quỹ</span>
+          <span class="chip chip-p" id="tt-total-chip">0đ</span>
+        </div>
+        <div class="tbl-scroll"><table id="tbl-tt"><thead></thead><tbody id="tb-tt"></tbody></table></div>
+      </div>
+      <!-- CHARTS -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">Tỷ lệ thu phí từng tháng <span class="chip chip-n" style="font-size:11px">COUNTIF/N×100%</span></div>
+          <div class="chart-wrap"><canvas id="cRate"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Số tháng đóng / thành viên</div>
+          <div class="chart-wrap"><canvas id="cMP"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- LOGIN MODAL -->
+<div class="ov" id="ov-login">
+  <div class="modal login-modal" style="position:relative">
+    <button class="modal-close" style="position:absolute;top:16px;right:16px" onclick="closeLoginModal()">×</button>
+    <div class="login-icon">⚽</div><div class="login-title">Đăng nhập</div>
+    <div class="login-sub">Nhập thông tin để chỉnh sửa dữ liệu</div>
+    <div class="login-error" id="login-error">⚠ Sai tên đăng nhập hoặc mật khẩu</div>
+    <div class="form-group"><label class="form-label">Tên đăng nhập</label><input class="form-control" id="login-user" placeholder="ductm88"></div>
+    <div class="form-group"><label class="form-label">Mật khẩu</label><div class="pw-wrap"><input class="form-control" id="login-pass" type="password" placeholder="••••••••"><button class="pw-toggle" type="button">👁</button></div></div>
+    <div class="remember-row"><input type="checkbox" id="login-remember"><label for="login-remember">Lưu trạng thái đăng nhập</label></div>
+    <button class="btn btn-p btn-full" style="height:40px" onclick="submitLogin()">Đăng nhập</button>
+  </div>
+</div>
+<div id="toast"></div>
+<script src="app.js"></script>
+<script>
+let _ttFilter = 'all', _cRate, _cMP;
+
+function setFilter(v, btn) {
+  _ttFilter = v;
+  document.querySelectorAll('.filter-bar .fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTT();
+}
+
+function renderAll() {
+  updateSidebarBadges();
+  $set('chip-members', N());
+  renderTT();
+  renderCharts();
+}
+
+function renderTT() {
+  const am = activeMembers();
+  const search = ($el('s-tt')?.value||'').toLowerCase().trim();
+  let filtered = am.filter(m => {
+    if (search && !m.name.toLowerCase().includes(search)) return false;
+    const paid = memberPaidMonths(m.id);
+    if (_ttFilter==='full') return paid===12;
+    if (_ttFilter==='partial') return paid<12;
+    return true;
+  });
+
+  // Build header
+  const thead = document.querySelector('#tbl-tt thead');
+  if (thead) {
+    let hdr = '<tr><th>Họ và Tên</th>';
+    for (let i=0;i<12;i++) hdr += `<th class="tc">${MONTHS[i]}</th>`;
+    hdr += '<th class="tc">Đã đóng</th><th class="tr">Tổng tiền</th></tr>';
+    thead.innerHTML = hdr;
+  }
+
+  // Build rows
+  const tb = $el('tb-tt');
+  if (!tb) return;
+  let html = '';
+  for (const m of filtered) {
+    const paid = memberPaidMonths(m.id);
+    const total = paid * FEE;
+    let chipCls = paid===12?'chip-g':paid>=6?'chip-w':'chip-r';
+    let totalColor = paid===12?'var(--p-700)':paid>=6?'var(--c-warning)':'var(--c-danger)';
+    html += `<tr>
+      <td><div class="nm-cell"><span class="nm-idx">#${m.id}</span>${esc(m.name)}</div></td>`;
+    for (let i=0;i<12;i++) {
+      const v = getTT(m.id, i);
+      html += `<td class="tc clickable" title="Click để đổi" data-a="tt" data-mid="${m.id}" data-mi="${i}">
+        <span class="ic ${v?'ic-p':'ic-n'}">${v?'✓':''}</span></td>`;
+    }
+    html += `<td class="tc"><span class="chip ${chipCls}">${paid}/12</span></td>
+      <td class="tr bold" style="color:${totalColor}">${paid?fmt(total):'-'}</td></tr>`;
+  }
+
+  // Footer
+  let footHtml = '<tr class="tbl-foot"><td class="bold">TỔNG ĐÓNG</td>';
+  let footTotal = 0;
+  for (let i=0;i<12;i++) {
+    const n = am.reduce((s,m)=>s+getTT(m.id,i),0);
+    footHtml += `<td class="tc bold">${n}/${am.length}</td>`;
+    footTotal += n * FEE;
+  }
+  footHtml += `<td class="tc">—</td><td class="tr bold">${fmt(footTotal)}</td></tr>`;
+  tb.innerHTML = html + footHtml;
+
+  $set('tt-total-chip', fmt(footTotal));
+}
+
+// Click delegation for toggle
+document.addEventListener('click', e => {
+  const cell = e.target.closest('[data-a="tt"]');
+  if (!cell) return;
+  if (!_requireAuth()) return;
+  const mid = +cell.dataset.mid, mi = +cell.dataset.mi;
+  const cur = getTT(mid, mi);
+  setTT(mid, mi, cur ? 0 : 1);
+  saveS();
+  renderAll();
+});
+
+function renderCharts() {
+  const am = activeMembers();
+  const labels = MONTHS;
+  const rateData = Array.from({length:12}, (_,i) => {
+    const n = am.length;
+    if (!n) return 0;
+    const paid = am.reduce((s,m)=>s+getTT(m.id,i),0);
+    return Math.round(paid/n*100);
+  });
+  const rateColors = rateData.map(v => v>=80?'#00a887':v>=50?'#d97706':'#dc2626');
+
+  if (_cRate) _cRate.destroy();
+  _cRate = new Chart($el('cRate'), {
+    type:'bar',
+    data:{ labels, datasets:[{ data:rateData, backgroundColor:rateColors, borderRadius:4 }] },
+    options:{ ...chartDefaults(), plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.raw+'%'}} }, scales:{ x:{grid:{display:false},ticks:{font:{size:11,family:'Pretendard'}}}, y:{max:100,grid:{color:'rgba(17,24,39,.05)'},ticks:{font:{size:11,family:'Pretendard'},callback:v=>v+'%'}} } }
+  });
+
+  const memLabels = am.map(m => m.name.split(' ').pop());
+  const memData   = am.map(m => memberPaidMonths(m.id));
+  if (_cMP) _cMP.destroy();
+  _cMP = new Chart($el('cMP'), {
+    type:'bar',
+    data:{ labels:memLabels, datasets:[{ data:memData, backgroundColor:'#0e9fe9', borderRadius:4 }] },
+    options:{ ...chartDefaults(), plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false},ticks:{font:{size:10,family:'Pretendard'},maxRotation:45}}, y:{max:12,grid:{color:'rgba(17,24,39,.05)'},ticks:{font:{size:11,family:'Pretendard'}}} } }
+  });
+}
+
+wireLoginModal();
+initApp();
+</script>
+</body></html>

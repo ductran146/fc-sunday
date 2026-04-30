@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thu phạt đội thua — FC 2026</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="sb-overlay" onclick="closeSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-brand"><div class="sb-logo">⚽</div><div class="sb-brand-text"><div class="sb-brand-name">FC Dashboard</div><div class="sb-brand-sub">Quỹ Đội Bóng 2026</div></div></div>
+    <nav class="sb-nav">
+      <div class="sb-section-label">Menu</div>
+      <a class="sb-item" href="index.html"><span class="sb-icon">📊</span><span class="sb-label">Tổng quan</span><span class="sb-badge" id="sbg-da">—</span></a>
+      <a class="sb-item" href="thu-thang.html"><span class="sb-icon">💰</span><span class="sb-label">Thu hàng tháng</span><span class="sb-badge" id="sbg-tt">—</span></a>
+      <a class="sb-item active" href="thu-phat.html"><span class="sb-icon">🟥</span><span class="sb-label">Thu phạt đội thua</span><span class="sb-badge" id="sbg-tp">—</span></a>
+      <a class="sb-item" href="chi-tieu.html"><span class="sb-icon">📋</span><span class="sb-label">Chi tiêu</span><span class="sb-badge" id="sbg-ct">—</span></a>
+      <a class="sb-item" href="thanh-vien.html"><span class="sb-icon">👥</span><span class="sb-label">Thành viên</span><span class="sb-badge" id="sbg-tv">—</span></a>
+    </nav>
+    <div class="sb-footer"><div class="sb-year-box"><span class="sb-year-label">Năm tài chính</span><span class="sb-year-val">2026</span></div></div>
+  </aside>
+  <div class="content">
+    <div class="topbar">
+      <button class="tb-menu-btn" onclick="toggleSidebar()">☰</button>
+      <span class="tb-title">Thu phạt đội thua</span>
+      <div class="tb-chips">
+        <span class="chip chip-meta">50k/người thua</span>
+        <span class="chip" id="data-badge"></span>
+      </div>
+      <div class="tb-actions">
+        <div id="data-toolbar" style="display:none;gap:8px;align-items:center">
+          <button class="btn btn-po btn-sm" onclick="importJSON()">⬆ Nhập JSON</button>
+          <button class="btn btn-p btn-sm" onclick="exportJSON()">⬇ Xuất JSON</button>
+          <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+        </div>
+        <button class="btn-login-off" id="btn-login-off" onclick="openLoginModal()">👤 Đăng nhập</button>
+        <button class="btn-login-on"  id="btn-login-on"  onclick="logout()" style="display:none">✓ ductm88</button>
+      </div>
+    </div>
+    <div class="page">
+      <!-- Charts -->
+      <div class="charts-grid" style="margin-bottom:20px">
+        <div class="chart-card">
+          <div class="chart-title">Tổng phạt từng tháng</div>
+          <div class="chart-wrap"><canvas id="cPM"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Top thua nhiều nhất</div>
+          <div class="chart-wrap"><canvas id="cTL"></canvas></div>
+        </div>
+      </div>
+      <!-- Accordion -->
+      <div class="acc-list" id="acc-list"></div>
+      <!-- Summary table -->
+      <div class="tbl-outer">
+        <div class="tbl-title"><span class="tbl-title-text">Tổng hợp phạt theo tháng</span><span class="chip chip-r" id="tp-grand">—</span></div>
+        <div class="tbl-scroll">
+          <table>
+            <thead><tr><th>Tháng</th><th class="tc">Số trận</th><th class="tr">Tổng phạt</th><th class="tr">Thu thêm</th><th class="tr">TB/trận</th><th class="tr">Chưa nộp</th></tr></thead>
+            <tbody id="tb-phat-sum"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MATCH MODAL -->
+<div class="ov" id="ov-match">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="match-modal-title">Thêm trận đấu</span>
+      <button class="modal-close" onclick="closeOv('ov-match')">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Tháng</label>
+        <input class="form-control" id="m-month" readonly>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Ngày thi đấu *</label>
+        <input class="form-control" id="m-date" type="date" required>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Ghi chú trận</label>
+      <input class="form-control" id="m-note" placeholder="Sân Mỹ Đình, vv...">
+    </div>
+    <div style="background:var(--p-50);border:1px solid rgba(0,168,135,.15);border-radius:10px;padding:14px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:var(--p-700);margin-bottom:10px">💰 Thu thêm từ cầu thủ khách mời</div>
+      <div class="form-row" style="margin-bottom:0">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Số tiền thu thêm (đ)</label>
+          <input class="form-control" id="m-thuthem" type="number" min="0" step="50000" placeholder="0">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Ghi chú thu thêm</label>
+          <input class="form-control" id="m-ghichuthem" placeholder="VD: 2 khách mời × 50k">
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Chọn đội thua (Click: chưa nộp → đã nộp → bỏ)</label>
+      <div class="loser-hint">
+        <span style="color:#b91c1c">● Chưa nộp</span>
+        <span style="color:#16a34a">● Đã nộp</span>
+        <span>· Click để đổi trạng thái</span>
+      </div>
+      <div class="loser-grid" id="loser-grid"></div>
+      <div id="loser-tags" style="display:flex;flex-wrap:wrap;gap:6px;min-height:24px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-g" onclick="closeOv('ov-match')">Hủy</button>
+      <button class="btn btn-p" onclick="saveMatch()">Lưu trận</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="ov" id="ov-login">
+  <div class="modal login-modal" style="position:relative">
+    <button class="modal-close" style="position:absolute;top:16px;right:16px" onclick="closeLoginModal()">×</button>
+    <div class="login-icon">⚽</div><div class="login-title">Đăng nhập</div>
+    <div class="login-sub">Nhập thông tin để chỉnh sửa dữ liệu</div>
+    <div class="login-error" id="login-error">⚠ Sai tên đăng nhập hoặc mật khẩu</div>
+    <div class="form-group"><label class="form-label">Tên đăng nhập</label><input class="form-control" id="login-user" placeholder="ductm88"></div>
+    <div class="form-group"><label class="form-label">Mật khẩu</label><div class="pw-wrap"><input class="form-control" id="login-pass" type="password" placeholder="••••••••"><button class="pw-toggle" type="button">👁</button></div></div>
+    <div class="remember-row"><input type="checkbox" id="login-remember"><label for="login-remember">Lưu trạng thái đăng nhập</label></div>
+    <button class="btn btn-p btn-full" style="height:40px" onclick="submitLogin()">Đăng nhập</button>
+  </div>
+</div>
+<div id="toast"></div>
+<script src="app.js"></script>
+<script>
+let _cPM, _cTL;
+let _editMatchId = null, _editMatchMi = null;
+let _loserState = {}; // memberId -> 0|1|2
+
+function renderAll() {
+  updateSidebarBadges();
+  renderPhatAccordion();
+  renderPhatSummary();
+  renderCharts();
+}
+
+function renderPhatAccordion() {
+  const list = $el('acc-list');
+  if (!list) return;
+  let html = '';
+  for (let i = 0; i < 12; i++) {
+    const matches = matchesInMonth(i);
+    const phatTotal = thuPhatMonth(i);
+    const thuThemTotal = thuThemMonth(i);
+    const unpaid = matches.reduce((s,m)=>s+(m.losers||[]).filter(l=>!l.paid).length*FINE,0);
+    const isOpen = i === 0;
+    html += `<div class="acc-item${isOpen?' open':''}" id="acc-${i}">
+      <div class="acc-header" onclick="toggleAcc(${i})">
+        <span class="acc-title">Tháng ${i+1}</span>
+        <div class="acc-meta">
+          ${matches.length?`<span class="chip chip-n" style="font-size:11px">${matches.length} trận</span>`:''}
+          ${phatTotal?`<span class="chip chip-r" style="font-size:11px">${fmt(phatTotal)}</span>`:''}
+          ${thuThemTotal?`<span class="chip chip-p" style="font-size:11px">+${fmt(thuThemTotal)}</span>`:''}
+          ${unpaid?`<span class="chip chip-w" style="font-size:11px">Nợ: ${fmt(unpaid)}</span>`:''}
+        </div>
+        ${_auth?`<button class="btn btn-po btn-sm" onclick="event.stopPropagation();openMatchModal(${i})" style="margin-left:8px">+ Thêm trận</button>`:''}
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        ${matches.length ? renderMatchCards(matches, i) : `<div class="acc-empty">Chưa có trận nào trong Tháng ${i+1}</div>`}
+        <div class="acc-add-row">${_auth?`<button class="btn btn-po btn-sm" onclick="openMatchModal(${i})">+ Thêm trận Tháng ${i+1}</button>`:''}</div>
+      </div>
+    </div>`;
+  }
+  list.innerHTML = html;
+}
+
+function renderMatchCards(matches, mi) {
+  return matches.map(m => {
+    const losers = m.losers || [];
+    const loserTags = losers.map(l => {
+      const mem = S.members.find(x=>x.id===l.memberId);
+      const name = mem ? mem.name.split(' ').pop() : '?';
+      return `<span class="lt ${l.paid?'lt-p':'lt-u'}" onclick="_auth&&toggleLoserPaid(${m.id},${l.memberId})" title="${l.paid?'Đã nộp':'Chưa nộp'}">${name} ${l.paid?'✅':'🔴'}</span>`;
+    }).join('');
+    const phatTotal  = losers.length * FINE;
+    const unpaid     = losers.filter(l=>!l.paid).length * FINE;
+    const thuThem    = m.thuThem || 0;
+    const grandTotal = phatTotal + thuThem;
+    return `<div class="match-card">
+      <div class="match-id">#${m.id}</div>
+      <div class="match-info">
+        <div class="match-date">${fmtDate(m.date)}</div>
+        ${m.note?`<div class="match-note">${esc(m.note)}</div>`:''}
+        <div class="match-losers">${loserTags || '<span style="color:var(--gray-400);font-size:12px">Không có người thua</span>'}</div>
+        ${thuThem ? `<div style="font-size:12px;color:var(--p-700);font-weight:600;margin-bottom:4px">💰 Thu thêm: +${fmt(thuThem)}${m.ghiChuThem?' — '+esc(m.ghiChuThem):''}</div>` : ''}
+        <div class="match-footer">
+          <div class="match-total">
+            Phạt: ${fmt(phatTotal)}
+            ${thuThem ? ` · Thu thêm: <span style="color:var(--p-700)">+${fmt(thuThem)}</span> · Tổng: <b>${fmt(grandTotal)}</b>` : ''}
+            ${unpaid ? ` · Nợ: <span style="color:var(--c-warning)">${fmt(unpaid)}</span>` : ''}
+          </div>
+          ${_auth?`<div class="match-actions">
+            <button class="btn btn-g btn-ic btn-sm" onclick="openEditMatch(${m.id})" title="Sửa">✏</button>
+            <button class="btn btn-d btn-ic btn-sm" onclick="delMatch(${m.id})" title="Xóa">🗑</button>
+          </div>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleAcc(i) {
+  const item = $el('acc-'+i);
+  if (item) item.classList.toggle('open');
+}
+
+function toggleLoserPaid(matchId, memberId) {
+  if (!_requireAuth()) return;
+  const match = S.matches.find(m=>m.id===matchId);
+  if (!match) return;
+  const loser = match.losers.find(l=>l.memberId===memberId);
+  if (loser) { loser.paid = !loser.paid; saveS(); renderAll(); }
+}
+
+function openMatchModal(mi) {
+  if (!_requireAuth()) return;
+  _editMatchId = null;
+  _editMatchMi = mi;
+  $set('match-modal-title', `Thêm trận Tháng ${mi+1}`);
+  $el('m-month').value = `Tháng ${mi+1}`;
+  $el('m-date').value = new Date().toISOString().split('T')[0];
+  $el('m-note').value = '';
+  $el('m-thuthem').value = '';
+  $el('m-ghichuthem').value = '';
+  _loserState = {};
+  renderLoserGrid();
+  openOv('ov-match');
+}
+
+function openEditMatch(id) {
+  if (!_requireAuth()) return;
+  const match = S.matches.find(m=>m.id===id);
+  if (!match) return;
+  _editMatchId = id;
+  _editMatchMi = match.monthIdx;
+  $set('match-modal-title', `Sửa trận Tháng ${match.monthIdx+1}`);
+  $el('m-month').value = `Tháng ${match.monthIdx+1}`;
+  $el('m-date').value = match.date;
+  $el('m-note').value = match.note || '';
+  $el('m-thuthem').value = match.thuThem || '';
+  $el('m-ghichuthem').value = match.ghiChuThem || '';
+  _loserState = {};
+  (match.losers||[]).forEach(l=>{ _loserState[l.memberId] = l.paid ? 2 : 1; });
+  renderLoserGrid();
+  openOv('ov-match');
+}
+
+function renderLoserGrid() {
+  const am = activeMembers();
+  const grid = $el('loser-grid');
+  if (!grid) return;
+  grid.innerHTML = am.map(m => {
+    const s = _loserState[m.id] || 0;
+    const cls = s===1?'s1':s===2?'s2':'';
+    const icon = s===1?'✕':s===2?'✓':'';
+    return `<div class="loser-item ${cls}" onclick="cycleLoser(${m.id})">${icon} ${esc(m.name.split(' ').pop())}</div>`;
+  }).join('');
+  renderLoserTags();
+}
+
+function cycleLoser(mid) {
+  _loserState[mid] = ((_loserState[mid]||0) + 1) % 3;
+  renderLoserGrid();
+}
+
+function renderLoserTags() {
+  const tags = $el('loser-tags');
+  if (!tags) return;
+  const selected = Object.entries(_loserState).filter(([,s])=>s>0);
+  tags.innerHTML = selected.map(([mid,s]) => {
+    const m = S.members.find(x=>x.id===+mid);
+    if (!m) return '';
+    const name = m.name.split(' ').pop();
+    return `<span class="lt ${s===2?'lt-p':'lt-u'}" onclick="cycleLoser(${mid})">${name}</span>`;
+  }).join('');
+}
+
+function saveMatch() {
+  if (!_requireAuth()) return;
+  const date = $el('m-date')?.value;
+  if (!date) { showToast('Vui lòng chọn ngày thi đấu', 'red'); return; }
+  const note       = $el('m-note')?.value?.trim() || '';
+  const thuThem    = parseInt($el('m-thuthem')?.value) || 0;
+  const ghiChuThem = $el('m-ghichuthem')?.value?.trim() || '';
+  const losers = Object.entries(_loserState)
+    .filter(([,s])=>s>0)
+    .map(([mid,s])=>({ memberId:+mid, paid: s===2 }));
+
+  if (_editMatchId) {
+    const match = S.matches.find(m=>m.id===_editMatchId);
+    if (match) { match.date=date; match.note=note; match.losers=losers; match.thuThem=thuThem; match.ghiChuThem=ghiChuThem; }
+  } else {
+    S.matches.push({ id:S.nextMaid++, monthIdx:_editMatchMi, date, note, losers, thuThem, ghiChuThem });
+  }
+  saveS();
+  closeOv('ov-match');
+  showToast(_editMatchId?'✓ Đã cập nhật trận đấu':'✓ Đã thêm trận đấu', 'green');
+  renderAll();
+}
+
+function delMatch(id) {
+  if (!_requireAuth()) return;
+  if (!confirm('Xóa trận đấu này?')) return;
+  S.matches = S.matches.filter(m=>m.id!==id);
+  saveS();
+  showToast('Đã xóa trận đấu', 'default');
+  renderAll();
+}
+
+function renderPhatSummary() {
+  const tb = $el('tb-phat-sum');
+  if (!tb) return;
+  let rows = '', grandPhat = 0, grandTran = 0, grandUnpaid = 0, grandThuThem = 0;
+  for (let i=0;i<12;i++) {
+    const matches   = matchesInMonth(i);
+    const phat      = thuPhatMonth(i);
+    const thuThem   = thuThemMonth(i);
+    const unpaid    = matches.reduce((s,m)=>s+(m.losers||[]).filter(l=>!l.paid).length*FINE,0);
+    const avg       = matches.length ? phat/matches.length : 0;
+    grandPhat += phat; grandTran += matches.length; grandUnpaid += unpaid; grandThuThem += thuThem;
+    rows += `<tr>
+      <td class="bold">Tháng ${i+1}</td>
+      <td class="tc">${matches.length?`<span class="chip chip-n">${matches.length}</span>`:'<span style="color:var(--gray-300)">—</span>'}</td>
+      <td class="tr" style="color:var(--c-danger)">${phat?fmt(phat):'<span style="color:var(--gray-300)">—</span>'}</td>
+      <td class="tr" style="color:var(--p-700)">${thuThem?'+'+fmt(thuThem):'<span style="color:var(--gray-300)">—</span>'}</td>
+      <td class="tr">${avg?fmt(avg):'<span style="color:var(--gray-300)">—</span>'}</td>
+      <td class="tr" style="color:${unpaid?'var(--c-warning)':'var(--p-700)'}">${unpaid?fmt(unpaid):'<span style="color:var(--p-700)">Đủ ✓</span>'}</td>
+    </tr>`;
+  }
+  rows += `<tr class="tbl-foot">
+    <td class="bold">TỔNG CỘNG</td>
+    <td class="tc bold">${grandTran} trận</td>
+    <td class="tr bold">${fmt(grandPhat)}</td>
+    <td class="tr bold" style="color:var(--p-700)">+${fmt(grandThuThem)}</td>
+    <td class="tr">${grandTran?fmt(grandPhat/grandTran):'—'}</td>
+    <td class="tr bold" style="color:var(--c-warning)">${grandUnpaid?fmt(grandUnpaid):'Đủ ✓'}</td>
+  </tr>`;
+  tb.innerHTML = rows;
+  $set('tp-grand', fmt(grandPhat + grandThuThem));
+}
+
+function renderCharts() {
+  const phatData = Array.from({length:12},(_,i)=>thuPhatMonth(i));
+  const opts = chartDefaults();
+
+  if (_cPM) _cPM.destroy();
+  _cPM = new Chart($el('cPM'), {
+    type:'bar',
+    data:{ labels:MONTHS, datasets:[{data:phatData,backgroundColor:'#dc2626',borderRadius:4}] },
+    options:opts
+  });
+
+  // Top 10 losers
+  const am = activeMembers();
+  const lossData = am.map(m=>({name:m.name.split(' ').pop(),count:memberTotalLoss(m.id)}))
+    .filter(x=>x.count>0).sort((a,b)=>b.count-a.count).slice(0,10);
+
+  if (_cTL) _cTL.destroy();
+  if (lossData.length) {
+    _cTL = new Chart($el('cTL'), {
+      type:'bar',
+      data:{ labels:lossData.map(x=>x.name), datasets:[{data:lossData.map(x=>x.count),backgroundColor:'#d97706',borderRadius:4}] },
+      options:{ ...opts, plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+' trận'}}}, scales:{x:{grid:{display:false},ticks:{font:{size:10,family:'Pretendard'}}},y:{grid:{color:'rgba(17,24,39,.05)'},ticks:{font:{size:11,family:'Pretendard'},stepSize:1}}} }
+    });
+  }
+}
+
+wireLoginModal();
+initApp();
+</script>
+</body></html>

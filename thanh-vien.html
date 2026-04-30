@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thành viên — FC 2026</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="sb-overlay" onclick="closeSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-brand"><div class="sb-logo">⚽</div><div class="sb-brand-text"><div class="sb-brand-name">FC Dashboard</div><div class="sb-brand-sub">Quỹ Đội Bóng 2026</div></div></div>
+    <nav class="sb-nav">
+      <div class="sb-section-label">Menu</div>
+      <a class="sb-item" href="index.html"><span class="sb-icon">📊</span><span class="sb-label">Tổng quan</span><span class="sb-badge" id="sbg-da">—</span></a>
+      <a class="sb-item" href="thu-thang.html"><span class="sb-icon">💰</span><span class="sb-label">Thu hàng tháng</span><span class="sb-badge" id="sbg-tt">—</span></a>
+      <a class="sb-item" href="thu-phat.html"><span class="sb-icon">🟥</span><span class="sb-label">Thu phạt đội thua</span><span class="sb-badge" id="sbg-tp">—</span></a>
+      <a class="sb-item" href="chi-tieu.html"><span class="sb-icon">📋</span><span class="sb-label">Chi tiêu</span><span class="sb-badge" id="sbg-ct">—</span></a>
+      <a class="sb-item active" href="thanh-vien.html"><span class="sb-icon">👥</span><span class="sb-label">Thành viên</span><span class="sb-badge" id="sbg-tv">—</span></a>
+    </nav>
+    <div class="sb-footer"><div class="sb-year-box"><span class="sb-year-label">Năm tài chính</span><span class="sb-year-val">2026</span></div></div>
+  </aside>
+  <div class="content">
+    <div class="topbar">
+      <button class="tb-menu-btn" onclick="toggleSidebar()">☰</button>
+      <span class="tb-title">Thành viên</span>
+      <div class="tb-chips">
+        <span class="chip chip-meta"><span id="chip-members">25</span> thành viên</span>
+        <span class="chip" id="data-badge"></span>
+      </div>
+      <div class="tb-actions">
+        <div id="data-toolbar" style="display:none;gap:8px;align-items:center">
+          <button class="btn btn-po btn-sm" onclick="importJSON()">⬆ Nhập JSON</button>
+          <button class="btn btn-p btn-sm" onclick="exportJSON()">⬇ Xuất JSON</button>
+          <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+        </div>
+        <button class="btn-login-off" id="btn-login-off" onclick="openLoginModal()">👤 Đăng nhập</button>
+        <button class="btn-login-on"  id="btn-login-on"  onclick="logout()" style="display:none">✓ ductm88</button>
+      </div>
+    </div>
+    <div class="page">
+      <!-- KPI 4 cols -->
+      <div class="kpi-grid-4">
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--p-600)"></div><div class="kpi-label">Đang hoạt động</div><div class="kpi-value" id="ms-a">—</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--c-warning)"></div><div class="kpi-label">Tạm nghỉ</div><div class="kpi-value" id="ms-i">—</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--gray-300)"></div><div class="kpi-label">Đã nghỉ</div><div class="kpi-value" id="ms-l">—</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--c-info)"></div><div class="kpi-label">Tổng thành viên</div><div class="kpi-value" id="ms-t">—</div></div>
+      </div>
+      <!-- Filter + Add -->
+      <div class="filter-bar">
+        <div class="filter-tabs">
+          <button class="fbtn active" onclick="setMF('all',this)">Tất cả</button>
+          <button class="fbtn" onclick="setMF('active',this)">Hoạt động</button>
+          <button class="fbtn" onclick="setMF('inactive',this)">Tạm nghỉ</button>
+          <button class="fbtn" onclick="setMF('left',this)">Đã nghỉ</button>
+        </div>
+        <input class="search-box" id="s-mem" placeholder="Tìm thành viên…" oninput="renderMembers()">
+        <button class="btn btn-p" onclick="openMemModal()" style="border-radius:12px;padding:10px 18px;height:40px">+ Thêm</button>
+      </div>
+      <!-- Table -->
+      <div class="tbl-outer">
+        <div class="tbl-title">
+          <span class="tbl-title-text">Danh sách thành viên</span>
+          <span class="chip chip-p" id="mem-count-chip">25 người</span>
+        </div>
+        <div class="tbl-scroll">
+          <table>
+            <thead><tr>
+              <th class="tr" style="width:50px">#</th>
+              <th>Họ và Tên</th>
+              <th class="tc">Trạng thái</th>
+              <th class="tr">Phí đóng</th>
+              <th class="tc">Trận thua</th>
+              <th class="tr">Tổng phạt</th>
+              <th class="tr">Chưa nộp</th>
+              <th class="tc" style="width:96px">Thao tác</th>
+            </tr></thead>
+            <tbody id="tb-mem"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MEMBER MODAL -->
+<div class="ov" id="ov-mem">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="mem-modal-title">Thêm thành viên</span>
+      <button class="modal-close" onclick="closeOv('ov-mem')">×</button>
+    </div>
+    <input type="hidden" id="m-eid">
+    <div class="form-group">
+      <label class="form-label">Họ và tên *</label>
+      <input class="form-control" id="m-name" placeholder="Nguyễn Văn A">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Số điện thoại</label>
+      <input class="form-control" id="m-phone" placeholder="09xx…">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Ghi chú</label>
+      <input class="form-control" id="m-note" placeholder="Thông tin thêm…">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-g" onclick="closeOv('ov-mem')">Hủy</button>
+      <button class="btn btn-p" onclick="saveMember()">Lưu thành viên</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="ov" id="ov-login">
+  <div class="modal login-modal" style="position:relative">
+    <button class="modal-close" style="position:absolute;top:16px;right:16px" onclick="closeLoginModal()">×</button>
+    <div class="login-icon">⚽</div><div class="login-title">Đăng nhập</div>
+    <div class="login-sub">Nhập thông tin để chỉnh sửa dữ liệu</div>
+    <div class="login-error" id="login-error">⚠ Sai tên đăng nhập hoặc mật khẩu</div>
+    <div class="form-group"><label class="form-label">Tên đăng nhập</label><input class="form-control" id="login-user" placeholder="ductm88"></div>
+    <div class="form-group"><label class="form-label">Mật khẩu</label><div class="pw-wrap"><input class="form-control" id="login-pass" type="password" placeholder="••••••••"><button class="pw-toggle" type="button">👁</button></div></div>
+    <div class="remember-row"><input type="checkbox" id="login-remember"><label for="login-remember">Lưu trạng thái đăng nhập</label></div>
+    <button class="btn btn-p btn-full" style="height:40px" onclick="submitLogin()">Đăng nhập</button>
+  </div>
+</div>
+<div id="toast"></div>
+<script src="app.js"></script>
+<script>
+let _mf = 'all';
+function renderAll() {
+  updateSidebarBadges();
+  $set('chip-members', N());
+  renderMemStats();
+  renderMembers();
+}
+function setMF(v, btn) {
+  _mf = v;
+  document.querySelectorAll('.filter-bar .fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMembers();
+}
+function renderMemStats() {
+  $set('ms-a', S.members.filter(m=>m.status==='active').length);
+  $set('ms-i', S.members.filter(m=>m.status==='inactive').length);
+  $set('ms-l', S.members.filter(m=>m.status==='left').length);
+  $set('ms-t', S.members.length);
+}
+function renderMembers() {
+  const tb = $el('tb-mem');
+  if (!tb) return;
+  const search = ($el('s-mem')?.value||'').toLowerCase().trim();
+  let filtered = S.members.filter(m => {
+    if (search && !m.name.toLowerCase().includes(search)) return false;
+    if (_mf==='active') return m.status==='active';
+    if (_mf==='inactive') return m.status==='inactive';
+    if (_mf==='left') return m.status==='left';
+    return true;
+  });
+  $set('mem-count-chip', filtered.length + ' người');
+
+  if (!filtered.length) {
+    tb.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">Không có thành viên nào</div></div></td></tr>`;
+    return;
+  }
+
+  tb.innerHTML = filtered.map((m, idx) => {
+    const paid = memberPaidMonths(m.id);
+    const paidAmt = paid * FEE;
+    const loss = memberTotalLoss(m.id);
+    const lossAmt = loss * FINE;
+    const unpaid = memberUnpaid(m.id);
+    const unpaidAmt = unpaid * FINE;
+    const statusMap = { active:'ss-a', inactive:'ss-i', left:'ss-l' };
+    const statusOpts = `<option value="active"${m.status==='active'?' selected':''}>Hoạt động</option><option value="inactive"${m.status==='inactive'?' selected':''}>Tạm nghỉ</option><option value="left"${m.status==='left'?' selected':''}>Đã nghỉ</option>`;
+
+    return `<tr id="mem-row-${m.id}">
+      <td class="tr" style="color:var(--gray-400);font-weight:700">${idx+1}</td>
+      <td>
+        <span id="mem-name-${m.id}">${esc(m.name)}</span>
+        <input class="mem-name-inp" id="mem-inp-${m.id}" value="${esc(m.name)}" style="display:none"
+          onkeydown="if(event.key==='Enter')saveMemberInline(${m.id});if(event.key==='Escape')renderAll()">
+      </td>
+      <td class="tc">
+        <select class="status-sel ${statusMap[m.status]||'ss-a'}" onchange="chgStatusInline(${m.id},this)">${statusOpts}</select>
+      </td>
+      <td class="tr bold" style="color:${paid?'var(--p-700)':'var(--gray-300)'}">
+        ${paid ? fmt(paidAmt) : '—'}
+      </td>
+      <td class="tc" style="color:${loss?'var(--c-danger)':'var(--gray-400)'}">
+        ${loss ? `<span class="chip chip-r" style="font-size:11px">${loss}</span>` : '<span style="color:var(--gray-300)">—</span>'}
+      </td>
+      <td class="tr" style="color:${loss?'var(--c-danger)':'var(--gray-400)'}">
+        ${lossAmt ? fmt(lossAmt) : '—'}
+      </td>
+      <td class="tr" style="color:${unpaid?'var(--c-warning)':'var(--p-700)'}">
+        ${unpaidAmt ? fmt(unpaidAmt) : '<span style="color:var(--p-700);font-size:12px">Đủ ✓</span>'}
+      </td>
+      <td class="tc">
+        <div style="display:flex;gap:4px;justify-content:center">
+          <button class="btn btn-g btn-ic btn-sm" id="mem-edit-${m.id}" onclick="startMemInline(${m.id})" title="Sửa tên">✏</button>
+          <button class="btn btn-p btn-ic btn-sm" id="mem-save-${m.id}" onclick="saveMemberInline(${m.id})" title="Lưu" style="display:none">✓</button>
+          <button class="btn btn-d btn-ic btn-sm del-btn" onclick="delMem(${m.id})" title="Xóa">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function startMemInline(id) {
+  if (!_requireAuth()) return;
+  const span = $el(`mem-name-${id}`), inp = $el(`mem-inp-${id}`);
+  const btnEdit = $el(`mem-edit-${id}`), btnSave = $el(`mem-save-${id}`);
+  if (span) span.style.display='none';
+  if (inp)  { inp.style.display='inline-block'; inp.focus(); inp.select(); }
+  if (btnEdit) btnEdit.style.display='none';
+  if (btnSave) btnSave.style.display='flex';
+}
+function saveMemberInline(id) {
+  if (!_requireAuth()) return;
+  const inp = $el(`mem-inp-${id}`);
+  const name = inp?.value?.trim();
+  if (!name) { inp?.focus(); showToast('Tên không được để trống', 'red'); return; }
+  const m = S.members.find(x=>x.id===id);
+  if (m) { m.name = name; saveS(); showToast('✓ Đã lưu tên thành viên', 'green'); renderAll(); }
+}
+function chgStatusInline(id, sel) {
+  if (!_requireAuth()) {
+    // revert
+    const m = S.members.find(x=>x.id===id);
+    if (m) sel.value = m.status;
+    return;
+  }
+  const m = S.members.find(x=>x.id===id);
+  if (m) { m.status=sel.value; saveS(); renderMemStats(); updateSidebarBadges(); }
+  // Update select class
+  sel.className = `status-sel ${sel.value==='active'?'ss-a':sel.value==='inactive'?'ss-i':'ss-l'}`;
+}
+function delMem(id) {
+  if (!_requireAuth()) return;
+  const m = S.members.find(x=>x.id===id);
+  if (!confirm(`Xóa thành viên "${m?.name}"? Dữ liệu đóng phí sẽ bị xóa.`)) return;
+  S.members = S.members.filter(x=>x.id!==id);
+  delete S.thuThang[id];
+  S.matches = S.matches.map(m=>({...m, losers:(m.losers||[]).filter(l=>l.memberId!==id)}));
+  saveS();
+  showToast('Đã xóa thành viên', 'default');
+  renderAll();
+}
+function openMemModal() {
+  if (!_requireAuth()) return;
+  $el('m-eid').value = '';
+  $el('m-name').value = '';
+  $el('m-phone').value = '';
+  $el('m-note').value = '';
+  $set('mem-modal-title', 'Thêm thành viên');
+  openOv('ov-mem');
+  setTimeout(()=>$el('m-name')?.focus(), 50);
+}
+function saveMember() {
+  if (!_requireAuth()) return;
+  const name = $el('m-name')?.value?.trim();
+  if (!name) { $el('m-name')?.classList.add('error'); $el('m-name')?.focus(); return; }
+  $el('m-name')?.classList.remove('error');
+  const phone = $el('m-phone')?.value?.trim()||'';
+  const note  = $el('m-note')?.value?.trim()||'';
+  S.members.push({ id:S.nextMid++, name, phone, status:'active', note });
+  saveS();
+  closeOv('ov-mem');
+  showToast('✓ Đã thêm thành viên', 'green');
+  renderAll();
+}
+// Close modal on overlay click
+$el('ov-mem')?.addEventListener('click', e=>{ if(e.target===$el('ov-mem')) closeOv('ov-mem'); });
+wireLoginModal();
+initApp();
+</script>
+</body></html>

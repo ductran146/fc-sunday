@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chi tiêu — FC 2026</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="sb-overlay" onclick="closeSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-brand"><div class="sb-logo">⚽</div><div class="sb-brand-text"><div class="sb-brand-name">FC Dashboard</div><div class="sb-brand-sub">Quỹ Đội Bóng 2026</div></div></div>
+    <nav class="sb-nav">
+      <div class="sb-section-label">Menu</div>
+      <a class="sb-item" href="index.html"><span class="sb-icon">📊</span><span class="sb-label">Tổng quan</span><span class="sb-badge" id="sbg-da">—</span></a>
+      <a class="sb-item" href="thu-thang.html"><span class="sb-icon">💰</span><span class="sb-label">Thu hàng tháng</span><span class="sb-badge" id="sbg-tt">—</span></a>
+      <a class="sb-item" href="thu-phat.html"><span class="sb-icon">🟥</span><span class="sb-label">Thu phạt đội thua</span><span class="sb-badge" id="sbg-tp">—</span></a>
+      <a class="sb-item active" href="chi-tieu.html"><span class="sb-icon">📋</span><span class="sb-label">Chi tiêu</span><span class="sb-badge" id="sbg-ct">—</span></a>
+      <a class="sb-item" href="thanh-vien.html"><span class="sb-icon">👥</span><span class="sb-label">Thành viên</span><span class="sb-badge" id="sbg-tv">—</span></a>
+    </nav>
+    <div class="sb-footer"><div class="sb-year-box"><span class="sb-year-label">Năm tài chính</span><span class="sb-year-val">2026</span></div></div>
+  </aside>
+  <div class="content">
+    <div class="topbar">
+      <button class="tb-menu-btn" onclick="toggleSidebar()">☰</button>
+      <span class="tb-title">Chi tiêu</span>
+      <div class="tb-chips">
+        <span class="chip chip-meta">Năm 2026</span>
+        <span class="chip" id="data-badge"></span>
+      </div>
+      <div class="tb-actions">
+        <div id="data-toolbar" style="display:none;gap:8px;align-items:center">
+          <button class="btn btn-po btn-sm" onclick="importJSON()">⬆ Nhập JSON</button>
+          <button class="btn btn-p btn-sm" onclick="exportJSON()">⬇ Xuất JSON</button>
+          <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+        </div>
+        <button class="btn-login-off" id="btn-login-off" onclick="openLoginModal()">👤 Đăng nhập</button>
+        <button class="btn-login-on"  id="btn-login-on"  onclick="logout()" style="display:none">✓ ductm88</button>
+      </div>
+    </div>
+    <div class="page">
+      <div class="chi-layout">
+        <!-- LEFT -->
+        <div class="chi-left">
+          <!-- Form -->
+          <div class="card">
+            <div style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:16px">Thêm khoản chi</div>
+            <div class="form-row">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Ngày chi</label>
+                <input class="form-control" id="ci-date" type="date">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Hạng mục</label>
+                <select class="form-control" id="ci-cat">
+                  <option>Sân bóng</option>
+                  <option>Thiết bị</option>
+                  <option>Tiệc / Liên hoan</option>
+                  <option>Y tế</option>
+                  <option>Phần thưởng</option>
+                  <option>Khác</option>
+                  <option disabled>──────────</option>
+                  <option value="Tiền đầu kỳ">💰 Tiền đầu kỳ (cộng vào quỹ)</option>
+                  <option value="Ủng hộ thêm">🎁 Ủng hộ thêm (cộng vào quỹ)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Số tiền (đ) *</label>
+              <input class="form-control" id="ci-amt" type="number" step="50000" placeholder="500000">
+              <div style="font-size:11px;color:var(--gray-400);margin-top:4px">Nhập số <b>âm</b> (−) cho tiền đầu kỳ / ủng hộ thêm → sẽ được <b>cộng</b> vào quỹ</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ghi chú</label>
+              <input class="form-control" id="ci-note" placeholder="Mô tả khoản chi…">
+            </div>
+            <button class="btn btn-p btn-full" onclick="addChi()">+ Thêm khoản chi</button>
+          </div>
+          <!-- Chart -->
+          <div class="card">
+            <div style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:12px">Chi tiêu theo hạng mục</div>
+            <div class="chart-wrap"><canvas id="cCC"></canvas></div>
+          </div>
+        </div>
+        <!-- RIGHT -->
+        <div class="chi-right">
+          <div class="tbl-outer" style="flex:1;margin-bottom:0">
+            <div class="tbl-title">
+              <span class="tbl-title-text">Lịch sử chi tiêu</span>
+              <span class="chip chip-r" id="chi-total-chip">—</span>
+            </div>
+            <div class="tbl-scroll chi-list">
+              <table>
+                <thead><tr><th>Ngày</th><th>Hạng mục</th><th class="tr">Số tiền</th><th>Ghi chú</th><th class="tc"></th></tr></thead>
+                <tbody id="tb-chi"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- LOGIN MODAL -->
+<div class="ov" id="ov-login">
+  <div class="modal login-modal" style="position:relative">
+    <button class="modal-close" style="position:absolute;top:16px;right:16px" onclick="closeLoginModal()">×</button>
+    <div class="login-icon">⚽</div><div class="login-title">Đăng nhập</div>
+    <div class="login-sub">Nhập thông tin để chỉnh sửa dữ liệu</div>
+    <div class="login-error" id="login-error">⚠ Sai tên đăng nhập hoặc mật khẩu</div>
+    <div class="form-group"><label class="form-label">Tên đăng nhập</label><input class="form-control" id="login-user" placeholder="ductm88"></div>
+    <div class="form-group"><label class="form-label">Mật khẩu</label><div class="pw-wrap"><input class="form-control" id="login-pass" type="password" placeholder="••••••••"><button class="pw-toggle" type="button">👁</button></div></div>
+    <div class="remember-row"><input type="checkbox" id="login-remember"><label for="login-remember">Lưu trạng thái đăng nhập</label></div>
+    <button class="btn btn-p btn-full" style="height:40px" onclick="submitLogin()">Đăng nhập</button>
+  </div>
+</div>
+<div id="toast"></div>
+<script src="app.js"></script>
+<script>
+let _cCC;
+function renderAll() {
+  updateSidebarBadges();
+  renderChiTable();
+  renderCharts();
+}
+function addChi() {
+  if (!_requireAuth()) return;
+  const date = $el('ci-date')?.value;
+  const cat  = $el('ci-cat')?.value;
+  const amt  = parseFloat($el('ci-amt')?.value);
+  const note = $el('ci-note')?.value?.trim() || '';
+  if (!amt || isNaN(amt)) {
+    $el('ci-amt')?.classList.add('error');
+    $el('ci-amt')?.focus();
+    showToast('Vui lòng nhập số tiền hợp lệ', 'red');
+    return;
+  }
+  $el('ci-amt')?.classList.remove('error');
+  S.chiTieu.push({ id: S.nextCid++, date: date||new Date().toISOString().split('T')[0], cat, amount: amt, note });
+  saveS();
+  $el('ci-amt').value = '';
+  $el('ci-note').value = '';
+  const label = amt < 0 ? '✓ Đã thêm khoản thu vào quỹ' : '✓ Đã thêm khoản chi';
+  showToast(label, 'green');
+  renderAll();
+}
+function delChi(idx) {
+  if (!_requireAuth()) return;
+  if (!confirm('Xóa khoản này?')) return;
+  S.chiTieu.splice(idx, 1);
+  saveS();
+  showToast('Đã xóa', 'default');
+  renderAll();
+}
+function renderChiTable() {
+  const tb = $el('tb-chi');
+  if (!tb) return;
+  const rev = [...S.chiTieu].reverse();
+  if (!rev.length) {
+    tb.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">Chưa có khoản nào</div></div></td></tr>`;
+    $set('chi-total-chip', '0đ');
+    return;
+  }
+  // Tách chi (dương) và thu thêm (âm) để tính footer riêng
+  const INCOME_CATS = ['Tiền đầu kỳ', 'Ủng hộ thêm'];
+  let html = rev.map((c, revIdx) => {
+    const realIdx = S.chiTieu.length - 1 - revIdx;
+    const isIncome = c.amount < 0 || INCOME_CATS.includes(c.cat);
+    const chipCls  = isIncome ? 'chip-g' : (CAT_CHIPS[c.cat] || 'chip-n');
+    const amtColor = isIncome ? 'var(--c-success)' : 'var(--c-danger)';
+    const amtLabel = isIncome
+      ? '+' + fmt(Math.abs(c.amount))
+      : fmt(c.amount);
+    return `<tr>
+      <td>${fmtDate(c.date)}</td>
+      <td><span class="chip ${chipCls}" style="font-size:11px">${esc(c.cat)}</span></td>
+      <td class="tr bold" style="color:${amtColor}">${amtLabel}</td>
+      <td style="color:var(--gray-400);font-size:13px;max-width:160px;overflow:hidden;text-overflow:ellipsis">${esc(c.note||'')}</td>
+      <td class="tc">${_auth?`<button class="btn btn-d btn-ic btn-sm del-btn" onclick="delChi(${realIdx})">×</button>`:''}</td>
+    </tr>`;
+  }).join('');
+
+  // Footer: tổng chi (dương) và tổng thu thêm (âm) tách biệt
+  const totalChi    = S.chiTieu.filter(c=>c.amount>0).reduce((s,c)=>s+c.amount,0);
+  const totalIncome = S.chiTieu.filter(c=>c.amount<0).reduce((s,c)=>s+Math.abs(c.amount),0);
+  const net = chiTotal(); // dương = quỹ bị giảm; âm không thể nhưng net có thể âm
+  html += `<tr class="tbl-foot">
+    <td colspan="2" class="bold">TỔNG CHI</td>
+    <td class="tr bold" style="color:var(--c-danger)">${fmt(totalChi)}</td>
+    <td colspan="2" style="font-size:11px;color:var(--gray-500)">Thu thêm vào quỹ: <span style="color:var(--c-success);font-weight:700">+${fmt(totalIncome)}</span></td>
+  </tr>`;
+  tb.innerHTML = html;
+  $set('chi-total-chip', fmt(totalChi));
+}
+function renderCharts() {
+  // Group by cat
+  const groups = {};
+  CATS.forEach(c => groups[c] = 0);
+  S.chiTieu.forEach(c => { if (groups[c.cat]!==undefined) groups[c.cat]+=c.amount; else groups['Khác']+=c.amount; });
+  const labels = Object.keys(groups).filter(k=>groups[k]>0);
+  const data   = labels.map(k=>groups[k]);
+  const colors = labels.map(k=>CAT_COLORS[k]||'#6b7280');
+
+  if (_cCC) _cCC.destroy();
+  _cCC = new Chart($el('cCC'), {
+    type:'doughnut',
+    data:{ labels, datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#fff'}] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:true,position:'right',labels:{font:{size:12,family:'Pretendard'},boxWidth:12,padding:8}}, tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.raw)}} } }
+  });
+}
+// Set today default
+window.addEventListener('DOMContentLoaded', () => {
+  const d = $el('ci-date');
+  if (d) d.value = new Date().toISOString().split('T')[0];
+});
+wireLoginModal();
+initApp();
+</script>
+</body></html>

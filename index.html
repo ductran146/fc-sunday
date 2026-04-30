@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tổng quan — FC 2026</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="sb-overlay" onclick="closeSidebar()"></div>
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo">⚽</div>
+      <div class="sb-brand-text">
+        <div class="sb-brand-name">FC Dashboard</div>
+        <div class="sb-brand-sub">Quỹ Đội Bóng 2026</div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section-label">Menu</div>
+      <a class="sb-item active" href="index.html"><span class="sb-icon">📊</span><span class="sb-label">Tổng quan</span><span class="sb-badge" id="sbg-da">—</span></a>
+      <a class="sb-item" href="thu-thang.html"><span class="sb-icon">💰</span><span class="sb-label">Thu hàng tháng</span><span class="sb-badge" id="sbg-tt">—</span></a>
+      <a class="sb-item" href="thu-phat.html"><span class="sb-icon">🟥</span><span class="sb-label">Thu phạt đội thua</span><span class="sb-badge" id="sbg-tp">—</span></a>
+      <a class="sb-item" href="chi-tieu.html"><span class="sb-icon">📋</span><span class="sb-label">Chi tiêu</span><span class="sb-badge" id="sbg-ct">—</span></a>
+      <a class="sb-item" href="thanh-vien.html"><span class="sb-icon">👥</span><span class="sb-label">Thành viên</span><span class="sb-badge" id="sbg-tv">—</span></a>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-year-box">
+        <span class="sb-year-label">Năm tài chính</span>
+        <span class="sb-year-val">2026</span>
+      </div>
+    </div>
+  </aside>
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="topbar">
+      <button class="tb-menu-btn" onclick="toggleSidebar()">☰</button>
+      <span class="tb-title">Tổng quan</span>
+      <div class="tb-chips">
+        <span class="chip chip-meta"><span class="chip-dot" style="background:var(--p-600)"></span> <span id="chip-members">25</span> thành viên</span>
+        <span class="chip chip-meta">200k/tháng · 50k/thua</span>
+        <span class="chip" id="data-badge"></span>
+      </div>
+      <div class="tb-actions">
+        <div id="data-toolbar" style="display:none;gap:8px;align-items:center">
+          <button class="btn btn-po btn-sm" onclick="importJSON()">⬆ Nhập JSON</button>
+          <button class="btn btn-p btn-sm" onclick="exportJSON()">⬇ Xuất JSON</button>
+          <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+        </div>
+        <button class="btn-login-off" id="btn-login-off" onclick="openLoginModal()">👤 Đăng nhập</button>
+        <button class="btn-login-on"  id="btn-login-on"  onclick="logout()" style="display:none">✓ ductm88</button>
+      </div>
+    </div>
+    <div class="page">
+      <!-- HERO -->
+      <div class="hero">
+        <div class="hero-watermark">⚽</div>
+        <div class="hero-eyebrow">Tồn quỹ hiện tại</div>
+        <div class="hero-amount" id="kpi-ton">—</div>
+        <div class="hero-sub">Thu phí + Thu phạt − Chi tiêu · Năm 2026</div>
+        <div class="hero-divider"></div>
+        <div class="hero-stats">
+          <div><div class="hero-stat-label">Thu phí tháng</div><div class="hero-stat-val" id="kpi-thu-phi">—</div></div>
+          <div><div class="hero-stat-label">Thu phạt đội thua</div><div class="hero-stat-val" id="kpi-thu-phat">—</div></div>
+          <div><div class="hero-stat-label">Thu thêm (khách mời)</div><div class="hero-stat-val" id="kpi-thu-them">—</div></div>
+          <div><div class="hero-stat-label">Tổng chi tiêu (−ủng hộ)</div><div class="hero-stat-val" id="kpi-chi">—</div></div>
+        </div>
+      </div>
+      <!-- KPI -->
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--p-600)"></div><div class="kpi-label">Tổng thu</div><div class="kpi-value" id="kd-tongthu">—</div><div class="kpi-hint">Phí tháng + Phạt thua</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--c-danger)"></div><div class="kpi-label">Số trận đã đá</div><div class="kpi-value" id="kd-tran">—</div><div class="kpi-hint">Cả năm 2026</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--c-warning)"></div><div class="kpi-label">Tỷ lệ thu phí TB</div><div class="kpi-value" id="kd-rate">—</div><div class="kpi-hint">Các tháng có dữ liệu</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--p-600)"></div><div class="kpi-label">Phí tháng / kỳ</div><div class="kpi-value" id="kd-phi-ky">—</div><div class="kpi-hint" id="kd-phi-ky-hint">—</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--c-info)"></div><div class="kpi-label">Thành viên hoạt động</div><div class="kpi-value" id="kd-tv">—</div><div class="kpi-hint">Đang thi đấu</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--c-warning)"></div><div class="kpi-label">Tháng có thu phí</div><div class="kpi-value" id="kd-thang">—</div><div class="kpi-hint">/ 12 tháng</div></div>
+      </div>
+      <!-- CHARTS -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">Thu nhập theo tháng <div style="display:flex;gap:8px"><span class="chip chip-p" style="font-size:11px">■ Phí</span><span class="chip chip-r" style="font-size:11px">■ Phạt</span></div></div>
+          <div class="chart-wrap"><canvas id="cM"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Tồn quỹ lũy kế</div>
+          <div class="chart-wrap"><canvas id="cB"></canvas></div>
+        </div>
+      </div>
+      <!-- TABLE -->
+      <div class="tbl-outer">
+        <div class="tbl-title">
+          <span class="tbl-title-text">Bảng tổng hợp 12 tháng</span>
+          <span class="chip chip-p">2026</span>
+        </div>
+        <div class="tbl-scroll">
+          <table>
+            <thead><tr>
+              <th>Tháng</th>
+              <th class="tr">Thu phí</th>
+              <th class="tr">Thu phạt</th>
+              <th class="tr">Tổng thu</th>
+              <th class="tr">Chi tiêu</th>
+              <th class="tr">Tồn lũy kế</th>
+              <th class="tc">Số trận</th>
+            </tr></thead>
+            <tbody id="tb-summary"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- LOGIN MODAL -->
+<div class="ov" id="ov-login">
+  <div class="modal login-modal" style="position:relative">
+    <button class="modal-close" style="position:absolute;top:16px;right:16px" onclick="closeLoginModal()">×</button>
+    <div class="login-icon">⚽</div>
+    <div class="login-title">Đăng nhập</div>
+    <div class="login-sub">Nhập thông tin để chỉnh sửa dữ liệu</div>
+    <div class="login-error" id="login-error">⚠ Sai tên đăng nhập hoặc mật khẩu</div>
+    <div class="form-group"><label class="form-label">Tên đăng nhập</label><input class="form-control" id="login-user" placeholder="ductm88"></div>
+    <div class="form-group"><label class="form-label">Mật khẩu</label><div class="pw-wrap"><input class="form-control" id="login-pass" type="password" placeholder="••••••••"><button class="pw-toggle" type="button">👁</button></div></div>
+    <div class="remember-row"><input type="checkbox" id="login-remember"><label for="login-remember">Lưu trạng thái đăng nhập</label></div>
+    <button class="btn btn-p btn-full" style="height:40px" onclick="submitLogin()">Đăng nhập</button>
+  </div>
+</div>
+<div id="toast"></div>
+<script src="app.js"></script>
+<script>
+let _cM, _cB;
+function renderAll() {
+  updateSidebarBadges();
+  $set('chip-members', N());
+  renderKPIs();
+  renderMonthlyTable();
+  renderCharts();
+}
+function renderKPIs() {
+  const ton = totalTon();
+  // Điểm 3: hiển thị dạng số thuần, không convert sang text
+  $el('kpi-ton').textContent = fmtNum(ton) + ' đ';
+  $el('kpi-ton').style.color = ton >= 0 ? '#fff' : '#fca5a5';
+  $set('kpi-thu-phi', fmt(thuThangGrand()));
+  $set('kpi-thu-phat', fmt(thuPhatGrand()));
+  $set('kpi-thu-them', fmt(thuThemGrand()));
+  $set('kpi-chi', fmt(chiTotal()));
+  $set('kd-tongthu', fmt(thuThangGrand()+thuPhatGrand()+thuThemGrand()));
+  $set('kd-tran', S.matches.length + ' trận');
+  const n = N();
+  const monthsWithData = Array.from({length:12},(_,i)=>thuThangMonthTotal(i)>0?1:0).reduce((a,b)=>a+b,0);
+  const totalPossible = n * (monthsWithData || 1);
+  const totalPaid = activeMembers().reduce((s,m)=>s+memberPaidMonths(m.id),0);
+  const rate = totalPossible > 0 ? Math.round(totalPaid/totalPossible*100) : 0;
+  $set('kd-rate', rate + '%');
+  $set('kd-phi-ky', fmt(n * FEE));
+  $set('kd-phi-ky-hint', n + ' người × 200.000đ');
+  $set('kd-tv', n);
+  $set('kd-thang', monthsWithData + ' / 12');
+}
+function renderMonthlyTable() {
+  const tb = $el('tb-summary');
+  if (!tb) return;
+  let rows = '';
+  for (let i = 0; i < 12; i++) {
+    const phi = thuThangMonthTotal(i);
+    const phat = thuPhatMonth(i);
+    const total = phi + phat;
+    const chi = chiMonth(i);
+    const ton = tonLuyKe(i);
+    const tran = matchesInMonth(i).length;
+    const tonColor = ton >= 0 ? 'var(--p-700)' : 'var(--c-danger)';
+    rows += `<tr>
+      <td class="bold">Tháng ${i+1}</td>
+      <td class="tr">${phi ? fmt(phi) : '<span style="color:var(--gray-300)">—</span>'}</td>
+      <td class="tr" style="color:var(--c-danger)">${phat ? fmt(phat) : '<span style="color:var(--gray-300)">—</span>'}</td>
+      <td class="tr bold">${total ? fmt(total) : '<span style="color:var(--gray-300)">—</span>'}</td>
+      <td class="tr" style="color:var(--c-danger)">${chi ? fmt(chi) : '<span style="color:var(--gray-300)">—</span>'}</td>
+      <td class="tr bold" style="color:${tonColor}">${fmt(ton)}</td>
+      <td class="tc">${tran ? `<span class="chip chip-n">${tran}</span>` : '<span style="color:var(--gray-300)">—</span>'}</td>
+    </tr>`;
+  }
+  // Footer
+  const totPhi = thuThangGrand(), totPhat = thuPhatGrand(), totTotal = totPhi+totPhat, totChi = chiTotal(), totTon = totalTon(), totTran = S.matches.length;
+  rows += `<tr class="tbl-foot">
+    <td class="bold">TỔNG CỘNG</td>
+    <td class="tr">${fmt(totPhi)}</td>
+    <td class="tr">${fmt(totPhat)}</td>
+    <td class="tr bold">${fmt(totTotal)}</td>
+    <td class="tr">${fmt(totChi)}</td>
+    <td class="tr bold">${fmt(totTon)}</td>
+    <td class="tc">${totTran}</td>
+  </tr>`;
+  tb.innerHTML = rows;
+}
+function renderCharts() {
+  const labels = MONTHS;
+  const phiData  = Array.from({length:12},(_,i)=>thuThangMonthTotal(i));
+  const phatData = Array.from({length:12},(_,i)=>thuPhatMonth(i));
+  const tonData  = Array.from({length:12},(_,i)=>tonLuyKe(i));
+  const opts = chartDefaults();
+  if (_cM) _cM.destroy();
+  _cM = new Chart($el('cM'), {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label:'Thu phí', data:phiData, backgroundColor:'#00a887', borderRadius:3, stack:'s' },
+      { label:'Thu phạt', data:phatData, backgroundColor:'#dc2626', borderRadius:3, stack:'s' }
+    ]},
+    options: { ...opts, plugins: { ...opts.plugins, legend:{display:false} }, scales: { ...opts.scales, x:{stacked:true,...opts.scales.x}, y:{stacked:true,...opts.scales.y} } }
+  });
+  if (_cB) _cB.destroy();
+  _cB = new Chart($el('cB'), {
+    type: 'line',
+    data: { labels, datasets: [{
+      label:'Tồn quỹ', data:tonData,
+      borderColor:'#00a887', backgroundColor:'rgba(0,168,135,.08)',
+      fill:true, tension:.3, pointRadius:3, pointBackgroundColor:'#fff', pointBorderColor:'#00a887', pointBorderWidth:2
+    }]},
+    options: opts
+  });
+}
+wireLoginModal();
+initApp();
+</script>
+</body></html>
