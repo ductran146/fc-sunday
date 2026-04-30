@@ -473,8 +473,43 @@
       0
     ]
   },
-  "matches": [],
-  "nextMaid": 1,
+  "matches": [
+    {
+      "id": 1,
+      "monthIdx": 3,
+      "date": "2026-04-24",
+      "note": "",
+      "losers": [
+        {
+          "memberId": 2,
+          "paid": false
+        },
+        {
+          "memberId": 3,
+          "paid": false
+        },
+        {
+          "memberId": 5,
+          "paid": false
+        },
+        {
+          "memberId": 18,
+          "paid": false
+        },
+        {
+          "memberId": 20,
+          "paid": false
+        },
+        {
+          "memberId": 24,
+          "paid": false
+        }
+      ],
+      "thuThem": 0,
+      "ghiChuThem": ""
+    }
+  ],
+  "nextMaid": 2,
   "chiTieu": [],
   "nextCid": 1,
   "_meta": {
