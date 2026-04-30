@@ -604,11 +604,11 @@
         },
         {
           "memberId": 18,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 20,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 21,
@@ -616,15 +616,15 @@
         },
         {
           "memberId": 24,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 27,
           "paid": false
         }
       ],
-      "thuThem": 0,
-      "ghiChuThem": ""
+      "thuThem": 50000,
+      "ghiChuThem": "Thu thêm em Cường"
     },
     {
       "id": 5,
