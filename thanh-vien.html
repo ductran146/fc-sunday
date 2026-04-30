@@ -68,28 +68,17 @@
           <span class="chip chip-p" id="mem-count-chip">25 người</span>
         </div>
         <div class="tbl-scroll">
-          <table style="table-layout:fixed;min-width:900px">
-            <colgroup>
-              <col style="width:44px">      <!-- # -->
-              <col style="width:160px">     <!-- Họ và tên -->
-              <col style="width:110px">     <!-- Trạng thái -->
-              <col style="width:100px">     <!-- Phí đã đóng -->
-              <col style="width:110px">     <!-- Nợ quỹ tháng -->
-              <col style="width:80px">      <!-- Trận thua -->
-              <col style="width:100px">     <!-- Nợ quỹ bia -->
-              <col style="width:110px">     <!-- Tổng nợ -->
-              <col style="width:190px">     <!-- Thao tác -->
-            </colgroup>
+          <table class="tbl-sticky" style="min-width:860px">
             <thead><tr>
-              <th class="tr">#</th>
-              <th>Họ và Tên</th>
-              <th class="tc">Trạng thái</th>
-              <th class="tr">Phí đã đóng</th>
-              <th class="tr" style="color:var(--c-warning)">Nợ quỹ tháng</th>
-              <th class="tc">Trận thua</th>
-              <th class="tr">Nợ quỹ bia</th>
-              <th class="tr" style="color:var(--c-danger)">Tổng nợ</th>
-              <th class="tc">Thao tác</th>
+              <th class="sticky-1 tr">#</th>
+              <th class="sticky-2">Họ và Tên</th>
+              <th class="tc" style="min-width:110px">Trạng thái</th>
+              <th class="tr" style="min-width:100px">Phí đã đóng</th>
+              <th class="tr" style="min-width:110px;color:var(--c-warning)">Nợ quỹ tháng</th>
+              <th class="tc" style="min-width:80px">Trận thua</th>
+              <th class="tr" style="min-width:100px">Nợ quỹ bia</th>
+              <th class="tr" style="min-width:110px;color:var(--c-danger)">Tổng nợ</th>
+              <th class="tc" style="min-width:190px">Thao tác</th>
             </tr></thead>
             <tbody id="tb-mem"></tbody>
           </table>
@@ -210,8 +199,8 @@ function renderMembers() {
     const statusOpts = `<option value="active"${m.status==='active'?' selected':''}>Hoạt động</option><option value="inactive"${m.status==='inactive'?' selected':''}>Tạm nghỉ</option><option value="left"${m.status==='left'?' selected':''}>Đã nghỉ</option>`;
 
     return `<tr id="mem-row-${m.id}">
-      <td class="tr" style="color:var(--gray-400);font-weight:700">${idx+1}</td>
-      <td style="overflow:hidden">
+      <td class="sticky-1 tr" style="color:var(--gray-400);font-weight:700">${idx+1}</td>
+      <td class="sticky-2">
         <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
           <span id="mem-name-${m.id}">${esc(m.name)}</span>
           <input class="mem-name-inp" id="mem-inp-${m.id}" value="${esc(m.name)}" style="display:none;max-width:140px"
