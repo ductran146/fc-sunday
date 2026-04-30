@@ -162,13 +162,6 @@
       "note": ""
     },
     {
-      "id": 25,
-      "name": "Hoàng",
-      "phone": "",
-      "status": "left",
-      "note": ""
-    },
-    {
       "id": 27,
       "name": "Chiến",
       "phone": "",
@@ -544,7 +537,7 @@
         },
         {
           "memberId": 24,
-          "paid": false
+          "paid": true
         }
       ],
       "thuThem": 0,
@@ -616,7 +609,7 @@
         },
         {
           "memberId": 24,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 27,
