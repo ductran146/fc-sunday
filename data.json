@@ -544,7 +544,7 @@
         },
         {
           "memberId": 24,
-          "paid": true
+          "paid": false
         }
       ],
       "thuThem": 0,
@@ -616,7 +616,7 @@
         },
         {
           "memberId": 24,
-          "paid": true
+          "paid": false
         },
         {
           "memberId": 27,
