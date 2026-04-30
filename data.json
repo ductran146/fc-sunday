@@ -498,7 +498,7 @@
         },
         {
           "memberId": 20,
-          "paid": true
+          "paid": false
         },
         {
           "memberId": 24,
@@ -507,9 +507,47 @@
       ],
       "thuThem": 0,
       "ghiChuThem": ""
+    },
+    {
+      "id": 2,
+      "monthIdx": 3,
+      "date": "2026-04-10",
+      "note": "",
+      "losers": [
+        {
+          "memberId": 1,
+          "paid": false
+        },
+        {
+          "memberId": 2,
+          "paid": false
+        },
+        {
+          "memberId": 3,
+          "paid": false
+        },
+        {
+          "memberId": 6,
+          "paid": false
+        },
+        {
+          "memberId": 8,
+          "paid": false
+        },
+        {
+          "memberId": 19,
+          "paid": false
+        },
+        {
+          "memberId": 23,
+          "paid": false
+        }
+      ],
+      "thuThem": 0,
+      "ghiChuThem": ""
     }
   ],
-  "nextMaid": 2,
+  "nextMaid": 3,
   "chiTieu": [],
   "nextCid": 1,
   "_meta": {
