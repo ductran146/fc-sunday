@@ -195,7 +195,7 @@ function renderMatchCards(matches, mi) {
     const losers = m.losers || [];
     const loserTags = losers.map(l => {
       const mem = S.members.find(x=>x.id===l.memberId);
-      const name = mem ? mem.name.split(' ').pop() : '?';
+      const name = mem ? mem.name : '?';
       return `<span class="lt ${l.paid?'lt-p':'lt-u'}" onclick="_auth&&toggleLoserPaid(${m.id},${l.memberId})" title="${l.paid?'Đã nộp':'Chưa nộp'}">${name} ${l.paid?'✅':'🔴'}</span>`;
     }).join('');
     const phatTotal  = losers.length * FINE;
@@ -272,15 +272,29 @@ function openEditMatch(id) {
 }
 
 function renderLoserGrid() {
-  const am = activeMembers();
+  // Hiển thị active trước, inactive sau (phân nhóm)
+  const active   = S.members.filter(m => m.status === 'active');
+  const inactive = S.members.filter(m => m.status === 'inactive');
   const grid = $el('loser-grid');
   if (!grid) return;
-  grid.innerHTML = am.map(m => {
-    const s = _loserState[m.id] || 0;
+
+  const renderItem = m => {
+    const s   = _loserState[m.id] || 0;
     const cls = s===1?'s1':s===2?'s2':'';
-    const icon = s===1?'✕':s===2?'✓':'';
-    return `<div class="loser-item ${cls}" onclick="cycleLoser(${m.id})">${icon} ${esc(m.name.split(' ').pop())}</div>`;
-  }).join('');
+    const icon = s===1?'✕ ':s===2?'✓ ':'';
+    // Badge tạm nghỉ
+    const badge = m.status==='inactive'
+      ? `<span style="display:block;font-size:9px;font-weight:600;color:#d97706;margin-top:1px">Tạm nghỉ</span>`
+      : '';
+    return `<div class="loser-item ${cls}" onclick="cycleLoser(${m.id})" style="${m.status==='inactive'?'opacity:.75;border-style:dashed':''}">${icon}${esc(m.name)}${badge}</div>`;
+  };
+
+  let html = active.map(renderItem).join('');
+  if (inactive.length) {
+    html += `<div style="grid-column:1/-1;font-size:11px;font-weight:700;color:var(--gray-400);padding:6px 0 2px;border-top:1px dashed var(--gray-200);margin-top:4px">Tạm nghỉ</div>`;
+    html += inactive.map(renderItem).join('');
+  }
+  grid.innerHTML = html;
   renderLoserTags();
 }
 
@@ -296,8 +310,7 @@ function renderLoserTags() {
   tags.innerHTML = selected.map(([mid,s]) => {
     const m = S.members.find(x=>x.id===+mid);
     if (!m) return '';
-    const name = m.name.split(' ').pop();
-    return `<span class="lt ${s===2?'lt-p':'lt-u'}" onclick="cycleLoser(${mid})">${name}</span>`;
+    return `<span class="lt ${s===2?'lt-p':'lt-u'}" onclick="cycleLoser(${mid})">${esc(m.name)}</span>`;
   }).join('');
 }
 
@@ -378,7 +391,7 @@ function renderCharts() {
 
   // Top 10 losers
   const am = activeMembers();
-  const lossData = am.map(m=>({name:m.name.split(' ').pop(),count:memberTotalLoss(m.id)}))
+  const lossData = am.map(m=>({name:m.name, count:memberTotalLoss(m.id)}))
     .filter(x=>x.count>0).sort((a,b)=>b.count-a.count).slice(0,10);
 
   if (_cTL) _cTL.destroy();
