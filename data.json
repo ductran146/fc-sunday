@@ -609,7 +609,7 @@
         },
         {
           "memberId": 24,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 27,
