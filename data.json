@@ -487,8 +487,47 @@
       0
     ]
   },
-  "matches": [],
-  "nextMaid": 1,
+  "matches": [
+    {
+      "id": 1,
+      "monthIdx": 3,
+      "date": "2026-04-03",
+      "note": "",
+      "losers": [
+        {
+          "memberId": 4,
+          "paid": true
+        },
+        {
+          "memberId": 6,
+          "paid": false
+        },
+        {
+          "memberId": 7,
+          "paid": false
+        },
+        {
+          "memberId": 8,
+          "paid": true
+        },
+        {
+          "memberId": 18,
+          "paid": true
+        },
+        {
+          "memberId": 20,
+          "paid": true
+        },
+        {
+          "memberId": 24,
+          "paid": false
+        }
+      ],
+      "thuThem": 100000,
+      "ghiChuThem": "Bạn Hội X2"
+    }
+  ],
+  "nextMaid": 2,
   "chiTieu": [],
   "nextCid": 1,
   "_meta": {
