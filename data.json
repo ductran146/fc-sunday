@@ -583,9 +583,51 @@
       ],
       "thuThem": 0,
       "ghiChuThem": ""
+    },
+    {
+      "id": 4,
+      "monthIdx": 2,
+      "date": "2026-03-27",
+      "note": "",
+      "losers": [
+        {
+          "memberId": 2,
+          "paid": false
+        },
+        {
+          "memberId": 3,
+          "paid": false
+        },
+        {
+          "memberId": 9,
+          "paid": false
+        },
+        {
+          "memberId": 18,
+          "paid": false
+        },
+        {
+          "memberId": 20,
+          "paid": false
+        },
+        {
+          "memberId": 21,
+          "paid": false
+        },
+        {
+          "memberId": 24,
+          "paid": false
+        },
+        {
+          "memberId": 27,
+          "paid": false
+        }
+      ],
+      "thuThem": 0,
+      "ghiChuThem": ""
     }
   ],
-  "nextMaid": 4,
+  "nextMaid": 5,
   "chiTieu": [],
   "nextCid": 1,
   "_meta": {
