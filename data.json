@@ -545,9 +545,43 @@
       ],
       "thuThem": 0,
       "ghiChuThem": ""
+    },
+    {
+      "id": 3,
+      "monthIdx": 3,
+      "date": "2026-04-03",
+      "note": "",
+      "losers": [
+        {
+          "memberId": 6,
+          "paid": false
+        },
+        {
+          "memberId": 8,
+          "paid": false
+        },
+        {
+          "memberId": 18,
+          "paid": false
+        },
+        {
+          "memberId": 20,
+          "paid": false
+        },
+        {
+          "memberId": 24,
+          "paid": false
+        },
+        {
+          "memberId": 27,
+          "paid": false
+        }
+      ],
+      "thuThem": 0,
+      "ghiChuThem": ""
     }
   ],
-  "nextMaid": 3,
+  "nextMaid": 4,
   "chiTieu": [],
   "nextCid": 1,
   "_meta": {
