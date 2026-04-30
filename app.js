@@ -199,20 +199,47 @@ function chiTieuInYear(year) {
   year = year || _year;
   return (S.chiTieu||[]).filter(c => c.date && parseInt(c.date.split('-')[0]) === year);
 }
+// Tất cả chi (tổng)
 function chiTotal(year) {
   return chiTieuInYear(year||_year).reduce((s,c)=>s+c.amount,0);
+}
+// Chi theo quỹ: 'thang' | 'bia' | undefined (tất cả)
+function chiByFund(fund, year) {
+  return chiTieuInYear(year||_year)
+    .filter(c => fund ? (c.fund||'thang') === fund : true)
+    .reduce((s,c)=>s+c.amount,0);
 }
 function chiMonth(mi, year) {
   year = year || _year;
   return chiTieuInYear(year).filter(c=>parseInt(c.date.split('-')[1])-1===mi).reduce((s,c)=>s+c.amount,0);
 }
+function chiMonthByFund(mi, fund, year) {
+  year = year || _year;
+  return chiTieuInYear(year)
+    .filter(c => parseInt(c.date.split('-')[1])-1===mi && (c.fund||'thang')===fund)
+    .reduce((s,c)=>s+c.amount,0);
+}
+
+// Tổng quỹ tháng = Thu phí − Chi quỹ tháng
+function tonQuyThang(year) {
+  year = year || _year;
+  return thuThangGrand(year) - chiByFund('thang', year);
+}
+// Tổng quỹ bia = Thu quỹ bia + Thu thêm − Chi quỹ bia
+function tonQuyBia(year) {
+  year = year || _year;
+  return thuPhatGrand(year) + thuThemGrand(year) - chiByFund('bia', year);
+}
 function totalTon(year) {
   year = year || _year;
-  return thuThangGrand(year)+thuPhatGrand(year)+thuThemGrand(year)-chiTotal(year);
+  return tonQuyThang(year) + tonQuyBia(year);
 }
 function tonLuyKe(i, year) {
   year = year || _year;
-  let t=0; for(let j=0;j<=i;j++) t+=thuThangMonthTotal(j,year)+thuPhatMonth(j,year)+thuThemMonth(j,year)-chiMonth(j,year);
+  let t=0;
+  for(let j=0;j<=i;j++) {
+    t += thuThangMonthTotal(j,year) + thuPhatMonth(j,year) + thuThemMonth(j,year) - chiMonth(j,year);
+  }
   return t;
 }
 

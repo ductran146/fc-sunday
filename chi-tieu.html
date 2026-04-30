@@ -49,6 +49,23 @@
           <!-- Form -->
           <div class="card">
             <div style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:16px">Thêm khoản chi</div>
+            <!-- Loại quỹ — nổi bật ở trên cùng -->
+            <div class="form-group">
+              <label class="form-label">Trừ vào quỹ *</label>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="fund-picker">
+                <div class="fund-opt fund-opt-active" id="fopt-thang" onclick="selectFund('thang')"
+                  style="border:2px solid var(--p-600);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .15s;background:var(--p-50)">
+                  <div style="font-size:13px;font-weight:700;color:var(--p-700)">💰 Quỹ hàng tháng</div>
+                  <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Sân bóng, thiết bị...</div>
+                </div>
+                <div class="fund-opt" id="fopt-bia" onclick="selectFund('bia')"
+                  style="border:2px solid var(--gray-200);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .15s;background:#fff">
+                  <div style="font-size:13px;font-weight:700;color:var(--gray-600)">🍺 Quỹ bia</div>
+                  <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Liên hoan, bia...</div>
+                </div>
+              </div>
+              <input type="hidden" id="ci-fund" value="thang">
+            </div>
             <div class="form-row">
               <div class="form-group" style="margin:0">
                 <label class="form-label">Ngày chi</label>
@@ -95,7 +112,7 @@
             </div>
             <div class="tbl-scroll chi-list">
               <table>
-                <thead><tr><th>Ngày</th><th>Hạng mục</th><th class="tr">Số tiền</th><th>Ghi chú</th><th class="tc"></th></tr></thead>
+                <thead><tr><th>Ngày</th><th>Quỹ</th><th>Hạng mục</th><th class="tr">Số tiền</th><th>Ghi chú</th><th class="tc"></th></tr></thead>
                 <tbody id="tb-chi"></tbody>
               </table>
             </div>
@@ -122,13 +139,30 @@
 <script src="app.js"></script>
 <script>
 let _cCC;
+const FUND_LABEL = { thang: '💰 Quỹ tháng', bia: '🍺 Quỹ bia' };
+const FUND_CHIP  = { thang: 'chip-p', bia: 'chip-w' };
+
+function selectFund(fund) {
+  $el('ci-fund').value = fund;
+  const active   = { border:'2px solid var(--p-600)', background:'var(--p-50)' };
+  const inactive = { border:'2px solid var(--gray-200)', background:'#fff' };
+  const applyStyle = (el, s) => { el.style.border = s.border; el.style.background = s.background; };
+  applyStyle($el('fopt-thang'), fund==='thang' ? active : inactive);
+  applyStyle($el('fopt-bia'),   fund==='bia'   ? active : inactive);
+  // Cập nhật text màu
+  $el('fopt-thang').querySelector('div').style.color = fund==='thang' ? 'var(--p-700)' : 'var(--gray-600)';
+  $el('fopt-bia').querySelector('div').style.color   = fund==='bia'   ? 'var(--p-700)' : 'var(--gray-600)';
+}
+
 function renderAll() {
   updateSidebarBadges();
   renderChiTable();
   renderCharts();
 }
+
 function addChi() {
   if (!_requireAuth()) return;
+  const fund = $el('ci-fund')?.value || 'thang';
   const date = $el('ci-date')?.value;
   const cat  = $el('ci-cat')?.value;
   const amt  = parseFloat($el('ci-amt')?.value);
@@ -140,14 +174,15 @@ function addChi() {
     return;
   }
   $el('ci-amt')?.classList.remove('error');
-  S.chiTieu.push({ id: S.nextCid++, date: date||new Date().toISOString().split('T')[0], cat, amount: amt, note });
+  S.chiTieu.push({ id: S.nextCid++, date: date||new Date().toISOString().split('T')[0], cat, amount: amt, note, fund });
   saveS();
   $el('ci-amt').value = '';
   $el('ci-note').value = '';
-  const label = amt < 0 ? '✓ Đã thêm khoản thu vào quỹ' : '✓ Đã thêm khoản chi';
+  const label = amt < 0 ? '✓ Đã thêm khoản thu vào quỹ' : `✓ Đã thêm vào ${FUND_LABEL[fund]}`;
   showToast(label, 'green');
   renderAll();
 }
+
 function delChi(idx) {
   if (!_requireAuth()) return;
   if (!confirm('Xóa khoản này?')) return;
@@ -156,55 +191,67 @@ function delChi(idx) {
   showToast('Đã xóa', 'default');
   renderAll();
 }
+
 function renderChiTable() {
   const tb = $el('tb-chi');
   if (!tb) return;
   const rev = [...S.chiTieu].reverse();
   if (!rev.length) {
-    tb.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">Chưa có khoản nào</div></div></td></tr>`;
+    tb.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">Chưa có khoản nào</div></div></td></tr>`;
     $set('chi-total-chip', '0đ');
     return;
   }
-  // Tách chi (dương) và thu thêm (âm) để tính footer riêng
   const INCOME_CATS = ['Tiền đầu kỳ', 'Ủng hộ thêm'];
   let html = rev.map((c, revIdx) => {
-    const realIdx = S.chiTieu.length - 1 - revIdx;
+    const realIdx  = S.chiTieu.length - 1 - revIdx;
     const isIncome = c.amount < 0 || INCOME_CATS.includes(c.cat);
-    const chipCls  = isIncome ? 'chip-g' : (CAT_CHIPS[c.cat] || 'chip-n');
-    const amtColor = isIncome ? 'var(--c-success)' : 'var(--c-danger)';
-    const amtLabel = isIncome
-      ? '+' + fmt(Math.abs(c.amount))
-      : fmt(c.amount);
+    const fund     = c.fund || 'thang'; // backward compat: data cũ mặc định quỹ tháng
+    const fundChip = isIncome ? 'chip-g' : FUND_CHIP[fund] || 'chip-p';
+    const fundLabel= isIncome ? '📥 Thu thêm' : FUND_LABEL[fund];
+    const catChip  = isIncome ? 'chip-g' : (CAT_CHIPS[c.cat] || 'chip-n');
+    const amtColor = isIncome ? 'var(--c-success)' : (fund==='bia' ? 'var(--c-warning)' : 'var(--c-danger)');
+    const amtLabel = isIncome ? '+' + fmt(Math.abs(c.amount)) : fmt(c.amount);
     return `<tr>
-      <td>${fmtDate(c.date)}</td>
-      <td><span class="chip ${chipCls}" style="font-size:11px">${esc(c.cat)}</span></td>
+      <td style="white-space:nowrap">${fmtDate(c.date)}</td>
+      <td><span class="chip ${fundChip}" style="font-size:10px;white-space:nowrap">${fundLabel}</span></td>
+      <td><span class="chip ${catChip}" style="font-size:11px">${esc(c.cat)}</span></td>
       <td class="tr bold" style="color:${amtColor}">${amtLabel}</td>
-      <td style="color:var(--gray-400);font-size:13px;max-width:160px;overflow:hidden;text-overflow:ellipsis">${esc(c.note||'')}</td>
+      <td style="color:var(--gray-400);font-size:13px;max-width:120px;overflow:hidden;text-overflow:ellipsis">${esc(c.note||'')}</td>
       <td class="tc">${_auth?`<button class="btn btn-d btn-ic btn-sm del-btn" onclick="delChi(${realIdx})">×</button>`:''}</td>
     </tr>`;
   }).join('');
 
-  // Footer: tổng chi (dương) và tổng thu thêm (âm) tách biệt
-  const totalChi    = S.chiTieu.filter(c=>c.amount>0).reduce((s,c)=>s+c.amount,0);
-  const totalIncome = S.chiTieu.filter(c=>c.amount<0).reduce((s,c)=>s+Math.abs(c.amount),0);
-  const net = chiTotal(); // dương = quỹ bị giảm; âm không thể nhưng net có thể âm
+  // Footer: tách theo 2 quỹ
+  const chiThang  = chiByFund('thang');
+  const chiBia    = chiByFund('bia');
+  const totIncome = S.chiTieu.filter(c=>c.amount<0).reduce((s,c)=>s+Math.abs(c.amount),0);
   html += `<tr class="tbl-foot">
     <td colspan="2" class="bold">TỔNG CHI</td>
-    <td class="tr bold" style="color:var(--c-danger)">${fmt(totalChi)}</td>
-    <td colspan="2" style="font-size:11px;color:var(--gray-500)">Thu thêm vào quỹ: <span style="color:var(--c-success);font-weight:700">+${fmt(totalIncome)}</span></td>
+    <td></td>
+    <td class="tr bold" style="color:var(--c-danger)">${fmt(chiThang + chiBia)}</td>
+    <td colspan="2" style="font-size:11px;color:var(--gray-600)">
+      <span style="color:var(--p-700)">💰 ${fmt(chiThang)}</span>
+      &nbsp;·&nbsp;
+      <span style="color:var(--c-warning)">🍺 ${fmt(chiBia)}</span>
+      ${totIncome ? `&nbsp;·&nbsp;<span style="color:var(--c-success)">+${fmt(totIncome)}</span>` : ''}
+    </td>
   </tr>`;
   tb.innerHTML = html;
-  $set('chi-total-chip', fmt(totalChi));
+
+  // Chip title: hiện tổng chi cả 2 quỹ
+  $set('chi-total-chip', fmt(chiThang + chiBia));
 }
+
 function renderCharts() {
-  // Group by cat
   const groups = {};
   CATS.forEach(c => groups[c] = 0);
-  S.chiTieu.forEach(c => { if (groups[c.cat]!==undefined) groups[c.cat]+=c.amount; else groups['Khác']+=c.amount; });
+  S.chiTieu.filter(c=>c.amount>0).forEach(c => {
+    if (groups[c.cat]!==undefined) groups[c.cat]+=c.amount;
+    else groups['Khác']=(groups['Khác']||0)+c.amount;
+  });
   const labels = Object.keys(groups).filter(k=>groups[k]>0);
   const data   = labels.map(k=>groups[k]);
   const colors = labels.map(k=>CAT_COLORS[k]||'#6b7280');
-
   if (_cCC) _cCC.destroy();
   _cCC = new Chart($el('cCC'), {
     type:'doughnut',

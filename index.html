@@ -60,15 +60,29 @@
       <!-- HERO -->
       <div class="hero">
         <div class="hero-watermark">⚽</div>
-        <div class="hero-eyebrow">Tồn quỹ hiện tại</div>
+        <div class="hero-eyebrow">Tổng quỹ hiện tại</div>
         <div class="hero-amount" id="kpi-ton">—</div>
-        <div class="hero-sub">Thu phí + Quỹ bia − Chi tiêu · Năm 2026</div>
+        <div class="hero-sub">Quỹ hàng tháng + Quỹ bia · Năm <span id="hero-year">2026</span></div>
+        <div class="hero-divider"></div>
+        <!-- 2 quỹ riêng biệt -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:12px 14px">
+            <div style="font-size:11px;color:rgba(255,255,255,.5);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">💰 Quỹ hàng tháng</div>
+            <div style="font-size:18px;font-weight:800;color:#fff" id="kpi-ton-thang">—</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.38);margin-top:4px">Thu: <span id="kpi-thu-phi-s">—</span> · Chi: <span id="kpi-chi-thang-s">—</span></div>
+          </div>
+          <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:12px 14px">
+            <div style="font-size:11px;color:rgba(255,255,255,.5);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">🍺 Quỹ bia</div>
+            <div style="font-size:18px;font-weight:800;color:#fff" id="kpi-ton-bia">—</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.38);margin-top:4px">Thu: <span id="kpi-thu-phat-s">—</span> · Chi: <span id="kpi-chi-bia-s">—</span></div>
+          </div>
+        </div>
         <div class="hero-divider"></div>
         <div class="hero-stats">
           <div><div class="hero-stat-label">Thu phí tháng</div><div class="hero-stat-val" id="kpi-thu-phi">—</div></div>
           <div><div class="hero-stat-label">Quỹ bia đội thua</div><div class="hero-stat-val" id="kpi-thu-phat">—</div></div>
           <div><div class="hero-stat-label">Thu thêm (khách mời)</div><div class="hero-stat-val" id="kpi-thu-them">—</div></div>
-          <div><div class="hero-stat-label">Tổng chi tiêu (−ủng hộ)</div><div class="hero-stat-val" id="kpi-chi">—</div></div>
+          <div><div class="hero-stat-label">Tổng chi tiêu</div><div class="hero-stat-val" id="kpi-chi">—</div></div>
         </div>
       </div>
       <!-- KPI -->
@@ -142,17 +156,36 @@ function renderAll() {
 }
 function renderKPIs() {
   const ton = totalTon();
-  // Điểm 3: hiển thị dạng số thuần, không convert sang text
   $el('kpi-ton').textContent = fmtNum(ton) + ' đ';
   $el('kpi-ton').style.color = ton >= 0 ? '#fff' : '#fca5a5';
-  $set('kpi-thu-phi', fmt(thuThangGrand()));
+  $set('hero-year', _year);
+
+  // 2 quỹ breakdown
+  const tTonThang = tonQuyThang();
+  const tTonBia   = tonQuyBia();
+  if ($el('kpi-ton-thang')) {
+    $el('kpi-ton-thang').textContent = fmt(tTonThang);
+    $el('kpi-ton-thang').style.color = tTonThang >= 0 ? '#fff' : '#fca5a5';
+  }
+  if ($el('kpi-ton-bia')) {
+    $el('kpi-ton-bia').textContent = fmt(tTonBia);
+    $el('kpi-ton-bia').style.color = tTonBia >= 0 ? '#fff' : '#fca5a5';
+  }
+  $set('kpi-thu-phi-s',   fmt(thuThangGrand()));
+  $set('kpi-chi-thang-s', fmt(chiByFund('thang')));
+  $set('kpi-thu-phat-s',  fmt(thuPhatGrand() + thuThemGrand()));
+  $set('kpi-chi-bia-s',   fmt(chiByFund('bia')));
+
+  // Stats row
+  $set('kpi-thu-phi',  fmt(thuThangGrand()));
   $set('kpi-thu-phat', fmt(thuPhatGrand()));
   $set('kpi-thu-them', fmt(thuThemGrand()));
-  $set('kpi-chi', fmt(chiTotal()));
+  $set('kpi-chi',      fmt(chiTotal()));
+
   $set('kd-tongthu', fmt(thuThangGrand()+thuPhatGrand()+thuThemGrand()));
   $set('kd-tran', S.matches.length + ' trận');
   const n = N();
-  const monthsWithData = Array.from({length:12},(_,i)=>thuThangMonthTotal(i)>0?1:0).reduce((a,b)=>a+b,0);
+  const monthsWithData = Array.from({length:12},(_,i)=>thuThangMonthTotal(i,_year)>0?1:0).reduce((a,b)=>a+b,0);
   const totalPossible = n * (monthsWithData || 1);
   const totalPaid = activeMembers().reduce((s,m)=>s+memberPaidMonths(m.id),0);
   const rate = totalPossible > 0 ? Math.round(totalPaid/totalPossible*100) : 0;
