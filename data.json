@@ -851,12 +851,20 @@
       "cat": "Sân bóng",
       "amount": 9160000,
       "note": "Thanh toán tiền sân từ 01/2026 đến 04/2026"
+    },
+    {
+      "id": 2,
+      "date": "2026-04-30",
+      "cat": "Khác",
+      "amount": -2894000,
+      "note": "Quỹ tồn đồng bộ hoá",
+      "fund": "thang"
     }
   ],
-  "nextCid": 2,
+  "nextCid": 3,
   "_meta": {
     "version": "1.0",
     "lastUpdated": "2026-04-30",
-    "updatedBy": "ductm88"
+    "updatedBy": "maylaai"
   }
 }
