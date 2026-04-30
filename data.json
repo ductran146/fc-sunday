@@ -859,9 +859,17 @@
       "amount": -2894000,
       "note": "Đồng bộ quỹ tồn",
       "fund": "thang"
+    },
+    {
+      "id": 3,
+      "date": "2026-04-30",
+      "cat": "Khác",
+      "amount": 1640000,
+      "note": "Đồng bộ quỹ bia",
+      "fund": "bia"
     }
   ],
-  "nextCid": 3,
+  "nextCid": 4,
   "_meta": {
     "version": "1.0",
     "lastUpdated": "2026-04-30",
