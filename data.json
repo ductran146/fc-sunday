@@ -553,6 +553,10 @@
       "note": "",
       "losers": [
         {
+          "memberId": 4,
+          "paid": false
+        },
+        {
           "memberId": 6,
           "paid": false
         },
