@@ -651,6 +651,16 @@ td.clickable { cursor: pointer; }
   gap: 8px;
 }
 
+/* Form fields chi tiêu — đồng nhất kích thước */
+.chi-field {
+  width: 100% !important;
+  height: 40px !important;
+  padding: 0 12px !important;
+  box-sizing: border-box !important;
+  line-height: 40px;
+  display: block;
+}
+
 /* Form row trong chi tiêu: 2 cột desktop, 1 cột mobile */
 .chi-form-row {
   display: grid;
