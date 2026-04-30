@@ -271,6 +271,22 @@ function memberTotalDebt(mid, year) {
   return memberDebtFee(mid, year||_year) + memberDebtFine(mid);
 }
 
+/* ─── REFRESH DATA ───────────────────────────── */
+async function refreshData() {
+  const btn = $el('btn-refresh');
+  if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
+  const ok = await fetchRemote();
+  if (ok) {
+    updateDataBadge();
+    updateSidebarBadges();
+    if (window.renderAll) renderAll();
+    showToast('✅ Đã tải dữ liệu mới nhất', 'green');
+  } else {
+    showToast('⚠ Không thể tải — dùng dữ liệu cũ', 'default');
+  }
+  if (btn) { btn.textContent = '🔄'; btn.disabled = false; }
+}
+
 /* ─── PERSISTENCE ────────────────────────────── */
 function saveS() {
   localStorage.setItem('fc2026', JSON.stringify(S));
@@ -290,7 +306,18 @@ function loadS() {
 }
 async function fetchRemote() {
   try {
-    const r = await fetch('./data.json?t=' + Date.now());
+    // Ưu tiên Raw URL nếu đã cấu hình GitHub (bypass GitHub Pages cache 60s)
+    const cfg = getGHConfig();
+    let url;
+    if (cfg?.owner && cfg?.repo) {
+      const branch   = cfg.branch || 'main';
+      const filePath = cfg.filePath || 'data.json';
+      // Raw URL không cần deploy lại → available ngay sau khi commit
+      url = `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${branch}/${filePath}?t=${Date.now()}`;
+    } else {
+      url = `./data.json?t=${Date.now()}`;
+    }
+    const r = await fetch(url);
     if (!r.ok) return false;
     const d = await r.json();
     if (!d || !Array.isArray(d.members)) return false;
