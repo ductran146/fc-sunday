@@ -137,6 +137,13 @@ body {
   flex-shrink: 0;
 }
 .sb-icon svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+/* ─── INLINE SVG ICONS ───────────────────────── */
+/* Căn chỉnh SVG inline trong button, text, label */
+.btn svg, .btn-login-off svg, .btn-login-on svg,
+.tb-more-item svg { vertical-align: middle; flex-shrink: 0; }
+/* SVG trong nội dung text */
+span > svg, div > svg, td > svg { vertical-align: middle; display: inline-block; }
 .sb-label { flex: 1; }
 .sb-badge {
   background: rgba(255,255,255,.1);
