@@ -380,7 +380,7 @@ function submitLogin() {
   const u = ($el('login-user')?.value || '').trim().toLowerCase();
   const p = ($el('login-pass')?.value || '').trim();
   const err = $el('login-error');
-  if (u === 'ductm88' && p === '66nhantho') {
+  if (u === 'maylaai' && p === 'conboduc') {
     const rem = $el('login-remember')?.checked;
     if (rem) localStorage.setItem('fc_auth','1');
     else     sessionStorage.setItem('fc_auth','1');
@@ -398,7 +398,7 @@ function submitLogin() {
 
 /* ─── EXPORT / IMPORT ────────────────────────── */
 function exportJSON() {
-  S._meta = { version:'1.0', lastUpdated: new Date().toISOString().split('T')[0], updatedBy:'ductm88' };
+  S._meta = { version:'1.0', lastUpdated: new Date().toISOString().split('T')[0], updatedBy:'maylaai' };
   saveS();
   const blob = new Blob([JSON.stringify(S, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
@@ -503,7 +503,7 @@ async function syncToGitHub() {
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Đang đồng bộ...'; }
 
   try {
-    S._meta = { version:'1.0', lastUpdated: new Date().toISOString().split('T')[0], updatedBy:'ductm88' };
+    S._meta = { version:'1.0', lastUpdated: new Date().toISOString().split('T')[0], updatedBy:'maylaai' };
     saveS();
 
     const content  = btoa(unescape(encodeURIComponent(JSON.stringify(S, null, 2))));
