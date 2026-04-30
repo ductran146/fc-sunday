@@ -31,10 +31,16 @@ function availableYears() {
 
 /* thuThang key: "mid_year" cho đa năm, fallback sang "mid" cho data cũ (year=BASE_YEAR) */
 function _ttKey(mid, year) { return year === BASE_YEAR ? String(mid) : `${mid}_${year}`; }
+
+/*
+  Giá trị ô thu tháng:
+    0 = Chưa đóng  → tính nợ
+    1 = Đã đóng    → không nợ
+    2 = Được miễn  → không tính vào nghĩa vụ, không nợ
+*/
 function getTT(mid, mi, year) {
   year = year || _year;
   const key = _ttKey(mid, year);
-  // fallback: nếu năm là BASE_YEAR thì cũng thử key cũ không có _year
   const arr = S.thuThang[key] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
   return arr[mi] || 0;
 }
@@ -43,6 +49,27 @@ function setTT(mid, mi, v, year) {
   const key = _ttKey(mid, year);
   if (!S.thuThang[key]) S.thuThang[key] = Array(12).fill(0);
   S.thuThang[key][mi] = v;
+}
+// Số tháng đã đóng (giá trị = 1)
+function memberPaidCount(mid, year) {
+  year = year || _year;
+  const key = _ttKey(mid, year);
+  const arr = S.thuThang[key] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
+  return arr.filter(v => v === 1).length;
+}
+// Số tháng được miễn (giá trị = 2)
+function memberExemptCount(mid, year) {
+  year = year || _year;
+  const key = _ttKey(mid, year);
+  const arr = S.thuThang[key] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
+  return arr.filter(v => v === 2).length;
+}
+// Số tháng bắt buộc = 12 - số tháng miễn  (chỉ áp dụng cho member active)
+function memberRequiredMonths(mid, year) {
+  year = year || _year;
+  const mem = S.members.find(m => m.id === mid);
+  if (!mem || mem.status !== 'active') return 0; // tạm nghỉ/đã nghỉ → 0
+  return 12 - memberExemptCount(mid, year);
 }
 
 /* Số tháng phải đóng tính đến hiện tại trong năm đang xem */
@@ -121,24 +148,15 @@ function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 function activeMembers()    { return S.members.filter(m => m.status === 'active'); }
 function N()                { return activeMembers().length; }
 
-function memberPaidMonths(mid, year) {
-  year = year || _year;
-  const req = monthsRequired(year);
-  let count = 0;
-  for (let i = 0; i < req; i++) count += getTT(mid, i, year);
-  return count;
-}
-function memberPaidMonthsAll(mid, year) {
-  // tổng đã đóng kể cả tháng tương lai (dùng hiển thị cột đã đóng đầy đủ)
-  year = year || _year;
-  const key = _ttKey(mid, year);
-  const arr = S.thuThang[key] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
-  return arr.reduce((s,v)=>s+v,0);
-}
+// Tổng đã đóng thực tế (value=1), dùng tính tiền
+function memberPaidMonths(mid, year)    { return memberPaidCount(mid, year||_year); }
+// Alias cho display full 12 ô (backward compat)
+function memberPaidMonthsAll(mid, year) { return memberPaidCount(mid, year||_year); }
 
+// Thu tháng: chỉ tính ô = 1 (đã đóng), ô = 2 (miễn) không thu tiền
 function thuThangMonthTotal(mi, year) {
   year = year || _year;
-  return activeMembers().reduce((s,m)=>s+getTT(m.id,mi,year),0) * FEE;
+  return activeMembers().reduce((s,m) => s + (getTT(m.id,mi,year)===1 ? 1 : 0), 0) * FEE;
 }
 function thuThangGrand(year) {
   year = year || _year;
@@ -204,13 +222,15 @@ function memberUnpaid(mid) {
   return (S.matches||[]).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.memberId===mid&&!l.paid).length,0);
 }
 
-/* ─── MEMBER DEBT (nợ quỹ tháng tính đến hiện tại, năm hiện tại) ── */
+/* ─── MEMBER DEBT ────────────────────────────── */
 function memberDebtFee(mid, year) {
-  // Số tháng phải đóng đến hiện tại - số tháng đã đóng = số tháng còn nợ
   year = year || _year;
-  const req  = monthsRequired(year);
-  const paid = memberPaidMonths(mid, year); // chỉ tính đến req tháng
-  return Math.max(0, req - paid) * FEE;
+  const mem = S.members.find(m => m.id === mid);
+  // Tạm nghỉ hoặc đã nghỉ → không nợ quỹ tháng
+  if (!mem || mem.status !== 'active') return 0;
+  const required = memberRequiredMonths(mid, year); // 12 - số miễn
+  const paid     = memberPaidCount(mid, year);
+  return Math.max(0, required - paid) * FEE;
 }
 function memberDebtFine(mid) {
   return memberUnpaid(mid) * FINE;

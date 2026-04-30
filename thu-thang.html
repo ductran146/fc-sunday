@@ -56,6 +56,12 @@
           <button class="fbtn" onclick="setFilter('partial',this)">Còn nợ</button>
         </div>
         <input class="search-box" id="s-tt" placeholder="Tìm tên…" oninput="renderTT()">
+        <div style="display:flex;align-items:center;gap:10px;font-size:11px;color:var(--gray-500);margin-left:auto;flex-shrink:0">
+          <span><span class="ic ic-p" style="width:16px;height:16px;font-size:9px;display:inline-flex">✓</span> Đã đóng</span>
+          <span><span class="ic ic-e" style="width:16px;height:16px;font-size:10px;display:inline-flex">—</span> Được miễn</span>
+          <span><span class="ic ic-n" style="width:16px;height:16px;display:inline-flex"></span> Chưa đóng</span>
+          <span style="color:var(--gray-400)">· Click để chuyển trạng thái</span>
+        </div>
       </div>
       <!-- TABLE -->
       <div class="tbl-outer" style="margin-bottom:20px">
@@ -113,19 +119,24 @@ function renderAll() {
 }
 window.onYearChangeTT = function() { renderTT(); renderCharts(); };
 
+function _icClass(v) { return v===1?'ic-p':v===2?'ic-e':'ic-n'; }
+function _icLabel(v) { return v===1?'✓':v===2?'—':''; }
+function _icTitle(v) { return v===0?'Chưa đóng · Click → Đã đóng':v===1?'Đã đóng · Click → Miễn':'Được miễn · Click → Bỏ'; }
+
 function renderTT() {
   const am     = activeMembers();
   const search = ($el('s-tt')?.value||'').toLowerCase().trim();
 
   let filtered = am.filter(m => {
     if (search && !m.name.toLowerCase().includes(search)) return false;
-    const paid = memberPaidMonthsAll(m.id, _year); // tính cả 12 tháng
-    if (_ttFilter==='full')    return paid === 12;
-    if (_ttFilter==='partial') return paid < 12;
+    const paid = memberPaidCount(m.id, _year);
+    const req  = memberRequiredMonths(m.id, _year);
+    if (_ttFilter==='full')    return paid >= req;
+    if (_ttFilter==='partial') return paid < req;
     return true;
   });
 
-  // Header — tất cả 12 tháng bình thường
+  // Header
   const thead = document.querySelector('#tbl-tt thead');
   if (thead) {
     let hdr = '<tr><th>Họ và Tên</th>';
@@ -138,42 +149,49 @@ function renderTT() {
   if (!tb) return;
   let html = '';
   for (const m of filtered) {
-    const paid  = memberPaidMonthsAll(m.id, _year); // đủ 12 tháng
+    const paid  = memberPaidCount(m.id, _year);
+    const exempt= memberExemptCount(m.id, _year);
+    const req   = memberRequiredMonths(m.id, _year); // 12 - exempt
     const total = paid * FEE;
-    let chipCls    = paid===12?'chip-g':paid>=6?'chip-w':'chip-r';
-    let totalColor = paid===12?'var(--p-700)':paid>=6?'var(--c-warning)':'var(--c-danger)';
+    let chipCls    = paid>=req?'chip-g':paid>=Math.ceil(req/2)?'chip-w':'chip-r';
+    let totalColor = paid>=req?'var(--p-700)':'var(--c-warning)';
 
     html += `<tr><td><div class="nm-cell"><span class="nm-idx">#${m.id}</span>${esc(m.name)}</div></td>`;
     for (let i=0;i<12;i++) {
       const v = getTT(m.id, i, _year);
-      html += `<td class="tc clickable" title="Click để đổi" data-a="tt" data-mid="${m.id}" data-mi="${i}">
-        <span class="ic ${v?'ic-p':'ic-n'}">${v?'✓':''}</span></td>`;
+      html += `<td class="tc clickable" title="${_icTitle(v)}" data-a="tt" data-mid="${m.id}" data-mi="${i}">
+        <span class="ic ${_icClass(v)}">${_icLabel(v)}</span></td>`;
     }
-    html += `<td class="tc"><span class="chip ${chipCls}">${paid}/12</span></td>
+    // Chip: paid/req, nếu có miễn thì hiện thêm badge
+    const exemptBadge = exempt ? `<span class="chip chip-w" style="font-size:9px;margin-left:4px">−${exempt}</span>` : '';
+    html += `<td class="tc"><span class="chip ${chipCls}">${paid}/${req}</span>${exemptBadge}</td>
       <td class="tr bold" style="color:${totalColor}">${paid?fmt(total):'-'}</td></tr>`;
   }
 
-  // Footer
+  // Footer: chỉ tính ô=1 (đã đóng)
   let footHtml = '<tr class="tbl-foot"><td class="bold">TỔNG ĐÓNG</td>';
   let footTotal = 0;
   for (let i=0;i<12;i++) {
-    const n = am.reduce((s,m)=>s+getTT(m.id,i,_year),0);
-    footHtml += `<td class="tc bold">${n}/${am.length}</td>`;
-    footTotal += n * FEE;
+    const nPaid   = am.reduce((s,m)=>s+(getTT(m.id,i,_year)===1?1:0),0);
+    const nExempt = am.reduce((s,m)=>s+(getTT(m.id,i,_year)===2?1:0),0);
+    const exemptMark = nExempt ? `<span style="color:var(--c-warning);font-size:10px"> −${nExempt}</span>` : '';
+    footHtml += `<td class="tc bold">${nPaid}/${am.length}${exemptMark}</td>`;
+    footTotal += nPaid * FEE;
   }
   footHtml += `<td class="tc">—</td><td class="tr bold">${fmt(footTotal)}</td></tr>`;
   tb.innerHTML = html + footHtml;
   $set('tt-total-chip', fmt(footTotal));
 }
 
-// Click delegation
+// Click delegation: 0 → 1(đã đóng) → 2(miễn) → 0(chưa đóng)
 document.addEventListener('click', e => {
   const cell = e.target.closest('[data-a="tt"]');
   if (!cell) return;
   if (!_requireAuth()) return;
   const mid = +cell.dataset.mid, mi = +cell.dataset.mi;
   const cur = getTT(mid, mi, _year);
-  setTT(mid, mi, cur ? 0 : 1, _year);
+  const next = cur === 0 ? 1 : cur === 1 ? 2 : 0;
+  setTT(mid, mi, next, _year);
   saveS();
   renderAll();
 });

@@ -440,6 +440,8 @@ tbody tr:hover { background: var(--gray-50); }
 }
 .ic-p { background: var(--p-600); color: #fff; }
 .ic-n { border: 1.5px solid rgba(17,24,39,.18); color: transparent; }
+/* Miễn: nền vàng nhạt, dấu —  */
+.ic-e { background: #fffbeb; border: 1.5px solid #fcd34d; color: #d97706; font-size: 14px; font-weight: 800; line-height: 1; }
 td.clickable .ic:hover { transform: scale(1.1); }
 td.clickable { cursor: pointer; }
 

@@ -168,9 +168,10 @@ function renderMembers() {
   }
 
   tb.innerHTML = filtered.map((m, idx) => {
-    const paidMonths = memberPaidMonths(m.id, _year);
-    const paidAmt    = memberPaidMonthsAll(m.id, _year) * FEE;
+    const paidAmt    = memberPaidCount(m.id, _year) * FEE;
     const debtFee    = memberDebtFee(m.id, _year);
+    const exempt     = memberExemptCount(m.id, _year);
+    const reqMonths  = memberRequiredMonths(m.id, _year); // 0 nếu tạm nghỉ
     const loss       = memberTotalLoss(m.id);
     const unpaid     = memberUnpaid(m.id);
     const unpaidAmt  = unpaid * FINE;
@@ -190,9 +191,14 @@ function renderMembers() {
       </td>
       <td class="tr bold" style="color:${paidAmt?'var(--p-700)':'var(--gray-300)'}">
         ${paidAmt ? fmt(paidAmt) : '—'}
+        ${exempt ? `<div style="font-size:10px;color:var(--c-warning);font-weight:600">Miễn ${exempt} tháng</div>` : ''}
       </td>
-      <td class="tr" style="color:${debtFee?'var(--c-warning)':'var(--p-700)'}">
-        ${debtFee ? `<span style="font-weight:700">${fmt(debtFee)}</span>` : '<span style="color:var(--p-700);font-size:12px">Đủ ✓</span>'}
+      <td class="tr" style="color:${m.status!=='active'?'var(--gray-400)':debtFee?'var(--c-warning)':'var(--p-700)'}">
+        ${m.status!=='active'
+          ? '<span style="color:var(--gray-400);font-size:12px">Tạm nghỉ</span>'
+          : debtFee
+            ? `<span style="font-weight:700">${fmt(debtFee)}</span><div style="font-size:10px;color:var(--gray-400)">${memberPaidCount(m.id,_year)}/${reqMonths} tháng</div>`
+            : '<span style="color:var(--p-700);font-size:12px">Đủ ✓</span>'}
       </td>
       <td class="tc" style="color:${loss?'var(--c-danger)':'var(--gray-400)'}">
         ${loss ? `<span class="chip chip-r" style="font-size:11px">${loss}</span>` : '<span style="color:var(--gray-300)">—</span>'}
