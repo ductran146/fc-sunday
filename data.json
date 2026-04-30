@@ -763,9 +763,39 @@
       ],
       "thuThem": 0,
       "ghiChuThem": ""
+    },
+    {
+      "id": 8,
+      "monthIdx": 1,
+      "date": "2026-02-27",
+      "note": "",
+      "losers": [
+        {
+          "memberId": 2,
+          "paid": false
+        },
+        {
+          "memberId": 5,
+          "paid": true
+        },
+        {
+          "memberId": 14,
+          "paid": true
+        },
+        {
+          "memberId": 20,
+          "paid": true
+        },
+        {
+          "memberId": 21,
+          "paid": true
+        }
+      ],
+      "thuThem": 100000,
+      "ghiChuThem": "thu thêm của Thông Lao và em Cường Buồn"
     }
   ],
-  "nextMaid": 8,
+  "nextMaid": 9,
   "chiTieu": [
     {
       "id": 1,
