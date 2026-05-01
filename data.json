@@ -836,11 +836,11 @@
         },
         {
           "memberId": 23,
-          "paid": false
+          "paid": true
         }
       ],
-      "thuThem": 0,
-      "ghiChuThem": ""
+      "thuThem": 250000,
+      "ghiChuThem": "Thu thêm của Thái các trận thua tháng 1 và 2025"
     }
   ],
   "nextMaid": 10,
