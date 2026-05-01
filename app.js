@@ -165,14 +165,20 @@ function matchesInMonth(mi, year) {
   year = year || _year;
   return (S.matches||[]).filter(m => {
     if (m.monthIdx !== mi) return false;
-    const y = m.date ? parseInt(m.date.split('-')[0]) : BASE_YEAR;
+    // Nếu không có date → coi là BASE_YEAR (tương thích data cũ)
+    if (!m.date) return year === BASE_YEAR;
+    const y = parseInt(m.date.split('-')[0]);
+    // Nếu năm trong date không hợp lệ → fallback BASE_YEAR
+    if (isNaN(y)) return year === BASE_YEAR;
     return y === year;
   });
 }
 function matchesInYear(year) {
   year = year || _year;
   return (S.matches||[]).filter(m => {
-    const y = m.date ? parseInt(m.date.split('-')[0]) : BASE_YEAR;
+    if (!m.date) return year === BASE_YEAR;
+    const y = parseInt(m.date.split('-')[0]);
+    if (isNaN(y)) return year === BASE_YEAR;
     return y === year;
   });
 }

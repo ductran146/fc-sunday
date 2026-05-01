@@ -253,7 +253,7 @@ function renderMonthlyTable() {
     </tr>`;
   }
   // Footer
-  const totPhi = thuThangGrand(), totPhat = thuPhatGrand(), totTotal = totPhi+totPhat, totChi = chiTotal(), totTon = totalTon(), totTran = S.matches.length;
+  const totPhi = thuThangGrand(_year), totPhat = thuPhatGrand(_year), totTotal = totPhi+totPhat, totChi = chiTotal(_year), totTon = totalTon(_year), totTran = matchesInYear(_year).length;
   rows += `<tr class="tbl-foot">
     <td class="bold">TỔNG CỘNG</td>
     <td class="tr">${fmt(totPhi)}</td>
