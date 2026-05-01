@@ -270,7 +270,79 @@ function toggleLoserPaid(matchId, memberId) {
   const match = S.matches.find(m=>m.id===matchId);
   if (!match) return;
   const loser = match.losers.find(l=>l.memberId===memberId);
-  if (loser) { loser.paid = !loser.paid; saveS(); renderAll(); }
+  if (!loser) return;
+  loser.paid = !loser.paid;
+  saveS();
+  // Chỉ re-render match card cụ thể + sidebar badges, KHÔNG re-render toàn bộ accordion
+  _updateMatchCard(matchId);
+  _updateAccordionHeader(match.monthIdx);
+  updateSidebarBadges();
+  renderCharts();
+}
+
+// Cập nhật 1 match card theo ID mà không rebuild toàn bộ accordion
+function _updateMatchCard(matchId) {
+  const match = S.matches.find(m=>m.id===matchId);
+  if (!match) return;
+  // Tìm container của match card trong DOM
+  const cards = document.querySelectorAll(`#acc-${match.monthIdx} .match-card`);
+  const matchesInMi = matchesInMonth(match.monthIdx, _year);
+  const idx = matchesInMi.findIndex(m=>m.id===matchId);
+  if (idx >= 0 && cards[idx]) {
+    cards[idx].outerHTML = renderSingleMatchCard(match);
+  }
+}
+
+function renderSingleMatchCard(m) {
+  const losers = m.losers || [];
+  const loserTags = losers.map(l => {
+    const mem = S.members.find(x=>x.id===l.memberId);
+    const name = mem ? mem.name : '?';
+    return `<span class="lt ${l.paid?'lt-p':'lt-u'}" onclick="_auth&&toggleLoserPaid(${m.id},${l.memberId})" title="${l.paid?'Đã nộp':'Chưa nộp'}">${name} ${l.paid?'✅':'🔴'}</span>`;
+  }).join('');
+  const phatTotal = losers.length * FINE;
+  const unpaid    = losers.filter(l=>!l.paid).length * FINE;
+  const thuThem   = m.thuThem || 0;
+  const grandTotal= phatTotal + thuThem;
+  return `<div class="match-card">
+    <div class="match-id">#${m.id}</div>
+    <div class="match-info">
+      <div class="match-date">${fmtDate(m.date)}</div>
+      ${m.note?`<div class="match-note">${esc(m.note)}</div>`:''}
+      <div class="match-losers">${loserTags || '<span style="color:var(--gray-400);font-size:12px">Không có người thua</span>'}</div>
+      ${thuThem ? `<div style="font-size:12px;color:var(--p-700);font-weight:600;margin-bottom:4px"><svg width="14" height="14" viewBox="0 0 40 40" fill="none" style="vertical-align:middle"><path d="M37.409 17.718L5.721 25.418V22.303L37.409 14.603V17.718Z" fill="#03905A"/><path d="M24.34 2.95L6.166 21.124C5.54 21.749 5.54 22.763 6.166 23.388L16.532 33.754C17.157 34.379 18.171 34.379 18.796 33.754L36.97 15.58C37.595 14.955 37.595 13.941 36.97 13.316L26.604 2.95C25.979 2.325 24.965 2.325 24.34 2.95Z" fill="#4FC578"/></svg> Thu thêm: +${fmt(thuThem)}${m.ghiChuThem?' — '+esc(m.ghiChuThem):''}</div>` : ''}
+      <div class="match-footer">
+        <div class="match-total">
+          Quỹ bia: ${fmt(phatTotal)}
+          ${thuThem ? ` · Thu thêm: <span style="color:var(--p-700)">+${fmt(thuThem)}</span> · Tổng: <b>${fmt(grandTotal)}</b>` : ''}
+          ${unpaid ? ` · Nợ: <span style="color:var(--c-warning)">${fmt(unpaid)}</span>` : ''}
+        </div>
+        ${_auth?`<div class="match-actions">
+          <button class="btn btn-g btn-ic btn-sm" onclick="openEditMatch(${m.id})" title="Sửa">✏</button>
+          <button class="btn btn-d btn-ic btn-sm" onclick="delMatch(${m.id})" title="Xóa">🗑</button>
+        </div>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+// Cập nhật header accordion của 1 tháng
+function _updateAccordionHeader(mi) {
+  const accItem = document.getElementById(`acc-${mi}`);
+  if (!accItem) return;
+  const matches    = matchesInMonth(mi, _year);
+  const phatTotal  = thuPhatMonth(mi, _year);
+  const thuThemTot = thuThemMonth(mi, _year);
+  const unpaid     = matches.reduce((s,m)=>s+(m.losers||[]).filter(l=>!l.paid).length*FINE,0);
+  const metaEl = accItem.querySelector('.acc-meta');
+  if (!metaEl) return;
+  metaEl.innerHTML = `
+    ${matches.length?`<span class="chip chip-n" style="font-size:11px">${matches.length} trận</span>`:''}
+    ${phatTotal?`<span class="chip chip-r" style="font-size:11px">${fmt(phatTotal)}</span>`:''}
+    ${thuThemTot?`<span class="chip chip-p" style="font-size:11px">+${fmt(thuThemTot)}</span>`:''}
+    ${unpaid?`<span class="chip chip-w" style="font-size:11px">Nợ: ${fmt(unpaid)}</span>`:''}`;
+  // Cập nhật bảng tổng hợp và chart mà không rebuild accordion
+  renderPhatSummary();
 }
 
 function openMatchModal(mi) {
