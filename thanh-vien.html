@@ -105,13 +105,13 @@
           <table class="tbl-sticky" style="min-width:860px">
             <thead><tr>
               <th class="sticky-1 tr">#</th>
-              <th class="sticky-2">Họ và Tên</th>
+              <th class="sticky-2" id="th-name" onclick="setSort('name')" style="cursor:pointer;user-select:none;white-space:nowrap">Họ và Tên ↑</th>
               <th class="tc" style="min-width:110px">Trạng thái</th>
               <th class="tr" style="min-width:100px">Phí đã đóng</th>
-              <th class="tr" style="min-width:110px;color:var(--c-warning)">Nợ quỹ tháng</th>
+              <th class="tr" id="th-debtfee" onclick="setSort('debtFee')" style="cursor:pointer;user-select:none;min-width:110px;color:var(--c-warning)">Nợ quỹ tháng ⇅</th>
               <th class="tc" style="min-width:80px">Trận thua</th>
-              <th class="tr" style="min-width:100px">Nợ quỹ bia</th>
-              <th class="tr" style="min-width:110px;color:var(--c-danger)">Tổng nợ</th>
+              <th class="tr" id="th-debtfine" onclick="setSort('debtFine')" style="cursor:pointer;user-select:none;min-width:100px">Nợ quỹ bia ⇅</th>
+              <th class="tr" id="th-totaldebt" onclick="setSort('totalDebt')" style="cursor:pointer;user-select:none;min-width:110px;color:var(--c-danger)">Tổng nợ ⇅</th>
               <th class="tc" style="min-width:190px">Thao tác</th>
             </tr></thead>
             <tbody id="tb-mem"></tbody>
@@ -184,6 +184,9 @@
 <script src="app.js"></script>
 <script>
 let _mf = 'all';
+// Sort state: field + direction
+let _sortField = 'name', _sortDir = 1; // 1=asc, -1=desc
+
 function renderAll() {
   updateSidebarBadges();
   $set('chip-members', N());
@@ -195,6 +198,17 @@ function setMF(v, btn) {
   document.querySelectorAll('.filter-bar .fbtn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderMembers();
+}
+function setSort(field) {
+  if (_sortField === field) _sortDir *= -1; // toggle asc/desc
+  else { _sortField = field; _sortDir = field === 'name' ? 1 : -1; } // nợ mặc định giảm dần
+  renderMembers();
+}
+function _sortIcon(field) {
+  if (_sortField !== field) return '<span style="color:rgba(17,24,39,.2);font-size:10px">⇅</span>';
+  return _sortDir === 1
+    ? '<span style="color:var(--p-600);font-size:10px">↑</span>'
+    : '<span style="color:var(--p-600);font-size:10px">↓</span>';
 }
 function renderMemStats() {
   $set('ms-a', S.members.filter(m=>m.status==='active').length);
@@ -213,22 +227,52 @@ function renderMembers() {
     if (_mf==='left') return m.status==='left';
     return true;
   });
-  $set('mem-count-chip', filtered.length + ' người');
 
-  if (!filtered.length) {
-    tb.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">Không có thành viên nào</div></div></td></tr>`;
+  // Tính giá trị sort cho mỗi thành viên
+  const withVals = filtered.map(m => ({
+    m,
+    debtFee:   memberDebtFee(m.id, _year),
+    unpaidAmt: memberUnpaid(m.id) * FINE,
+    totalDebt: memberTotalDebt(m.id, _year),
+  }));
+
+  // Sort
+  withVals.sort((a, b) => {
+    let va, vb;
+    switch (_sortField) {
+      case 'name':      va = a.m.name.toLowerCase(); vb = b.m.name.toLowerCase(); break;
+      case 'debtFee':   va = a.debtFee;   vb = b.debtFee;   break;
+      case 'debtFine':  va = a.unpaidAmt; vb = b.unpaidAmt; break;
+      case 'totalDebt': va = a.totalDebt; vb = b.totalDebt; break;
+      default:          va = a.m.name.toLowerCase(); vb = b.m.name.toLowerCase();
+    }
+    if (va < vb) return -1 * _sortDir;
+    if (va > vb) return  1 * _sortDir;
+    return 0;
+  });
+
+  // Update sortable header icons
+  const thDebtFee   = $el('th-debtfee');
+  const thDebtFine  = $el('th-debtfine');
+  const thTotalDebt = $el('th-totaldebt');
+  const thName      = $el('th-name');
+  if (thName)      thName.innerHTML      = `Họ và Tên ${_sortIcon('name')}`;
+  if (thDebtFee)   thDebtFee.innerHTML   = `Nợ quỹ tháng ${_sortIcon('debtFee')}`;
+  if (thDebtFine)  thDebtFine.innerHTML  = `Nợ quỹ bia ${_sortIcon('debtFine')}`;
+  if (thTotalDebt) thTotalDebt.innerHTML = `Tổng nợ ${_sortIcon('totalDebt')}`;
+
+  $set('mem-count-chip', withVals.length + ' người');
+
+  if (!withVals.length) {
+    tb.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">Không có thành viên nào</div></div></td></tr>`;
     return;
   }
 
-  tb.innerHTML = filtered.map((m, idx) => {
+  tb.innerHTML = withVals.map(({ m, debtFee, unpaidAmt, totalDebt }, idx) => {
     const paidAmt    = memberPaidCount(m.id, _year) * FEE;
-    const debtFee    = memberDebtFee(m.id, _year);
     const exempt     = memberExemptCount(m.id, _year);
-    const reqMonths  = Math.max(0, Math.min(monthsRequired(_year), 12) - exempt); // bắt buộc thực tế
+    const reqMonths  = Math.max(0, Math.min(monthsRequired(_year), 12) - exempt);
     const loss       = memberTotalLoss(m.id);
-    const unpaid     = memberUnpaid(m.id);
-    const unpaidAmt  = unpaid * FINE;
-    const totalDebt  = memberTotalDebt(m.id, _year);
     const statusMap  = { active:'ss-a', inactive:'ss-i', left:'ss-l' };
     const statusOpts = `<option value="active"${m.status==='active'?' selected':''}>Hoạt động</option><option value="inactive"${m.status==='inactive'?' selected':''}>Tạm nghỉ</option><option value="left"${m.status==='left'?' selected':''}>Đã nghỉ</option>`;
 
@@ -266,7 +310,7 @@ function renderMembers() {
       </td>
       <td style="padding:6px 10px">
         <div style="display:grid;grid-template-columns:28px 1fr 28px;gap:4px;align-items:center">
-          <button class="btn btn-g btn-ic btn-sm" id="mem-edit-${m.id}" onclick="startMemInline(${m.id})" title="Sửa tên"><svg width="14" height="14" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M25.771 6.174L5.107 26.838L12.944 34.675L33.608 14.011L25.771 6.174Z" fill="#FFAA00"/><path fill-rule="evenodd" clip-rule="evenodd" d="M36.844 10.777L33.61 14.012L25.773 6.174L29.007 2.94C29.882 2.065 31.3 2.065 32.174 2.94L36.844 7.61C37.719 8.485 37.719 9.902 36.844 10.777Z" fill="#FF9000"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.295 37.261L7.125 36.235L3.548 32.657L2.522 36.488C2.396 36.957 2.826 37.386 3.295 37.261Z" fill="#313D4C"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.549 32.657L7.125 36.235L12.946 34.675L5.109 26.838L3.549 32.657Z" fill="#FFCCA8"/></svg></button>
+          <button class="btn btn-g btn-ic btn-sm" id="mem-edit-${m.id}" onclick="startMemInline(${m.id})" title="Sửa tên">✏</button>
           <button class="btn btn-p btn-ic btn-sm" id="mem-save-${m.id}" onclick="saveMemberInline(${m.id})" title="Lưu" style="display:none">✓</button>
           <div>
             ${totalDebt
@@ -274,7 +318,7 @@ function renderMembers() {
                   style="width:100%;background:#0E9FE9;color:#fff;border:1px solid #0E9FE9;padding:4px 8px;font-size:11px;font-weight:700;border-radius:6px;white-space:nowrap;font-family:inherit;cursor:pointer;line-height:1.4;display:inline-flex;align-items:center;justify-content:center;gap:4px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.086 3.543H3.914C2.747 3.543 1.8 4.49 1.8 5.657V18.343C1.8 19.51 2.747 20.457 3.914 20.457H20.086C21.253 20.457 22.2 19.51 22.2 18.343V5.657C22.2 4.49 21.253 3.543 20.086 3.543Z" fill="white"/><path d="M7.543 11.614H5.571C5.24 11.614 4.971 11.883 4.971 12.214V14.186C4.971 14.517 5.24 14.786 5.571 14.786H7.543C7.874 14.786 8.143 14.517 8.143 14.186V12.214C8.143 11.883 7.874 11.614 7.543 11.614Z" fill="#FACA06"/><path d="M1.8 6.913V9.814H22.2V6.913H1.8Z" fill="#067CB8"/></svg> Thanh toán</button>`
               : ''}
           </div>
-          <button class="btn btn-d btn-ic btn-sm del-btn" onclick="delMem(${m.id})" title="Xóa"><svg width="14" height="14" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28.635 36.829H11.775C10.292 36.829 9.053 35.7 8.916 34.223L6.358 6.655H34.053L31.494 34.224C31.357 35.7 30.118 36.83 28.635 36.83V36.829Z" fill="#FFCD00"/><path d="M35.049 4.326H5.361C4.313 4.326 3.464 5.175 3.464 6.223V8.855C3.464 9.903 4.313 10.752 5.361 10.752H35.049C36.097 10.752 36.946 9.903 36.946 8.855V6.223C36.946 5.175 36.097 4.326 35.049 4.326Z" fill="#FACA06"/></svg></button>
+          <button class="btn btn-d btn-ic btn-sm del-btn" onclick="delMem(${m.id})" title="Xóa">🗑</button>
         </div>
       </td>
     </tr>`;

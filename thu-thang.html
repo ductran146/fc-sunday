@@ -171,6 +171,9 @@ function renderTT() {
     return true;
   });
 
+  // Sắp xếp alpha A→Z
+  filtered.sort((a,b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase(), 'vi'));
+
   // Header
   const thead = document.querySelector('#tbl-tt thead');
   if (thead) {
