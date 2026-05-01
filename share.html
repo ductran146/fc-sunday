@@ -240,7 +240,8 @@ function thuThangGrand(year) {
   }, 0);
 }
 function thuPhatGrand(year) {
-  return matchesInYear(year).reduce((s,m)=>s+(m.losers||[]).length*FINE, 0);
+  // Chỉ tính tiền đã nộp thực tế (paid: true)
+  return matchesInYear(year).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.paid).length*FINE, 0);
 }
 function thuThemGrand(year) {
   return matchesInYear(year).reduce((s,m)=>s+(m.thuThem||0), 0);
