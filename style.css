@@ -138,7 +138,28 @@ body {
 }
 .sb-icon svg { width: 20px; height: 20px; flex-shrink: 0; }
 
-/* ─── INLINE SVG ICONS ───────────────────────── */
+/* ─── PWA INSTALL BUTTONS ────────────────────── */
+.sb-pwa-btns { display: none; } /* ẩn trên desktop */
+.sb-pwa-btn {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 9px 12px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.15);
+  color: rgba(255,255,255,.9);
+  font-size: 12px; font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  margin-bottom: 6px;
+  transition: background .15s;
+  -webkit-appearance: none;
+}
+.sb-pwa-btn:hover, .sb-pwa-btn:active {
+  background: rgba(255,255,255,.18);
+}
+@media (max-width: 900px) {
+  .sb-pwa-btns { display: block; }
+}
 /* Căn chỉnh SVG inline trong button, text, label */
 .btn svg, .btn-login-off svg, .btn-login-on svg,
 .tb-more-item svg { vertical-align: middle; flex-shrink: 0; }

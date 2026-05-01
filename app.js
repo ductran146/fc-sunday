@@ -267,7 +267,88 @@ function memberTotalDebt(mid, year) {
   return memberDebtFee(mid, year||_year) + memberDebtFine(mid);
 }
 
-/* ─── REFRESH DATA ───────────────────────────── */
+/* ─── PWA INSTALL ────────────────────────────── */
+let _deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _deferredPrompt = e;
+  // Hiện button Android
+  const btn = document.getElementById('btn-install-android');
+  if (btn) btn.style.display = 'flex';
+});
+
+window.addEventListener('appinstalled', () => {
+  _deferredPrompt = null;
+  const btn = document.getElementById('btn-install-android');
+  if (btn) btn.style.display = 'none';
+  showToast('✅ Đã thêm FC Sunday vào màn hình chính!', 'green');
+});
+
+function pwaInstall() {
+  if (_deferredPrompt) {
+    _deferredPrompt.prompt();
+    _deferredPrompt.userChoice.then(r => {
+      _deferredPrompt = null;
+    });
+    closeSidebar();
+  }
+}
+
+function pwaIOSGuide() {
+  // Modal hướng dẫn iOS
+  let ov = document.getElementById('ov-ios-guide');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.className = 'ov'; ov.id = 'ov-ios-guide';
+    ov.innerHTML = `<div class="modal" style="max-width:360px;text-align:center">
+      <div style="font-size:32px;margin-bottom:12px"><img src="logo.jpg" style="width:64px;height:64px;border-radius:16px;object-fit:cover"></div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:6px">Thêm vào màn hình iPhone</div>
+      <div style="font-size:13px;color:var(--gray-500);margin-bottom:20px;line-height:1.6">Làm theo 3 bước đơn giản để cài FC Sunday như app thật</div>
+      <div style="text-align:left;display:flex;flex-direction:column;gap:14px;margin-bottom:24px">
+        <div style="display:flex;align-items:flex-start;gap:12px">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--p-600);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--gray-800)">Bấm nút Chia sẻ</div>
+            <div style="font-size:12px;color:var(--gray-500);margin-top:2px">Nút <b>⬆</b> ở thanh dưới Safari</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--p-600);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--gray-800)">Chọn "Thêm vào màn hình chính"</div>
+            <div style="font-size:12px;color:var(--gray-500);margin-top:2px">Kéo xuống trong menu Share để tìm</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--p-600);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--gray-800)">Bấm "Thêm"</div>
+            <div style="font-size:12px;color:var(--gray-500);margin-top:2px">Icon FC Sunday sẽ xuất hiện trên màn hình</div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-p btn-full" style="height:44px" onclick="closeOv('ov-ios-guide')">Đã hiểu, đóng lại</button>
+    </div>`;
+    ov.addEventListener('click', e => { if(e.target===ov) closeOv('ov-ios-guide'); });
+    document.body.appendChild(ov);
+  }
+  openOv('ov-ios-guide');
+  closeSidebar();
+}
+
+function _initPWA() {
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  // Nếu đã cài rồi (standalone) thì ẩn cả 2 button
+  if (isStandalone) return;
+  if (isIOS) {
+    const btn = document.getElementById('btn-install-ios');
+    if (btn) btn.style.display = 'flex';
+  }
+  // Android button sẽ được hiện bởi beforeinstallprompt event
+}
+
 async function refreshData() {
   const btn = $el('btn-refresh');
   if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
@@ -678,6 +759,7 @@ async function initApp() {
   checkAuth();
   updateDataBadge();
   updateSidebarBadges();
+  _initPWA();
   renderAll();
 }
 

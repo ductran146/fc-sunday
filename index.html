@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tổng quan — FC Sunday</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FC Sunday">
+<meta name="theme-color" content="#00332d">
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
@@ -13,10 +20,10 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sb-brand">
-      <div class="sb-logo">⚽</div>
+      <div class="sb-logo" style="padding:0;overflow:hidden"><img src="logo.jpg" style="width:40px;height:40px;object-fit:cover;border-radius:10px" alt="FC Sunday"></div>
       <div class="sb-brand-text">
-        <div class="sb-brand-name">FC Sunday</div>
-        <div class="sb-brand-sub">Tổng hợp thu chi quỹ đội bóng</div>
+        <div class="sb-brand-name" style="display:flex;align-items:center;gap:4px">⚽⚽ FC Sunday</div>
+        <div class="sb-brand-sub">⚽ Tổng hợp thu chi quỹ đội bóng</div>
       </div>
     </div>
     <nav class="sb-nav">
@@ -28,9 +35,21 @@
       <a class="sb-item" href="thanh-vien.html"><span class="sb-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.1955 2.38854C17.132 2.00504 16.9045 1.64404 16.5065 1.41904C16.102 1.19004 15.5835 1.19404 15.1825 1.42904C14.558 1.79504 14.3555 2.50704 14.5755 3.09704C14.714 3.46854 14.585 3.88904 14.3045 4.16954L4.19151 14.282C3.91101 14.5625 3.49101 14.6915 3.11901 14.553C2.52901 14.333 1.81701 14.5355 1.45101 15.1605C1.21601 15.5615 1.21201 16.08 1.44101 16.4845C1.66601 16.882 2.02701 17.1095 2.41051 17.1735C2.63601 17.211 2.81101 17.386 2.84851 17.6115C2.91251 17.9955 3.14001 18.357 3.53901 18.582C3.94251 18.81 4.45951 18.806 4.85951 18.5725C5.47851 18.211 5.68251 17.513 5.47501 16.928C5.34451 16.559 5.47551 16.1465 5.75251 15.8695L15.891 5.73054C16.168 5.45354 16.5805 5.32204 16.9495 5.45304C17.535 5.66054 18.2325 5.45654 18.594 4.83754C18.828 4.43704 18.8315 3.92054 18.6035 3.51704C18.3785 3.11854 18.017 2.89054 17.633 2.82704C17.4075 2.78954 17.2325 2.61404 17.1955 2.38854Z" fill="#A1A4A4"/><path d="M2.849 2.38854C2.9125 2.00504 3.14 1.64404 3.538 1.41904C3.9425 1.19004 4.461 1.19404 4.862 1.42904C5.4865 1.79504 5.689 2.50704 5.469 3.09704C5.3305 3.46854 5.4595 3.88904 5.74 4.16954L15.8525 14.282C16.133 14.5625 16.553 14.6915 16.925 14.553C17.515 14.333 18.227 14.5355 18.593 15.1605C18.828 15.5615 18.832 16.08 18.603 16.4845C18.378 16.882 18.017 17.1095 17.6335 17.1735C17.408 17.211 17.233 17.386 17.1955 17.6115C17.1315 17.9955 16.904 18.357 16.505 18.582C16.1015 18.81 15.5845 18.806 15.1845 18.5725C14.5655 18.211 14.3615 17.513 14.569 16.928C14.6995 16.559 14.5685 16.1465 14.2915 15.8695L4.1535 5.73054C3.8765 5.45354 3.464 5.32204 3.095 5.45304C2.5095 5.66054 1.812 5.45654 1.4505 4.83754C1.2165 4.43704 1.213 3.92054 1.441 3.51704C1.666 3.11854 2.0275 2.89054 2.4115 2.82704C2.637 2.78954 2.812 2.61404 2.849 2.38854Z" fill="#A1A4A4"/><path d="M10.0225 15.073C6.43246 15.073 3.52246 14.7785 3.52246 10.0305C3.52246 6.44052 6.43246 3.53052 10.0225 3.53052C13.6125 3.53052 16.5225 6.44052 16.5225 10.0305C16.5225 14.7785 13.6125 15.073 10.0225 15.073Z" fill="#CACBCB"/><path d="M13.2479 12.0935V15.128C13.2479 15.869 12.6474 16.4695 11.9064 16.4695H8.13886C7.39786 16.4695 6.79736 15.869 6.79736 15.128V12.0935H13.2479Z" fill="#CACBCB"/><path d="M13.2769 9.59551C13.2769 8.86953 12.6884 8.28101 11.9624 8.28101C11.2365 8.28101 10.6479 8.86953 10.6479 9.59551V10.0455C10.6479 10.7715 11.2365 11.36 11.9624 11.36C12.6884 11.36 13.2769 10.7715 13.2769 10.0455V9.59551Z" fill="black"/><path d="M9.39658 9.59551C9.39658 8.86953 8.80806 8.28101 8.08208 8.28101C7.3561 8.28101 6.76758 8.86953 6.76758 9.59551V10.0455C6.76758 10.7715 7.3561 11.36 8.08208 11.36C8.80806 11.36 9.39658 10.7715 9.39658 10.0455V9.59551Z" fill="black"/><path d="M8.90804 16.4696V15.1496C8.90804 14.9441 8.74204 14.7781 8.53654 14.7781C8.33104 14.7781 8.16504 14.9441 8.16504 15.1496V16.4696H8.90804Z" fill="#A1A4A4"/><path d="M10.3934 16.4696V15.1496C10.3934 14.9441 10.2274 14.7781 10.0219 14.7781C9.81639 14.7781 9.65039 14.9441 9.65039 15.1496V16.4696H10.3934Z" fill="#A1A4A4"/><path d="M11.8795 16.4696V15.1496C11.8795 14.9441 11.7135 14.7781 11.508 14.7781C11.3025 14.7781 11.1365 14.9441 11.1365 15.1496V16.4696H11.8795Z" fill="#A1A4A4"/><path d="M9.36116 12.039L9.68366 11.5805C9.85366 11.3385 10.2137 11.342 10.3787 11.587L10.6882 12.0455C10.8772 12.326 10.6767 12.7035 10.3382 12.7035H9.70616C9.36416 12.7035 9.16416 12.318 9.36066 12.0385L9.36116 12.039Z" fill="black"/></svg></span><span class="sb-label">Thành viên</span><span class="sb-badge" id="sbg-tv">—</span></a>
     </nav>
     <div class="sb-footer">
-      <div class="sb-year-box">
+      <div class="sb-year-box" style="margin-bottom:12px">
         <span class="sb-year-label">Năm tài chính</span>
         <span class="sb-year-val">2026</span>
+      </div>
+      <!-- PWA Install buttons - always visible on mobile -->
+      <div class="sb-pwa-btns">
+        <div style="font-size:10px;color:rgba(255,255,255,.35);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Cài app lên màn hình</div>
+        <button class="sb-pwa-btn" id="btn-install-android" onclick="pwaInstall()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17.6 9.48L19.72 5.9a.43.43 0 00-.74-.44l-2.13 3.6A12.47 12.47 0 0012 8c-1.74 0-3.39.37-4.85 1.06L5.02 5.46a.43.43 0 00-.74.44l2.12 3.58A11.86 11.86 0 000 20h24c0-4.17-2.52-7.75-6.4-10.52zM7 17a1 1 0 110-2 1 1 0 010 2zm10 0a1 1 0 110-2 1 1 0 010 2z" fill="#3DDC84"/></svg>
+          Thêm vào Android
+        </button>
+        <button class="sb-pwa-btn" id="btn-install-ios" onclick="pwaIOSGuide()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" fill="white"/></svg>
+          Thêm vào iPhone
+        </button>
       </div>
     </div>
   </aside>
@@ -145,7 +164,7 @@
 <div class="ov" id="ov-login">
   <div class="modal login-modal" style="position:relative">
     <button class="modal-close" style="position:absolute;top:16px;right:16px" onclick="closeLoginModal()">×</button>
-    <div class="login-icon">⚽</div>
+    <div class="login-icon" style="padding:0;overflow:hidden"><img src="logo.jpg" style="width:52px;height:52px;object-fit:cover;border-radius:12px" alt="FC Sunday"></div>
     <div class="login-title">Đăng nhập</div>
     <div class="login-sub">Nhập thông tin để chỉnh sửa dữ liệu</div>
     <div class="login-error" id="login-error">⚠ Sai tên đăng nhập hoặc mật khẩu</div>
