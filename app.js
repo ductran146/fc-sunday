@@ -447,8 +447,11 @@ function updateAuthUI() {
   if (toolbar) toolbar.style.display = _auth ? 'flex' : 'none';
   if (btnSync) btnSync.style.display = _auth ? 'inline-flex' : 'none';
   if (btnCfg)  btnCfg.style.display  = _auth ? 'inline-flex' : 'none';
-  // Ẩn button ··· khi chưa login (không có gì để hiện trong menu)
-  if (btnMore) btnMore.style.display = _auth ? 'flex' : 'none';
+  // Ẩn button ··· khi chưa login — dùng class để thắng CSS media query
+  if (btnMore) {
+    if (_auth) btnMore.classList.remove('tb-more-hidden');
+    else       btnMore.classList.add('tb-more-hidden');
+  }
   // More menu admin items
   const show = _auth ? 'flex' : 'none';
   ['mm-import','mm-export','mm-sync','mm-cfg'].forEach(id => {

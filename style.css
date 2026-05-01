@@ -952,6 +952,8 @@ tbody tr:hover .del-btn { opacity: 1; }
   position: relative;
   -webkit-appearance: none;
 }
+/* Ẩn hoàn toàn khi chưa login — override mọi media query */
+.tb-more-btn.tb-more-hidden { display: none !important; }
 
 /* Dropdown */
 .tb-more-wrap {
