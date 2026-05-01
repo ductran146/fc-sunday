@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>FC Sunday — Tổng quỹ</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="FC Sunday Quỹ">
+<meta name="theme-color" content="#00332d">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green:  #00332d;
+    --green2: #005244;
+    --accent: #00A887;
+    --gold:   #FFC522;
+    --red:    #dc2626;
+    --amber:  #d97706;
+    --text:   rgba(255,255,255,.9);
+    --sub:    rgba(255,255,255,.45);
+  }
+
+  html, body {
+    height: 100%; min-height: 100dvh;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--green);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── Layout ── */
+  .wrap {
+    min-height: 100dvh;
+    display: flex; flex-direction: column;
+    padding: 0 0 32px;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 20px 0;
+  }
+  .header-brand { display: flex; align-items: center; gap: 10px; }
+  .header-logo {
+    width: 36px; height: 36px; border-radius: 8px;
+    object-fit: cover;
+  }
+  .header-name { font-size: 15px; font-weight: 800; }
+  .header-sub  { font-size: 11px; color: var(--sub); font-weight: 500; margin-top: 1px; }
+  .btn-refresh-hdr {
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+    border-radius: 8px; padding: 7px 12px;
+    color: var(--text); font-size: 12px; font-weight: 700;
+    font-family: inherit; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    -webkit-appearance: none;
+  }
+  .btn-refresh-hdr:active { background: rgba(255,255,255,.15); }
+  .spin { animation: spin .8s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 28px 20px 20px;
+    position: relative; overflow: hidden;
+  }
+  .hero-watermark {
+    position: absolute; right: -10px; bottom: -20px;
+    opacity: .04; pointer-events: none;
+  }
+  .hero-watermark img { width: 160px; height: 160px; border-radius: 50%; }
+  .hero-label {
+    font-size: 11px; font-weight: 700; color: var(--sub);
+    letter-spacing: .08em; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .hero-amount {
+    font-size: 42px; font-weight: 900; color: #fff;
+    letter-spacing: -.5px; line-height: 1;
+    margin-bottom: 6px;
+  }
+  .hero-amount.negative { color: #fca5a5; }
+  .hero-sub { font-size: 13px; color: var(--sub); margin-bottom: 22px; }
+  .hero-divider { height: 1px; background: rgba(255,255,255,.08); margin-bottom: 20px; }
+
+  /* ── 2 quỹ cards ── */
+  .fund-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    padding: 0 20px; margin-bottom: 20px;
+  }
+  .fund-card {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 14px; padding: 14px;
+  }
+  .fund-label {
+    font-size: 10px; font-weight: 700; color: var(--sub);
+    text-transform: uppercase; letter-spacing: .06em;
+    margin-bottom: 8px; display: flex; align-items: center; gap: 5px;
+  }
+  .fund-amount {
+    font-size: 22px; font-weight: 800; color: #fff; line-height: 1;
+    margin-bottom: 8px;
+  }
+  .fund-amount.negative { color: #fca5a5; }
+  .fund-detail { font-size: 11px; color: var(--sub); line-height: 1.7; }
+
+  /* ── Stats row ── */
+  .stats-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; padding: 0 20px; margin-bottom: 20px;
+  }
+  .stat-card {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px; padding: 12px 14px;
+  }
+  .stat-label { font-size: 11px; color: var(--sub); margin-bottom: 4px; }
+  .stat-val   { font-size: 16px; font-weight: 800; color: #fff; }
+  .stat-val.green { color: var(--accent); }
+  .stat-val.amber { color: var(--amber); }
+
+  /* ── Members bar ── */
+  .members-section { padding: 0 20px; margin-bottom: 20px; }
+  .section-title {
+    font-size: 12px; font-weight: 700; color: var(--sub);
+    text-transform: uppercase; letter-spacing: .06em;
+    margin-bottom: 12px;
+  }
+  .members-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  .member-chip {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 8px; padding: 6px 4px;
+    text-align: center;
+  }
+  .member-chip.paid { border-color: rgba(0,168,135,.4); background: rgba(0,168,135,.12); }
+  .member-chip.debt { border-color: rgba(217,119,6,.4); background: rgba(217,119,6,.1); }
+  .member-name { font-size: 10px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .member-status { font-size: 9px; color: var(--sub); margin-top: 2px; }
+  .member-status.ok  { color: var(--accent); }
+  .member-status.bad { color: var(--amber); }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: auto; padding: 0 20px;
+    text-align: center;
+  }
+  .footer-time { font-size: 11px; color: var(--sub); margin-bottom: 12px; }
+  .btn-open-app {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 14px;
+    background: var(--accent); border: none; border-radius: 12px;
+    color: #fff; font-size: 15px; font-weight: 700;
+    font-family: inherit; cursor: pointer; text-decoration: none;
+    -webkit-appearance: none;
+  }
+  .btn-open-app:active { background: #058069; }
+
+  /* ── Status badge ── */
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+    margin-bottom: 20px; margin-left: 20px;
+  }
+  .status-badge.ok  { background: rgba(0,168,135,.2); color: #5eead4; }
+  .status-badge.err { background: rgba(220,38,38,.2);  color: #fca5a5; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* ── Loading ── */
+  .loading {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    min-height: 60dvh; gap: 16px;
+  }
+  .loading-logo { width: 64px; height: 64px; border-radius: 16px; object-fit: cover; }
+  .loading-text { font-size: 14px; color: var(--sub); }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <!-- Loading state -->
+  <div class="loading" id="loading-state">
+    <img src="logo.jpg" class="loading-logo" alt="FC Sunday">
+    <div class="loading-text">Đang tải dữ liệu...</div>
+  </div>
+</div>
+
+<script>
+const FEE = 200000, FINE = 50000, BASE_YEAR = 2026;
+let S = null, _year = new Date().getFullYear();
+
+/* ── Helpers ── */
+function fmt(n) {
+  if (!n && n !== 0) return '0đ';
+  const sign = n < 0 ? '-' : '';
+  return sign + Math.abs(n).toLocaleString('vi-VN') + 'đ';
+}
+function fmtDate(d) {
+  return d.toLocaleString('vi-VN', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit' });
+}
+function _ttKey(mid, year) { return year === BASE_YEAR ? String(mid) : `${mid}_${year}`; }
+function getTT(mid, mi, year) {
+  year = year || _year;
+  const arr = S.thuThang[_ttKey(mid,year)] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
+  return arr[mi] || 0;
+}
+function memberPaidCount(mid, year) {
+  year = year || _year;
+  const arr = S.thuThang[_ttKey(mid,year)] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
+  return arr.filter(v=>v===1).length;
+}
+function memberExemptCount(mid, year) {
+  year = year || _year;
+  const arr = S.thuThang[_ttKey(mid,year)] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
+  return arr.filter(v=>v===2).length;
+}
+function activeMembers() { return (S.members||[]).filter(m=>m.status==='active'); }
+function matchesInYear(year) {
+  return (S.matches||[]).filter(m => {
+    const y = m.date ? parseInt(m.date.split('-')[0]) : BASE_YEAR;
+    return y === (year||_year);
+  });
+}
+function thuThangGrand(year) {
+  year = year||_year;
+  return activeMembers().reduce((s,m) => {
+    const arr = S.thuThang[_ttKey(m.id,year)] || (year===BASE_YEAR ? S.thuThang[String(m.id)] : null) || [];
+    return s + arr.filter(v=>v===1).length * FEE;
+  }, 0);
+}
+function thuPhatGrand(year) {
+  return matchesInYear(year).reduce((s,m)=>s+(m.losers||[]).length*FINE, 0);
+}
+function thuThemGrand(year) {
+  return matchesInYear(year).reduce((s,m)=>s+(m.thuThem||0), 0);
+}
+function chiByFund(fund, year) {
+  return (S.chiTieu||[])
+    .filter(c => c.date && parseInt(c.date.split('-')[0])===(year||_year) && (c.fund||'thang')===fund)
+    .reduce((s,c)=>s+c.amount, 0);
+}
+function chiTotal(year) {
+  return (S.chiTieu||[])
+    .filter(c => c.date && parseInt(c.date.split('-')[0])===(year||_year))
+    .reduce((s,c)=>s+c.amount, 0);
+}
+function tonQuyThang(year) { return thuThangGrand(year) - chiByFund('thang', year); }
+function tonQuyBia(year)   { return thuPhatGrand(year) + thuThemGrand(year) - chiByFund('bia', year); }
+function totalTon(year)    { return tonQuyThang(year) + tonQuyBia(year); }
+function monthsRequired(year) {
+  const now = new Date();
+  year = year||_year;
+  if (year < now.getFullYear()) return 12;
+  if (year > now.getFullYear()) return 0;
+  return now.getMonth() + 1;
+}
+function memberDebt(mid, year) {
+  const mem = S.members.find(m=>m.id===mid);
+  if (!mem || mem.status!=='active') return 0;
+  const req    = Math.max(0, Math.min(monthsRequired(year||_year), 12) - memberExemptCount(mid, year));
+  const paid   = memberPaidCount(mid, year);
+  const debtFee  = Math.max(0, req - paid) * FEE;
+  const debtFine = (S.matches||[]).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.memberId===mid&&!l.paid).length,0)*FINE;
+  return debtFee + debtFine;
+}
+
+/* ── Load data ── */
+async function loadData() {
+  const cfg = (() => { try { return JSON.parse(localStorage.getItem('fc_gh')||'null'); } catch(e) { return null; } })();
+  let url = './data.json?t=' + Date.now();
+  if (cfg?.owner && cfg?.repo) {
+    const branch = cfg.branch||'main', fp = cfg.filePath||'data.json';
+    url = `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${branch}/${fp}?t=${Date.now()}`;
+  }
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return await r.json();
+}
+
+/* ── Render ── */
+function render() {
+  const ton       = totalTon(_year);
+  const tThang    = tonQuyThang(_year);
+  const tBia      = tonQuyBia(_year);
+  const thuPhi    = thuThangGrand(_year);
+  const chiThang  = chiByFund('thang', _year);
+  const thuBia    = thuPhatGrand(_year) + thuThemGrand(_year);
+  const chiBia    = chiByFund('bia', _year);
+  const am        = activeMembers();
+  const req       = monthsRequired(_year);
+  const matches   = matchesInYear(_year);
+  const totalChi  = chiTotal(_year);
+
+  // Members with debt info
+  const membersData = am.map(m => ({
+    ...m,
+    paid: memberPaidCount(m.id, _year),
+    debt: memberDebt(m.id, _year),
+    req:  Math.max(0, Math.min(req,12) - memberExemptCount(m.id,_year))
+  })).sort((a,b) => b.debt - a.debt);
+
+  const debtCount = membersData.filter(m=>m.debt>0).length;
+  const paidFull  = membersData.filter(m=>m.debt===0).length;
+
+  document.getElementById('wrap').innerHTML = `
+    <!-- Header -->
+    <div class="header">
+      <div class="header-brand">
+        <img src="logo.jpg" class="header-logo" alt="FC Sunday">
+        <div>
+          <div class="header-name">FC Sunday</div>
+          <div class="header-sub">Quỹ đội bóng ${_year}</div>
+        </div>
+      </div>
+      <button class="btn-refresh-hdr" onclick="refresh()">
+        <span id="refresh-icon">↻</span> Cập nhật
+      </button>
+    </div>
+
+    <!-- Status -->
+    <div style="padding:12px 20px 0">
+      <span class="status-badge ok" style="margin-left:0">
+        <span class="dot"></span> Dữ liệu mới nhất
+      </span>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-watermark"><img src="logo.jpg" alt=""></div>
+      <div class="hero-label">Tổng quỹ hiện tại</div>
+      <div class="hero-amount ${ton<0?'negative':''}">${fmt(ton)}</div>
+      <div class="hero-sub">Quỹ hàng tháng + Quỹ bia · Năm ${_year}</div>
+      <div class="hero-divider"></div>
+    </div>
+
+    <!-- 2 Fund cards -->
+    <div class="fund-grid">
+      <div class="fund-card">
+        <div class="fund-label">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 0.7C11.18 0.7 11.16 1.14 11.95 1.18C12.75 1.22 13.16 0.97 13.7 1.05C14.07 1.1 14.35 1.27 14.55 1.43C14.76 1.61 14.79 1.92 14.62 2.14L12.78 4.55C12.61 4.74 12.63 5.03 12.82 5.2C15.7 7.69 19.25 10.69 19.25 13.38C19.25 17.9 15.54 19.3 10 19.3C4.46 19.3 0.75 17.9 0.75 13.38C0.75 10.69 4.3 7.69 7.18 5.2C7.37 5.03 7.39 4.74 7.22 4.55L5.38 2.14C5.21 1.92 5.24 1.61 5.45 1.43C5.65 1.27 5.93 1.1 6.3 1.05C6.84 0.97 7.25 1.22 8.05 1.18C8.84 1.14 8.82 0.7 10 0.7Z" fill="#FFC522"/></svg>
+          Quỹ hàng tháng
+        </div>
+        <div class="fund-amount ${tThang<0?'negative':''}">${fmt(tThang)}</div>
+        <div class="fund-detail">
+          Thu: ${fmt(thuPhi)}<br>Chi: ${fmt(chiThang)}
+        </div>
+      </div>
+      <div class="fund-card">
+        <div class="fund-label">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M16.76 9.68H16.17V8.18C16.05 8.23 15.91 8.26 15.77 8.26H9.46C8.89 8.26 8.42 8.72 8.42 9.3C8.42 10.18 7.68 10.89 6.79 10.85C6.45 10.83 6.16 10.7 5.92 10.5V16.7C5.92 17.83 6.84 18.75 7.97 18.75H14.12C15.25 18.75 16.17 17.83 16.17 16.7V16.43H16.76C17.77 16.43 18.59 15.61 18.59 14.6V11.51C18.59 10.5 17.77 9.68 16.76 9.68Z" fill="#FFAA00"/><path d="M7.28 4.76H13.48V3.25C13.48 2.15 12.58 1.25 11.48 1.25H4.02C2.92 1.25 2.02 2.15 2.02 3.25V3.76C2.02 4.17 2.27 4.52 2.62 4.67C2.75 4.73 2.88 4.76 3.02 4.76H7.28Z" fill="#D0D5DA"/><path d="M7.32 4.75C6.26 4.78 5.43 5.57 5.34 6.57C5.33 6.63 5.32 6.69 5.32 6.75V9.21C5.32 9.66 5.5 10.08 5.8 10.38C5.84 10.42 5.88 10.46 5.92 10.5C6.16 10.7 6.46 10.83 6.79 10.85C7.69 10.89 8.43 10.18 8.43 9.29C8.43 8.72 8.89 8.26 9.46 8.26H15.77C15.91 8.26 16.05 8.23 16.17 8.17C16.52 8.02 16.77 7.67 16.77 7.26V6.75C16.77 5.65 15.88 4.75 14.77 4.75H7.32Z" fill="#EBEBEB"/></svg>
+          Quỹ bia
+        </div>
+        <div class="fund-amount ${tBia<0?'negative':''}">${fmt(tBia)}</div>
+        <div class="fund-detail">
+          Thu: ${fmt(thuBia)}<br>Chi: ${fmt(chiBia)}
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Thành viên</div>
+        <div class="stat-val">${am.length} người</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Số trận đã đá</div>
+        <div class="stat-val">${matches.length} trận</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Đã đóng đủ</div>
+        <div class="stat-val green">${paidFull} người</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Còn nợ quỹ</div>
+        <div class="stat-val ${debtCount>0?'amber':'green'}">${debtCount} người</div>
+      </div>
+    </div>
+
+    <!-- Members -->
+    <div class="members-section">
+      <div class="section-title">Trạng thái thành viên (${req} tháng)</div>
+      <div class="members-grid">
+        ${membersData.map(m => {
+          const cls = m.debt===0 ? 'paid' : 'debt';
+          const statusTxt = m.debt===0 ? 'Đủ ✓' : '-' + fmt(m.debt);
+          const statusCls = m.debt===0 ? 'ok' : 'bad';
+          const shortName = m.name.split(' ').slice(-2).join(' ');
+          return `<div class="member-chip ${cls}">
+            <div class="member-name" title="${m.name}">${shortName}</div>
+            <div class="member-status ${statusCls}">${statusTxt}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-time">Cập nhật lúc ${fmtDate(new Date())}</div>
+      <a href="index.html" class="btn-open-app">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M3.33 17.5H5.61C6.07 17.5 6.45 17.13 6.45 16.67L6.45 7.28C6.45 6.82 6.07 6.45 5.61 6.45H3.33C2.87 6.45 2.5 6.82 2.5 7.28L2.5 16.67C2.5 17.13 2.87 17.5 3.33 17.5Z" fill="#00BC79"/><path d="M8.86 17.5H11.14C11.6 17.5 11.97 17.13 11.97 16.67V11.23C11.97 10.77 11.6 10.39 11.14 10.39H8.86C8.4 10.39 8.03 10.77 8.03 11.23V16.67C8.03 17.13 8.4 17.5 8.86 17.5Z" fill="#007FF3"/><path d="M14.39 17.5H16.67C17.13 17.5 17.5 17.13 17.5 16.67V3.33C17.5 2.87 17.13 2.5 16.67 2.5H14.39C13.93 2.5 13.55 2.87 13.55 3.33L13.55 16.67C13.55 17.13 13.93 17.5 14.39 17.5Z" fill="#FC2D4C"/></svg>
+        Mở Dashboard đầy đủ
+      </a>
+    </div>
+  `;
+}
+
+async function refresh() {
+  const icon = document.getElementById('refresh-icon');
+  if (icon) { icon.className = 'spin'; icon.textContent = '↻'; }
+  try {
+    S = await loadData();
+    render();
+  } catch(e) {
+    alert('Không tải được dữ liệu. Kiểm tra kết nối mạng.');
+    if (icon) { icon.className = ''; }
+  }
+}
+
+/* ── Init ── */
+(async () => {
+  try {
+    S = await loadData();
+    render();
+  } catch(e) {
+    // Fallback localStorage
+    try {
+      const raw = localStorage.getItem('fc2026');
+      if (raw) { S = JSON.parse(raw); render(); return; }
+    } catch(e2) {}
+    document.getElementById('wrap').innerHTML = `
+      <div class="loading">
+        <img src="logo.jpg" class="loading-logo" alt="FC Sunday">
+        <div class="loading-text">Không tải được dữ liệu</div>
+        <button class="btn-open-app" style="margin-top:16px;max-width:240px" onclick="location.reload()">Thử lại</button>
+      </div>`;
+  }
+})();
+</script>
+</body>
+</html>
