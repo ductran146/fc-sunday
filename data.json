@@ -79,7 +79,7 @@
     },
     {
       "id": 13,
-      "name": "Trưởng Xẻ",
+      "name": "Trường Xẻ",
       "phone": "",
       "status": "active",
       "note": ""
@@ -379,7 +379,7 @@
       2,
       1,
       1,
-      0,
+      1,
       0,
       0,
       0,
