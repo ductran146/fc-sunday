@@ -367,18 +367,21 @@ function _initPWA() {
 }
 
 async function refreshData() {
-  const btn = $el('btn-refresh');
-  if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
+  const btn   = $el('btn-refresh');
+  const label = $el('refresh-label');
+  if (btn)   btn.disabled = true;
+  if (label) label.textContent = 'Đang tải...';
   const ok = await fetchRemote();
   if (ok) {
     updateDataBadge();
     updateSidebarBadges();
     if (window.renderAll) renderAll();
-    showToast('✅ Đã tải dữ liệu mới nhất', 'green');
+    showToast('✅ Đã cập nhật dữ liệu mới nhất', 'green');
   } else {
     showToast('⚠ Không thể tải — dùng dữ liệu cũ', 'default');
   }
-  if (btn) { btn.textContent = '🔄'; btn.disabled = false; }
+  if (btn)   btn.disabled = false;
+  if (label) label.textContent = 'Cập nhật';
 }
 
 /* ─── PERSISTENCE ────────────────────────────── */
