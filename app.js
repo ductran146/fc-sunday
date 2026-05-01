@@ -441,12 +441,15 @@ function updateAuthUI() {
   const toolbar = $el('data-toolbar');
   const btnSync = $el('btn-gh-sync');
   const btnCfg  = $el('btn-gh-cfg');
+  const btnMore = document.querySelector('.tb-more-btn');
   if (btnOff)  btnOff.style.display  = _auth ? 'none' : 'flex';
   if (btnOn)   btnOn.style.display   = _auth ? 'flex' : 'none';
   if (toolbar) toolbar.style.display = _auth ? 'flex' : 'none';
   if (btnSync) btnSync.style.display = _auth ? 'inline-flex' : 'none';
   if (btnCfg)  btnCfg.style.display  = _auth ? 'inline-flex' : 'none';
-  // More menu admin items: chỉ hiện khi login
+  // Ẩn button ··· khi chưa login (không có gì để hiện trong menu)
+  if (btnMore) btnMore.style.display = _auth ? 'flex' : 'none';
+  // More menu admin items
   const show = _auth ? 'flex' : 'none';
   ['mm-import','mm-export','mm-sync','mm-cfg'].forEach(id => {
     const el = $el(id);
