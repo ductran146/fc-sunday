@@ -236,7 +236,7 @@ function renderMonthlyTable() {
   let rows = '';
   for (let i = 0; i < 12; i++) {
     const phi = thuThangMonthTotal(i);
-    const phat = thuPhatMonth(i);
+    const phat = thuPhatTotalMonth(i, _year);
     const total = phi + phat;
     const chi = chiMonth(i);
     const ton = tonLuyKe(i);
@@ -253,7 +253,7 @@ function renderMonthlyTable() {
     </tr>`;
   }
   // Footer
-  const totPhi = thuThangGrand(_year), totPhat = thuPhatGrand(_year), totTotal = totPhi+totPhat, totChi = chiTotal(_year), totTon = totalTon(_year), totTran = matchesInYear(_year).length;
+  const totPhi = thuThangGrand(_year), totPhat = thuPhatTotalGrand(_year), totTotal = totPhi+totPhat, totChi = chiTotal(_year), totTon = totalTon(_year), totTran = matchesInYear(_year).length;
   rows += `<tr class="tbl-foot">
     <td class="bold">TỔNG CỘNG</td>
     <td class="tr">${fmt(totPhi)}</td>

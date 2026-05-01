@@ -182,12 +182,23 @@ function matchesInYear(year) {
     return y === year;
   });
 }
+// Quỹ bia thu thực tế = chỉ tính người đã nộp (paid: true)
 function thuPhatMonth(mi, year) {
-  return matchesInMonth(mi, year||_year).reduce((s,m)=>s+(m.losers||[]).length*FINE,0);
+  return matchesInMonth(mi, year||_year)
+    .reduce((s,m) => s + (m.losers||[]).filter(l=>l.paid).length * FINE, 0);
 }
 function thuPhatGrand(year) {
   year = year || _year; let t=0;
   for(let i=0;i<12;i++) t+=thuPhatMonth(i,year); return t;
+}
+// Tổng phải thu (cả chưa nộp) — dùng cho báo cáo nợ
+function thuPhatTotalMonth(mi, year) {
+  return matchesInMonth(mi, year||_year)
+    .reduce((s,m) => s + (m.losers||[]).length * FINE, 0);
+}
+function thuPhatTotalGrand(year) {
+  year = year || _year; let t=0;
+  for(let i=0;i<12;i++) t+=thuPhatTotalMonth(i,year); return t;
 }
 function thuThemMonth(mi, year) {
   return matchesInMonth(mi, year||_year).reduce((s,m)=>s+(m.thuThem||0),0);

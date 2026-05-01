@@ -200,7 +200,7 @@ function renderPhatAccordion() {
   let html = '';
   for (let i = 0; i < 12; i++) {
     const matches = matchesInMonth(i);
-    const phatTotal = thuPhatMonth(i);
+    const phatTotal = thuPhatTotalMonth(i, _year);
     const thuThemTotal = thuThemMonth(i);
     const unpaid = matches.reduce((s,m)=>s+(m.losers||[]).filter(l=>!l.paid).length*FINE,0);
     const isOpen = i === 0;
@@ -331,7 +331,7 @@ function _updateAccordionHeader(mi) {
   const accItem = document.getElementById(`acc-${mi}`);
   if (!accItem) return;
   const matches    = matchesInMonth(mi, _year);
-  const phatTotal  = thuPhatMonth(mi, _year);
+  const phatTotal  = thuPhatTotalMonth(mi, _year);
   const thuThemTot = thuThemMonth(mi, _year);
   const unpaid     = matches.reduce((s,m)=>s+(m.losers||[]).filter(l=>!l.paid).length*FINE,0);
   const metaEl = accItem.querySelector('.acc-meta');
@@ -459,7 +459,7 @@ function renderPhatSummary() {
   let rows = '', grandPhat = 0, grandTran = 0, grandUnpaid = 0, grandThuThem = 0;
   for (let i=0;i<12;i++) {
     const matches   = matchesInMonth(i);
-    const phat      = thuPhatMonth(i);
+    const phat      = thuPhatTotalMonth(i, _year);
     const thuThem   = thuThemMonth(i);
     const unpaid    = matches.reduce((s,m)=>s+(m.losers||[]).filter(l=>!l.paid).length*FINE,0);
     const avg       = matches.length ? phat/matches.length : 0;
@@ -486,7 +486,7 @@ function renderPhatSummary() {
 }
 
 function renderCharts() {
-  const phatData = Array.from({length:12},(_,i)=>thuPhatMonth(i));
+  const phatData = Array.from({length:12},(_,i)=>thuPhatTotalMonth(i,_year));
   const opts = chartDefaults();
 
   if (_cPM) _cPM.destroy();
