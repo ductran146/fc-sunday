@@ -828,7 +828,7 @@
         },
         {
           "memberId": 10,
-          "paid": true
+          "paid": false
         },
         {
           "memberId": 13,
