@@ -24,6 +24,11 @@
     --amber:  #d97706;
     --text:   rgba(255,255,255,.9);
     --sub:    rgba(255,255,255,.45);
+    --border: rgba(255,255,255,.1);
+    --card-bg: rgba(255,255,255,.07);
+    --gap: 40px;
+    --px: 20px;
+    --r: 16px;
   }
 
   html, body {
@@ -34,148 +39,177 @@
     overflow-x: hidden;
   }
 
-  /* ── Layout ── */
-  .wrap {
-    min-height: 100dvh;
-    display: flex; flex-direction: column;
-    padding: 0 0 32px;
+  /* ── Sticky header ── */
+  .sticky-hdr {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--green);
+    padding: env(safe-area-inset-top, 0) var(--px) 0;
+    /* subtle shadow to separate from scrolling content */
+    box-shadow: 0 1px 0 rgba(255,255,255,.06);
+  }
+  .sticky-hdr.scrolled {
+    box-shadow: 0 2px 16px rgba(0,0,0,.4);
   }
 
-  /* ── Header ── */
-  .header {
+  /* top bar: logo + title + back button */
+  .hdr-top {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 20px 20px 0;
+    padding: 16px 0 14px;
   }
-  .header-brand { display: flex; align-items: center; gap: 10px; }
-  .header-logo {
-    width: 36px; height: 36px; border-radius: 8px;
-    object-fit: cover;
+  .hdr-brand { display: flex; align-items: center; gap: 10px; }
+  .hdr-logo { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+  .hdr-name { font-size: 15px; font-weight: 800; line-height: 1.2; }
+  .hdr-sub  { font-size: 11px; color: var(--sub); font-weight: 500; margin-top: 1px; }
+
+  .hdr-actions { display: flex; align-items: center; gap: 8px; }
+  .btn-back {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,.08); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 12px;
+    color: var(--text); font-size: 12px; font-weight: 700;
+    font-family: inherit; cursor: pointer; text-decoration: none;
+    -webkit-appearance: none; flex-shrink: 0;
   }
-  .header-name { font-size: 15px; font-weight: 800; }
-  .header-sub  { font-size: 11px; color: var(--sub); font-weight: 500; margin-top: 1px; }
+  .btn-back:active { background: rgba(255,255,255,.15); }
   .btn-refresh-hdr {
-    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.08); border: 1px solid var(--border);
     border-radius: 8px; padding: 7px 12px;
     color: var(--text); font-size: 12px; font-weight: 700;
     font-family: inherit; cursor: pointer;
     display: flex; align-items: center; gap: 6px;
-    -webkit-appearance: none;
+    -webkit-appearance: none; flex-shrink: 0;
   }
   .btn-refresh-hdr:active { background: rgba(255,255,255,.15); }
   .spin { animation: spin .8s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── Hero ── */
-  .hero {
-    padding: 28px 20px 20px;
-    position: relative; overflow: hidden;
+  /* hero total inside sticky header */
+  .hdr-hero {
+    padding: 4px 0 18px;
   }
-  .hero-watermark {
-    position: absolute; right: -10px; bottom: -20px;
-    opacity: .04; pointer-events: none;
-  }
-  .hero-watermark img { width: 160px; height: 160px; border-radius: 50%; }
-  .hero-label {
+  .hdr-hero-label {
     font-size: 11px; font-weight: 700; color: var(--sub);
-    letter-spacing: .08em; text-transform: uppercase;
-    margin-bottom: 8px;
+    text-transform: uppercase; letter-spacing: .08em;
+    margin-bottom: 4px;
   }
-  .hero-amount {
-    font-size: 42px; font-weight: 900; color: #fff;
+  .hdr-hero-amount {
+    font-size: 38px; font-weight: 900; color: #fff;
     letter-spacing: -.5px; line-height: 1;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
-  .hero-amount.negative { color: #fca5a5; }
-  .hero-sub { font-size: 13px; color: var(--sub); margin-bottom: 22px; }
-  .hero-divider { height: 1px; background: rgba(255,255,255,.08); margin-bottom: 20px; }
+  .hdr-hero-amount.negative { color: #fca5a5; }
+  .hdr-hero-sub { font-size: 12px; color: var(--sub); }
 
-  /* ── 2 quỹ cards ── */
+  /* ── Scrollable content ── */
+  .scroll-content {
+    padding: var(--gap) var(--px);
+    display: flex; flex-direction: column;
+    gap: var(--gap);
+    padding-bottom: max(40px, env(safe-area-inset-bottom));
+  }
+
+  /* ── Module card (shared) ── */
+  .module {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+  }
+  .module-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .module-title {
+    font-size: 12px; font-weight: 700; color: var(--sub);
+    text-transform: uppercase; letter-spacing: .06em;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .module-badge {
+    font-size: 11px; font-weight: 700;
+    padding: 3px 8px; border-radius: 20px;
+    background: rgba(255,255,255,.08); color: var(--text);
+  }
+
+  /* ── 2 Fund cards ── */
   .fund-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-    padding: 0 20px; margin-bottom: 20px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0;
   }
   .fund-card {
-    background: rgba(255,255,255,.07);
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 14px; padding: 14px;
+    padding: 16px;
   }
+  .fund-card:first-child { border-right: 1px solid var(--border); }
   .fund-label {
     font-size: 10px; font-weight: 700; color: var(--sub);
     text-transform: uppercase; letter-spacing: .06em;
-    margin-bottom: 8px; display: flex; align-items: center; gap: 5px;
+    margin-bottom: 10px; display: flex; align-items: center; gap: 5px;
   }
   .fund-amount {
     font-size: 22px; font-weight: 800; color: #fff; line-height: 1;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
   .fund-amount.negative { color: #fca5a5; }
-  .fund-detail { font-size: 11px; color: var(--sub); line-height: 1.7; }
+  .fund-detail { font-size: 11px; color: var(--sub); line-height: 1.8; }
 
-  /* ── Stats row ── */
-  .stats-row {
+  /* ── Stats grid ── */
+  .stats-grid {
     display: grid; grid-template-columns: 1fr 1fr;
-    gap: 10px; padding: 0 20px; margin-bottom: 20px;
   }
-  .stat-card {
-    background: rgba(255,255,255,.05);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 12px; padding: 12px 14px;
+  .stat-item {
+    padding: 14px 16px;
   }
+  .stat-item:nth-child(odd) { border-right: 1px solid var(--border); }
+  .stat-item:nth-child(1),
+  .stat-item:nth-child(2) { border-bottom: 1px solid var(--border); }
   .stat-label { font-size: 11px; color: var(--sub); margin-bottom: 4px; }
-  .stat-val   { font-size: 16px; font-weight: 800; color: #fff; }
+  .stat-val   { font-size: 17px; font-weight: 800; color: #fff; }
   .stat-val.green { color: var(--accent); }
   .stat-val.amber { color: var(--amber); }
 
-  /* ── Members bar ── */
-  .members-section { padding: 0 20px; margin-bottom: 20px; }
-  .section-title {
-    font-size: 12px; font-weight: 700; color: var(--sub);
-    text-transform: uppercase; letter-spacing: .06em;
-    margin-bottom: 12px;
-  }
+  /* ── Members grid ── */
   .members-grid {
-    display: grid; grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0;
   }
   .member-chip {
-    background: rgba(255,255,255,.07);
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 8px; padding: 6px 4px;
+    padding: 10px 8px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
     text-align: center;
   }
-  .member-chip.paid { border-color: rgba(0,168,135,.4); background: rgba(0,168,135,.12); }
-  .member-chip.debt { border-color: rgba(217,119,6,.4); background: rgba(217,119,6,.1); }
+  .member-chip:nth-child(4n) { border-right: none; }
   .member-name { font-size: 10px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .member-status { font-size: 9px; color: var(--sub); margin-top: 2px; }
+  .member-status { font-size: 9px; color: var(--sub); margin-top: 3px; }
   .member-status.ok  { color: var(--accent); }
   .member-status.bad { color: var(--amber); }
 
+  /* ── Status badge ── */
+  .status-row { padding: 0 0 4px; }
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+  }
+  .status-badge.ok  { background: rgba(0,168,135,.2); color: #5eead4; }
+  .status-badge.err { background: rgba(220,38,38,.2);  color: #fca5a5; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
   /* ── Footer ── */
   .footer {
-    margin-top: auto; padding: 0 20px;
-    text-align: center;
+    display: flex; flex-direction: column; gap: 12px;
+    align-items: center;
   }
-  .footer-time { font-size: 11px; color: var(--sub); margin-bottom: 12px; }
+  .footer-time { font-size: 11px; color: var(--sub); }
   .btn-open-app {
     display: flex; align-items: center; justify-content: center; gap: 8px;
     width: 100%; padding: 14px;
-    background: var(--accent); border: none; border-radius: 12px;
+    background: var(--accent); border: none; border-radius: var(--r);
     color: #fff; font-size: 15px; font-weight: 700;
     font-family: inherit; cursor: pointer; text-decoration: none;
     -webkit-appearance: none;
   }
   .btn-open-app:active { background: #058069; }
-
-  /* ── Status badge ── */
-  .status-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 10px; border-radius: 20px;
-    font-size: 11px; font-weight: 700;
-    margin-bottom: 20px; margin-left: 20px;
-  }
-  .status-badge.ok  { background: rgba(0,168,135,.2); color: #5eead4; }
-  .status-badge.err { background: rgba(220,38,38,.2);  color: #fca5a5; }
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
   /* ── Loading ── */
   .loading {
@@ -188,8 +222,7 @@
 </style>
 </head>
 <body>
-<div class="wrap" id="wrap">
-  <!-- Loading state -->
+<div id="wrap">
   <div class="loading" id="loading-state">
     <img src="logo.jpg" class="loading-logo" alt="FC Sunday">
     <div class="loading-text">Đang tải dữ liệu...</div>
@@ -301,9 +334,7 @@ function render() {
   const am        = activeMembers();
   const req       = monthsRequired(_year);
   const matches   = matchesInYear(_year);
-  const totalChi  = chiTotal(_year);
 
-  // Members with debt info
   const membersData = am.map(m => ({
     ...m,
     paid: memberPaidCount(m.id, _year),
@@ -315,106 +346,136 @@ function render() {
   const paidFull  = membersData.filter(m=>m.debt===0).length;
 
   document.getElementById('wrap').innerHTML = `
-    <!-- Header -->
-    <div class="header">
-      <div class="header-brand">
-        <img src="logo.jpg" class="header-logo" alt="FC Sunday">
-        <div>
-          <div class="header-name">FC Sunday</div>
-          <div class="header-sub">Quỹ đội bóng ${_year}</div>
+    <!-- Sticky header -->
+    <div class="sticky-hdr" id="sticky-hdr">
+      <div class="hdr-top">
+        <div class="hdr-brand">
+          <img src="logo.jpg" class="hdr-logo" alt="FC Sunday">
+          <div>
+            <div class="hdr-name">FC Sunday</div>
+            <div class="hdr-sub">Tổng hợp thu chi quỹ đội bóng</div>
+          </div>
+        </div>
+        <div class="hdr-actions">
+          <button class="btn-refresh-hdr" onclick="refresh()">
+            <span id="refresh-icon">↻</span>
+          </button>
+          <a href="index.html" class="btn-back">
+            ← Về trang chủ
+          </a>
         </div>
       </div>
-      <button class="btn-refresh-hdr" onclick="refresh()">
-        <span id="refresh-icon">↻</span> Cập nhật
-      </button>
+      <div class="hdr-hero">
+        <div class="hdr-hero-label">Tổng quỹ hiện tại · Năm ${_year}</div>
+        <div class="hdr-hero-amount ${ton<0?'negative':''}">${fmt(ton)}</div>
+        <div class="hdr-hero-sub">Quỹ tháng ${fmt(tThang)} · Quỹ bia ${fmt(tBia)}</div>
+      </div>
     </div>
 
-    <!-- Status -->
-    <div style="padding:12px 20px 0">
-      <span class="status-badge ok" style="margin-left:0">
-        <span class="dot"></span> Dữ liệu mới nhất
-      </span>
-    </div>
+    <!-- Scrollable content -->
+    <div class="scroll-content">
 
-    <!-- Hero -->
-    <div class="hero">
-      <div class="hero-watermark"><img src="logo.jpg" alt=""></div>
-      <div class="hero-label">Tổng quỹ hiện tại</div>
-      <div class="hero-amount ${ton<0?'negative':''}">${fmt(ton)}</div>
-      <div class="hero-sub">Quỹ hàng tháng + Quỹ bia · Năm ${_year}</div>
-      <div class="hero-divider"></div>
-    </div>
+      <!-- Status -->
+      <div class="status-row">
+        <span class="status-badge ok">
+          <span class="dot"></span> Dữ liệu mới nhất · ${fmtDate(new Date())}
+        </span>
+      </div>
 
-    <!-- 2 Fund cards -->
-    <div class="fund-grid">
-      <div class="fund-card">
-        <div class="fund-label">
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 0.7C11.18 0.7 11.16 1.14 11.95 1.18C12.75 1.22 13.16 0.97 13.7 1.05C14.07 1.1 14.35 1.27 14.55 1.43C14.76 1.61 14.79 1.92 14.62 2.14L12.78 4.55C12.61 4.74 12.63 5.03 12.82 5.2C15.7 7.69 19.25 10.69 19.25 13.38C19.25 17.9 15.54 19.3 10 19.3C4.46 19.3 0.75 17.9 0.75 13.38C0.75 10.69 4.3 7.69 7.18 5.2C7.37 5.03 7.39 4.74 7.22 4.55L5.38 2.14C5.21 1.92 5.24 1.61 5.45 1.43C5.65 1.27 5.93 1.1 6.3 1.05C6.84 0.97 7.25 1.22 8.05 1.18C8.84 1.14 8.82 0.7 10 0.7Z" fill="#FFC522"/></svg>
-          Quỹ hàng tháng
+      <!-- 2 quỹ module -->
+      <div class="module">
+        <div class="module-header">
+          <div class="module-title">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M3.33 17.5H5.61C6.07 17.5 6.45 17.13 6.45 16.67L6.45 7.28C6.45 6.82 6.07 6.45 5.61 6.45H3.33C2.87 6.45 2.5 6.82 2.5 7.28L2.5 16.67C2.5 17.13 2.87 17.5 3.33 17.5Z" fill="#00BC79"/><path d="M8.86 17.5H11.14C11.6 17.5 11.97 17.13 11.97 16.67V11.23C11.97 10.77 11.6 10.39 11.14 10.39H8.86C8.4 10.39 8.03 10.77 8.03 11.23V16.67C8.03 17.13 8.4 17.5 8.86 17.5Z" fill="#007FF3"/><path d="M14.39 17.5H16.67C17.13 17.5 17.5 17.13 17.5 16.67V3.33C17.5 2.87 17.13 2.5 16.67 2.5H14.39C13.93 2.5 13.55 2.87 13.55 3.33L13.55 16.67C13.55 17.13 13.93 17.5 14.39 17.5Z" fill="#FC2D4C"/></svg>
+            Chi tiết 2 quỹ
+          </div>
         </div>
-        <div class="fund-amount ${tThang<0?'negative':''}">${fmt(tThang)}</div>
-        <div class="fund-detail">
-          Thu: ${fmt(thuPhi)}<br>Chi: ${fmt(chiThang)}
+        <div class="fund-grid">
+          <div class="fund-card">
+            <div class="fund-label">
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M10 0.7C11.18 0.7 11.16 1.14 11.95 1.18C12.75 1.22 13.16 0.97 13.7 1.05C14.07 1.1 14.35 1.27 14.55 1.43C14.76 1.61 14.79 1.92 14.62 2.14L12.78 4.55C12.61 4.74 12.63 5.03 12.82 5.2C15.7 7.69 19.25 10.69 19.25 13.38C19.25 17.9 15.54 19.3 10 19.3C4.46 19.3 0.75 17.9 0.75 13.38C0.75 10.69 4.3 7.69 7.18 5.2C7.37 5.03 7.39 4.74 7.22 4.55L5.38 2.14C5.21 1.92 5.24 1.61 5.45 1.43C5.65 1.27 5.93 1.1 6.3 1.05C6.84 0.97 7.25 1.22 8.05 1.18C8.84 1.14 8.82 0.7 10 0.7Z" fill="#FFC522"/></svg>
+              Quỹ hàng tháng
+            </div>
+            <div class="fund-amount ${tThang<0?'negative':''}">${fmt(tThang)}</div>
+            <div class="fund-detail">
+              Thu phí: ${fmt(thuPhi)}<br>
+              Chi tiêu: ${fmt(chiThang)}
+            </div>
+          </div>
+          <div class="fund-card">
+            <div class="fund-label">
+              🍺 Quỹ bia
+            </div>
+            <div class="fund-amount ${tBia<0?'negative':''}">${fmt(tBia)}</div>
+            <div class="fund-detail">
+              Thu bia: ${fmt(thuBia)}<br>
+              Chi tiêu: ${fmt(chiBia)}
+            </div>
+          </div>
         </div>
       </div>
-      <div class="fund-card">
-        <div class="fund-label">
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M16.76 9.68H16.17V8.18C16.05 8.23 15.91 8.26 15.77 8.26H9.46C8.89 8.26 8.42 8.72 8.42 9.3C8.42 10.18 7.68 10.89 6.79 10.85C6.45 10.83 6.16 10.7 5.92 10.5V16.7C5.92 17.83 6.84 18.75 7.97 18.75H14.12C15.25 18.75 16.17 17.83 16.17 16.7V16.43H16.76C17.77 16.43 18.59 15.61 18.59 14.6V11.51C18.59 10.5 17.77 9.68 16.76 9.68Z" fill="#FFAA00"/><path d="M7.28 4.76H13.48V3.25C13.48 2.15 12.58 1.25 11.48 1.25H4.02C2.92 1.25 2.02 2.15 2.02 3.25V3.76C2.02 4.17 2.27 4.52 2.62 4.67C2.75 4.73 2.88 4.76 3.02 4.76H7.28Z" fill="#D0D5DA"/><path d="M7.32 4.75C6.26 4.78 5.43 5.57 5.34 6.57C5.33 6.63 5.32 6.69 5.32 6.75V9.21C5.32 9.66 5.5 10.08 5.8 10.38C5.84 10.42 5.88 10.46 5.92 10.5C6.16 10.7 6.46 10.83 6.79 10.85C7.69 10.89 8.43 10.18 8.43 9.29C8.43 8.72 8.89 8.26 9.46 8.26H15.77C15.91 8.26 16.05 8.23 16.17 8.17C16.52 8.02 16.77 7.67 16.77 7.26V6.75C16.77 5.65 15.88 4.75 14.77 4.75H7.32Z" fill="#EBEBEB"/></svg>
-          Quỹ bia
+
+      <!-- Stats module -->
+      <div class="module">
+        <div class="module-header">
+          <div class="module-title">📊 Thống kê chung</div>
+          <span class="module-badge">${_year}</span>
         </div>
-        <div class="fund-amount ${tBia<0?'negative':''}">${fmt(tBia)}</div>
-        <div class="fund-detail">
-          Thu: ${fmt(thuBia)}<br>Chi: ${fmt(chiBia)}
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-label">Thành viên</div>
+            <div class="stat-val">${am.length} người</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Số trận đã đá</div>
+            <div class="stat-val">${matches.length} trận</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Đóng đủ</div>
+            <div class="stat-val green">${paidFull} người</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Còn nợ quỹ</div>
+            <div class="stat-val ${debtCount>0?'amber':'green'}">${debtCount} người</div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-label">Thành viên</div>
-        <div class="stat-val">${am.length} người</div>
+      <!-- Members module -->
+      <div class="module">
+        <div class="module-header">
+          <div class="module-title">👥 Trạng thái thành viên</div>
+          <span class="module-badge">${req} tháng</span>
+        </div>
+        <div class="members-grid">
+          ${membersData.map(m => {
+            const statusTxt = m.debt===0 ? 'Đủ ✓' : '-' + fmt(m.debt);
+            const statusCls = m.debt===0 ? 'ok' : 'bad';
+            const shortName = m.name.split(' ').slice(-2).join(' ');
+            return `<div class="member-chip">
+              <div class="member-name" title="${m.name}">${shortName}</div>
+              <div class="member-status ${statusCls}">${statusTxt}</div>
+            </div>`;
+          }).join('')}
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Số trận đã đá</div>
-        <div class="stat-val">${matches.length} trận</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Đã đóng đủ</div>
-        <div class="stat-val green">${paidFull} người</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Còn nợ quỹ</div>
-        <div class="stat-val ${debtCount>0?'amber':'green'}">${debtCount} người</div>
-      </div>
-    </div>
 
-    <!-- Members -->
-    <div class="members-section">
-      <div class="section-title">Trạng thái thành viên (${req} tháng)</div>
-      <div class="members-grid">
-        ${membersData.map(m => {
-          const cls = m.debt===0 ? 'paid' : 'debt';
-          const statusTxt = m.debt===0 ? 'Đủ ✓' : '-' + fmt(m.debt);
-          const statusCls = m.debt===0 ? 'ok' : 'bad';
-          const shortName = m.name.split(' ').slice(-2).join(' ');
-          return `<div class="member-chip ${cls}">
-            <div class="member-name" title="${m.name}">${shortName}</div>
-            <div class="member-status ${statusCls}">${statusTxt}</div>
-          </div>`;
-        }).join('')}
+      <!-- Footer -->
+      <div class="footer">
+        <a href="index.html" class="btn-open-app">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M3.33 17.5H5.61C6.07 17.5 6.45 17.13 6.45 16.67L6.45 7.28C6.45 6.82 6.07 6.45 5.61 6.45H3.33C2.87 6.45 2.5 6.82 2.5 7.28L2.5 16.67C2.5 17.13 2.87 17.5 3.33 17.5Z" fill="#00BC79"/><path d="M8.86 17.5H11.14C11.6 17.5 11.97 17.13 11.97 16.67V11.23C11.97 10.77 11.6 10.39 11.14 10.39H8.86C8.4 10.39 8.03 10.77 8.03 11.23V16.67C8.03 17.13 8.4 17.5 8.86 17.5Z" fill="#007FF3"/><path d="M14.39 17.5H16.67C17.13 17.5 17.5 17.13 17.5 16.67V3.33C17.5 2.87 17.13 2.5 16.67 2.5H14.39C13.93 2.5 13.55 2.87 13.55 3.33L13.55 16.67C13.55 17.13 13.93 17.5 14.39 17.5Z" fill="#FC2D4C"/></svg>
+          Mở Dashboard đầy đủ
+        </a>
       </div>
-    </div>
 
-    <!-- Footer -->
-    <div class="footer">
-      <div class="footer-time">Cập nhật lúc ${fmtDate(new Date())}</div>
-      <a href="index.html" class="btn-open-app">
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M3.33 17.5H5.61C6.07 17.5 6.45 17.13 6.45 16.67L6.45 7.28C6.45 6.82 6.07 6.45 5.61 6.45H3.33C2.87 6.45 2.5 6.82 2.5 7.28L2.5 16.67C2.5 17.13 2.87 17.5 3.33 17.5Z" fill="#00BC79"/><path d="M8.86 17.5H11.14C11.6 17.5 11.97 17.13 11.97 16.67V11.23C11.97 10.77 11.6 10.39 11.14 10.39H8.86C8.4 10.39 8.03 10.77 8.03 11.23V16.67C8.03 17.13 8.4 17.5 8.86 17.5Z" fill="#007FF3"/><path d="M14.39 17.5H16.67C17.13 17.5 17.5 17.13 17.5 16.67V3.33C17.5 2.87 17.13 2.5 16.67 2.5H14.39C13.93 2.5 13.55 2.87 13.55 3.33L13.55 16.67C13.55 17.13 13.93 17.5 14.39 17.5Z" fill="#FC2D4C"/></svg>
-        Mở Dashboard đầy đủ
-      </a>
     </div>
   `;
+
+  // Sticky header scroll shadow
+  window.addEventListener('scroll', () => {
+    const hdr = document.getElementById('sticky-hdr');
+    if (hdr) hdr.classList.toggle('scrolled', window.scrollY > 10);
+  }, { passive: true });
 }
 
 async function refresh() {
