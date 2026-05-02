@@ -841,9 +841,35 @@
       ],
       "thuThem": 250000,
       "ghiChuThem": "Thu thêm của Thái các trận thua tháng 1 và 2025"
+    },
+    {
+      "id": 10,
+      "monthIdx": 0,
+      "date": "2026-01-30",
+      "note": "",
+      "losers": [
+        {
+          "memberId": 3,
+          "paid": true
+        },
+        {
+          "memberId": 13,
+          "paid": true
+        },
+        {
+          "memberId": 20,
+          "paid": true
+        },
+        {
+          "memberId": 21,
+          "paid": true
+        }
+      ],
+      "thuThem": 150000,
+      "ghiChuThem": "Thu thêm 3 bạn của Trường Xẻ"
     }
   ],
-  "nextMaid": 10,
+  "nextMaid": 11,
   "chiTieu": [
     {
       "id": 1,
