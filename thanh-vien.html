@@ -325,8 +325,30 @@ function renderMembers() {
       </td>
     </tr>`;
   }).join('');
+  // Auto-fit cột Họ tên theo tên dài nhất
+  const allMembers = S.members.filter(m => m.status !== 'left');
+  requestAnimationFrame(() => autoStickyWidth(allMembers, '.tbl-sticky .sticky-2'));
 }
-function startMemInline(id) {
+function _measureText(text, font) {
+  const c = document.createElement('canvas');
+  const ctx = c.getContext('2d');
+  ctx.font = font;
+  return ctx.measureText(text).width;
+}
+function autoStickyWidth(members, colSelector) {
+  const font = '700 14px Pretendard, -apple-system, sans-serif';
+  const maxW = Math.max(...members.map(m => _measureText(m.name, font)));
+  const w = Math.ceil(maxW) + 20;
+  document.querySelectorAll(colSelector).forEach(el => {
+    el.style.minWidth = w + 'px';
+    el.style.maxWidth = w + 'px';
+    el.style.width    = w + 'px';
+  });
+  const s1w = 36;
+  document.querySelectorAll('.tbl-sticky .sticky-2').forEach(el => {
+    el.style.left = s1w + 'px';
+  });
+}
   if (!_requireAuth()) return;
   const span = $el(`mem-name-${id}`), inp = $el(`mem-inp-${id}`);
   const btnEdit = $el(`mem-edit-${id}`), btnSave = $el(`mem-save-${id}`);

@@ -158,6 +158,29 @@ function renderAll() {
 }
 window.onYearChangeTT = function() { renderTT(); renderCharts(); };
 
+function _measureText(text, font) {
+  const c = document.createElement('canvas');
+  const ctx = c.getContext('2d');
+  ctx.font = font;
+  return ctx.measureText(text).width;
+}
+function autoStickyWidth(members, colSelector) {
+  const font = '700 14px Pretendard, -apple-system, sans-serif';
+  const maxW = Math.max(...members.map(m => _measureText(m.name, font)));
+  const w = Math.ceil(maxW) + 20; // +20px padding cả 2 bên
+  document.querySelectorAll(colSelector).forEach(el => {
+    el.style.minWidth = w + 'px';
+    el.style.maxWidth = w + 'px';
+    el.style.width    = w + 'px';
+  });
+  // Update left offset for sticky-2
+  const s1 = document.querySelector('.tbl-sticky .sticky-1');
+  const s1w = s1 ? s1.offsetWidth : 36;
+  document.querySelectorAll('.tbl-sticky .sticky-2').forEach(el => {
+    el.style.left = s1w + 'px';
+  });
+}
+
 function _icClass(v) { return v===1?'ic-p':v===2?'ic-e':'ic-n'; }
 function _icLabel(v) { return v===1?'✓':v===2?'—':''; }
 function _icTitle(v) { return v===0?'Chưa đóng · Click → Đã đóng':v===1?'Đã đóng · Click → Miễn':'Được miễn · Click → Bỏ'; }
@@ -223,6 +246,8 @@ function renderTT() {
   footHtml += `<td class="tc">—</td><td class="tr bold">${fmt(footTotal)}</td></tr>`;
   tb.innerHTML = html + footHtml;
   $set('tt-total-chip', fmt(footTotal));
+  // Auto-fit cột Họ tên theo tên dài nhất
+  requestAnimationFrame(() => autoStickyWidth(am, '.tbl-sticky .sticky-2'));
 }
 
 // Click delegation: 0 → 1(đã đóng) → 2(miễn) → 0(chưa đóng)
