@@ -225,7 +225,7 @@ function renderSingleMatchCard(m) {
   const losers = m.losers || [];
   const loserTags = losers.map(l => {
     const mem = S.members.find(x=>x.id===l.memberId);
-    const name = mem ? mem.name.split(' ').pop() : '?';
+    const name = mem ? mem.name : '?';
     return `<span class="lt ${l.paid?'lt-p':'lt-u'}" onclick="_auth&&toggleLoserPaid(${m.id},${l.memberId})" title="${l.paid?'Đã nộp':'Chưa nộp'}">${name} ${l.paid?'✅':'🔴'}</span>`;
   }).join('');
   const phatTotal = losers.filter(l=>l.paid).length * FINE;
@@ -339,7 +339,7 @@ function renderLoserGrid() {
     const s = _loserState[m.id] || 0;
     const cls = s===1?'s1':s===2?'s2':'';
     const icon = s===1?'✕':s===2?'✓':'';
-    return `<div class="loser-item ${cls}" onclick="cycleLoser(${m.id})">${icon} ${esc(m.name.split(' ').pop())}</div>`;
+    return `<div class="loser-item ${cls}" onclick="cycleLoser(${m.id})">${icon} ${esc(m.name)}</div>`;
   }).join('');
   renderLoserTags();
 }
@@ -356,7 +356,7 @@ function renderLoserTags() {
   tags.innerHTML = selected.map(([mid,s]) => {
     const m = S.members.find(x=>x.id===+mid);
     if (!m) return '';
-    return `<span class="lt ${s===2?'lt-p':'lt-u'}" onclick="cycleLoser(${mid})">${m.name.split(' ').pop()}</span>`;
+    return `<span class="lt ${s===2?'lt-p':'lt-u'}" onclick="cycleLoser(${mid})">${m.name}</span>`;
   }).join('');
 }
 
