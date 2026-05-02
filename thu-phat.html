@@ -4,44 +4,41 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Quỹ bia đội thua — FC Sunday</title>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
-<link rel="apple-touch-icon" href="icon-180.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="FC Sunday">
-<meta name="theme-color" content="#00332d">
 <link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00332d">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="sb-overlay" onclick="closeSidebar()"></div>
 <div class="layout">
   <aside class="sidebar">
-    <div class="sb-brand"><div class="sb-logo" style="padding:0;overflow:hidden"><img src="logo.jpg" style="width:40px;height:40px;object-fit:cover;border-radius:10px" alt="FC Sunday"></div><div class="sb-brand-text"><div class="sb-brand-name" style="display:flex;align-items:center;gap:4px">⚽⚽ FC Sunday</div><div class="sb-brand-sub">⚽ Tổng hợp thu chi quỹ đội bóng</div></div></div>
+    <div class="sb-brand">
+      <img src="logo.jpg" alt="FC Sunday" style="width:40px;height:40px;border-radius:10px;object-fit:cover;flex-shrink:0">
+      <div class="sb-brand-text">
+        <div class="sb-brand-name">FC Sunday</div>
+        <div class="sb-brand-sub">Quỹ Đội Bóng 2026</div>
+      </div>
+    </div>
     <nav class="sb-nav">
       <div class="sb-section-label">Menu</div>
-      <a class="sb-item" href="index.html"><span class="sb-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.85963 17.5H11.1401C11.6005 17.5 11.9736 17.1268 11.9736 16.6665V11.228C11.9736 10.7677 11.6005 10.3945 11.1401 10.3945H8.85963C8.3993 10.3945 8.02613 10.7677 8.02613 11.228V16.6665C8.02613 17.1268 8.3993 17.5 8.85963 17.5Z" fill="#007FF3"/><path d="M3.33351 17.5H5.61401C6.07434 17.5 6.44751 17.1268 6.44751 16.6665L6.44751 7.281C6.44751 6.82067 6.07434 6.4475 5.61401 6.4475H3.33351C2.87318 6.4475 2.50001 6.82067 2.50001 7.281L2.50001 16.6665C2.50001 17.1268 2.87318 17.5 3.33351 17.5Z" fill="#00BC79"/><path d="M14.386 17.5H16.6665C17.1268 17.5 17.5 17.1268 17.5 16.6665V3.3335C17.5 2.87317 17.1268 2.5 16.6665 2.5H14.386C13.9257 2.5 13.5525 2.87317 13.5525 3.3335L13.5525 16.6665C13.5525 17.1268 13.9257 17.5 14.386 17.5Z" fill="#FC2D4C"/></svg></span><span class="sb-label">Tổng quan</span><span class="sb-badge" id="sbg-da">—</span></a>
-      <a class="sb-item" href="thu-thang.html"><span class="sb-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 0.703979C11.1795 0.703979 11.157 1.13598 11.9515 1.17798C12.746 1.22048 13.1615 0.970479 13.698 1.04948C14.071 1.10448 14.3515 1.27098 14.5455 1.43448C14.7575 1.61348 14.7925 1.92498 14.6235 2.14498L12.7755 4.54598C12.611 4.74148 12.631 5.03098 12.824 5.19798C15.7 7.68948 19.25 10.686 19.25 13.3765C19.25 17.8975 15.539 19.2965 10 19.2965C4.461 19.2965 0.75 17.8975 0.75 13.3765C0.75 10.6865 4.3 7.68948 7.176 5.19798C7.369 5.03098 7.389 4.74098 7.2245 4.54598L5.3765 2.14498C5.2075 1.92498 5.2425 1.61348 5.4545 1.43448C5.6485 1.27098 5.929 1.10448 6.302 1.04948C6.8385 0.970479 7.2545 1.22048 8.0485 1.17798C8.843 1.13548 8.8205 0.703979 10 0.703979Z" fill="#FFC522"/><path d="M10.0415 5.69254C9.07097 5.69254 8.09846 5.60154 7.14946 5.42054C6.84696 5.36254 6.64897 5.07054 6.70647 4.76804C6.76447 4.46554 7.05697 4.26604 7.35897 4.32454C9.11847 4.66004 10.968 4.66154 12.7075 4.32454C13.0095 4.26404 13.3025 4.46354 13.361 4.76604C13.4195 5.06854 13.2215 5.36104 12.919 5.41954C11.9805 5.60104 11.0125 5.69204 10.0415 5.69204V5.69254Z" fill="#99452E"/><path d="M10.1201 15.9626C8.83606 15.9626 7.85856 15.2026 7.44956 14.6811C7.21106 14.3766 7.26456 13.9366 7.56906 13.6981C7.87206 13.4611 8.30906 13.5126 8.54856 13.8136C8.64556 13.9331 9.52356 14.9541 10.9001 14.4041C11.2346 14.2706 11.3871 14.0286 11.3646 13.8581C11.3306 13.5976 10.8966 13.2861 10.0046 13.1791C7.80456 12.9151 7.47306 11.6681 7.42356 11.2916C7.31256 10.4416 7.84856 9.62658 8.75756 9.26358C10.5966 8.53058 11.9386 9.51558 12.4301 9.97308C12.7131 10.2361 12.7286 10.6796 12.4651 10.9626C12.2011 11.2451 11.7591 11.2611 11.4756 10.9976C11.0261 10.5786 10.2791 10.1641 9.27606 10.5646C8.94156 10.6981 8.78906 10.9401 8.81156 11.1106C8.84556 11.3711 9.27906 11.6826 10.1711 11.7896C12.3711 12.0536 12.7026 13.3006 12.7521 13.6766C12.8636 14.5266 12.3271 15.3416 11.4186 15.7046C10.9606 15.8871 10.5246 15.9631 10.1196 15.9631L10.1201 15.9626Z" fill="#FFF3CC"/><path d="M10.0887 10.402C9.70217 10.402 9.38867 10.089 9.38867 9.70251V8.7045C9.38867 8.318 9.70217 8.005 10.0887 8.005C10.4752 8.005 10.7887 8.318 10.7887 8.7045V9.70251C10.7887 10.089 10.4752 10.402 10.0887 10.402Z" fill="#FFF3CC"/><path d="M10.0887 16.9635C9.70217 16.9635 9.38867 16.6505 9.38867 16.264V15.266C9.38867 14.8795 9.70217 14.5665 10.0887 14.5665C10.4752 14.5665 10.7887 14.8795 10.7887 15.266V16.264C10.7887 16.6505 10.4752 16.9635 10.0887 16.9635Z" fill="#FFF3CC"/></svg></span><span class="sb-label">Thu hàng tháng</span><span class="sb-badge" id="sbg-tt">—</span></a>
-      <a class="sb-item active" href="thu-phat.html"><span class="sb-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.32 9.20505C5.32 9.66005 5.505 10.08 5.8 10.385C5.84 10.425 5.88 10.46 5.92 10.495V15.245H4.675C3.54 15.245 2.625 14.33 2.625 13.195V4.67505C2.745 4.72505 2.88 4.75505 3.025 4.75505H7.285C6.26 4.77505 5.43 5.56505 5.34 6.57005C5.335 6.63505 5.32 6.69005 5.32 6.75505V9.20505Z" fill="#F77F00"/><path d="M7.28343 4.75753C7.29593 4.75753 7.30743 4.75403 7.31993 4.75403H13.4764V3.54353V3.25403C13.4764 2.14953 12.5809 1.25403 11.4764 1.25403H4.02393C2.91943 1.25403 2.02393 2.14953 2.02393 3.25403V3.75753C2.02393 4.16753 2.27143 4.51903 2.62443 4.67353C2.74693 4.72703 2.88143 4.75753 3.02393 4.75753H7.28343Z" fill="#D0D5DA"/><path d="M16.7599 9.67505H16.1699V8.17505C16.0499 8.22505 15.9149 8.25505 15.7699 8.25505H9.46492C8.88992 8.25505 8.42492 8.72005 8.42492 9.29505C8.42492 10.18 7.68492 10.89 6.78992 10.845C6.45492 10.83 6.15992 10.695 5.91992 10.495V16.695C5.91992 17.83 6.83992 18.745 7.96992 18.745H14.1199C15.2549 18.745 16.1699 17.83 16.1699 16.695V16.425H16.7599C17.7699 16.425 18.5899 15.605 18.5899 14.595V11.505C18.5899 10.495 17.7699 9.67505 16.7599 9.67505Z" fill="#FFAA00"/><path d="M11.5584 10.575C11.5584 10.292 11.3289 10.0625 11.0459 10.0625C10.7629 10.0625 10.5334 10.292 10.5334 10.575V15.5775C10.5334 15.8605 10.7629 16.09 11.0459 16.09C11.3289 16.09 11.5584 15.8605 11.5584 15.5775V10.575Z" fill="#F77F00"/><path d="M13.5066 10.0625C13.2236 10.0625 12.9941 10.292 12.9941 10.575V15.5775C12.9941 15.8605 13.2236 16.09 13.5066 16.09C13.7896 16.09 14.0191 15.8605 14.0191 15.5775V10.575C14.0191 10.292 13.7896 10.0625 13.5066 10.0625Z" fill="#F77F00"/><path d="M9.09849 12.6446C9.09849 12.3616 8.86899 12.1321 8.58599 12.1321C8.30299 12.1321 8.07349 12.3616 8.07349 12.6446V15.5776C8.07349 15.8606 8.30299 16.0901 8.58599 16.0901C8.86899 16.0901 9.09849 15.8606 9.09849 15.5776V12.6446Z" fill="#F77F00"/><path d="M7.32008 4.75354C7.30758 4.75354 7.29608 4.75704 7.28358 4.75704C6.25808 4.77604 5.43008 5.56604 5.33808 6.57204C5.33258 6.63254 5.31958 6.69154 5.31958 6.75354V9.20654C5.31958 9.65754 5.50458 10.079 5.80208 10.384C5.84008 10.423 5.87858 10.4615 5.92058 10.496C6.16108 10.6965 6.45758 10.828 6.78958 10.845C7.68508 10.892 8.42608 10.1795 8.42608 9.29404C8.42608 8.72104 8.89058 8.25704 9.46308 8.25704H15.7721C15.9141 8.25704 16.0491 8.22654 16.1716 8.17304C16.5246 8.01854 16.7721 7.66704 16.7721 7.25704V6.75354C16.7721 5.64904 15.8766 4.75354 14.7721 4.75354H7.31958H7.32008Z" fill="#EBEBEB"/></svg></span><span class="sb-label">Quỹ bia đội thua</span><span class="sb-badge" id="sbg-tp">—</span></a>
-      <a class="sb-item" href="chi-tieu.html"><span class="sb-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19.25 13.3154C19.25 16.2744 15.1085 18.6734 10 18.6734C4.8915 18.6734 0.75 16.2744 0.75 13.3154C0.75 10.3564 4.8915 11.8904 10 11.8904C15.1085 11.8904 19.25 10.3564 19.25 13.3154Z" fill="#AFB7C0"/><path d="M19.25 6.68445H0.75V13.3154H19.25V6.68445Z" fill="#AFB7C0"/><path d="M10 12.0424C15.1086 12.0424 19.25 9.64356 19.25 6.68442C19.25 3.72527 15.1086 1.32642 10 1.32642C4.89137 1.32642 0.75 3.72527 0.75 6.68442C0.75 9.64356 4.89137 12.0424 10 12.0424Z" fill="#6B7683"/><path d="M9.99986 14.488C8.97936 14.488 8.15186 15.3155 8.15186 16.336V18.5515C8.74736 18.629 9.36386 18.6735 9.99986 18.6735C10.6359 18.6735 11.2524 18.629 11.8479 18.5515V16.336C11.8479 15.3155 11.0204 14.488 9.99986 14.488Z" fill="#6B7683"/><path d="M14.0215 10.2211H5.97845C5.82445 10.2211 5.69995 10.0966 5.69995 9.94256C5.69995 9.78856 5.82445 9.66406 5.97845 9.66406H14.0215C14.1755 9.66406 14.3 9.78856 14.3 9.94256C14.3 10.0966 14.1755 10.2211 14.0215 10.2211Z" fill="white"/><path d="M10 1.32642C4.8915 1.32642 0.75 3.72542 0.75 6.68442C0.75 9.64342 4.8915 12.0424 10 12.0424C15.1085 12.0424 19.25 9.64342 19.25 6.68442C19.25 3.72542 15.1085 1.32642 10 1.32642ZM10 9.13492C6.6835 9.13492 3.9945 7.57742 3.9945 5.65642C3.9945 3.73542 6.683 2.17792 10 2.17792C13.317 2.17792 16.0055 3.73542 16.0055 5.65642C16.0055 7.57742 13.317 9.13492 10 9.13492Z" fill="#D0D5DA"/><path d="M7.68591 7.11694L7.21191 8.73594C7.98941 8.97244 8.86741 9.11094 9.79941 9.12894V7.11694H7.68591Z" fill="#23B169"/><path d="M10.2005 7.11694V9.12894C11.1325 9.11094 12.0105 8.97244 12.788 8.73594L12.314 7.11694H10.2005Z" fill="#23B169"/><path d="M4.27344 6.70496C4.70844 7.50296 5.62944 8.17346 6.83194 8.60746L7.34344 6.85996C7.36844 6.77446 7.44694 6.71546 7.53594 6.71546H12.4644C12.5534 6.71546 12.6319 6.77446 12.6569 6.85996L13.1684 8.60746C14.3709 8.17346 15.2919 7.50246 15.7269 6.70496C14.4379 5.68046 12.3564 5.01196 10.0004 5.01196C7.64444 5.01196 5.56294 5.68046 4.27394 6.70496H4.27344Z" fill="#23B169"/><path d="M9.79954 7.11694V6.91644C9.79954 6.80544 9.88904 6.71594 10 6.71594H7.53554C7.44654 6.71594 7.36804 6.77494 7.34304 6.86044L6.83154 8.60794C6.95604 8.65294 7.08154 8.69644 7.21154 8.73644L7.68554 7.11744L9.79954 7.11694Z" fill="white"/><path d="M12.4645 6.71595H10C10.111 6.71595 10.2005 6.80595 10.2005 6.91645V7.11695H12.3145L12.7885 8.73595C12.919 8.69645 13.044 8.65245 13.1685 8.60745L12.657 6.85995C12.632 6.77445 12.5535 6.71545 12.4645 6.71545V6.71595Z" fill="white"/><path d="M9.79956 7.11694V9.12894C9.86656 9.13044 9.93256 9.13494 10.0001 9.13494C10.0676 9.13494 10.1336 9.13044 10.2006 9.12894V7.11694H9.79956Z" fill="white"/><path d="M9.79956 6.91644V7.11694H10.2006V6.91644C10.2006 6.80544 10.1111 6.71594 10.0001 6.71594C9.88906 6.71594 9.79956 6.80594 9.79956 6.91644Z" fill="white"/></svg></span><span class="sb-label">Chi tiêu</span><span class="sb-badge" id="sbg-ct">—</span></a>
-      <a class="sb-item" href="thanh-vien.html"><span class="sb-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.1955 2.38854C17.132 2.00504 16.9045 1.64404 16.5065 1.41904C16.102 1.19004 15.5835 1.19404 15.1825 1.42904C14.558 1.79504 14.3555 2.50704 14.5755 3.09704C14.714 3.46854 14.585 3.88904 14.3045 4.16954L4.19151 14.282C3.91101 14.5625 3.49101 14.6915 3.11901 14.553C2.52901 14.333 1.81701 14.5355 1.45101 15.1605C1.21601 15.5615 1.21201 16.08 1.44101 16.4845C1.66601 16.882 2.02701 17.1095 2.41051 17.1735C2.63601 17.211 2.81101 17.386 2.84851 17.6115C2.91251 17.9955 3.14001 18.357 3.53901 18.582C3.94251 18.81 4.45951 18.806 4.85951 18.5725C5.47851 18.211 5.68251 17.513 5.47501 16.928C5.34451 16.559 5.47551 16.1465 5.75251 15.8695L15.891 5.73054C16.168 5.45354 16.5805 5.32204 16.9495 5.45304C17.535 5.66054 18.2325 5.45654 18.594 4.83754C18.828 4.43704 18.8315 3.92054 18.6035 3.51704C18.3785 3.11854 18.017 2.89054 17.633 2.82704C17.4075 2.78954 17.2325 2.61404 17.1955 2.38854Z" fill="#A1A4A4"/><path d="M2.849 2.38854C2.9125 2.00504 3.14 1.64404 3.538 1.41904C3.9425 1.19004 4.461 1.19404 4.862 1.42904C5.4865 1.79504 5.689 2.50704 5.469 3.09704C5.3305 3.46854 5.4595 3.88904 5.74 4.16954L15.8525 14.282C16.133 14.5625 16.553 14.6915 16.925 14.553C17.515 14.333 18.227 14.5355 18.593 15.1605C18.828 15.5615 18.832 16.08 18.603 16.4845C18.378 16.882 18.017 17.1095 17.6335 17.1735C17.408 17.211 17.233 17.386 17.1955 17.6115C17.1315 17.9955 16.904 18.357 16.505 18.582C16.1015 18.81 15.5845 18.806 15.1845 18.5725C14.5655 18.211 14.3615 17.513 14.569 16.928C14.6995 16.559 14.5685 16.1465 14.2915 15.8695L4.1535 5.73054C3.8765 5.45354 3.464 5.32204 3.095 5.45304C2.5095 5.66054 1.812 5.45654 1.4505 4.83754C1.2165 4.43704 1.213 3.92054 1.441 3.51704C1.666 3.11854 2.0275 2.89054 2.4115 2.82704C2.637 2.78954 2.812 2.61404 2.849 2.38854Z" fill="#A1A4A4"/><path d="M10.0225 15.073C6.43246 15.073 3.52246 14.7785 3.52246 10.0305C3.52246 6.44052 6.43246 3.53052 10.0225 3.53052C13.6125 3.53052 16.5225 6.44052 16.5225 10.0305C16.5225 14.7785 13.6125 15.073 10.0225 15.073Z" fill="#CACBCB"/><path d="M13.2479 12.0935V15.128C13.2479 15.869 12.6474 16.4695 11.9064 16.4695H8.13886C7.39786 16.4695 6.79736 15.869 6.79736 15.128V12.0935H13.2479Z" fill="#CACBCB"/><path d="M13.2769 9.59551C13.2769 8.86953 12.6884 8.28101 11.9624 8.28101C11.2365 8.28101 10.6479 8.86953 10.6479 9.59551V10.0455C10.6479 10.7715 11.2365 11.36 11.9624 11.36C12.6884 11.36 13.2769 10.7715 13.2769 10.0455V9.59551Z" fill="black"/><path d="M9.39658 9.59551C9.39658 8.86953 8.80806 8.28101 8.08208 8.28101C7.3561 8.28101 6.76758 8.86953 6.76758 9.59551V10.0455C6.76758 10.7715 7.3561 11.36 8.08208 11.36C8.80806 11.36 9.39658 10.7715 9.39658 10.0455V9.59551Z" fill="black"/><path d="M8.90804 16.4696V15.1496C8.90804 14.9441 8.74204 14.7781 8.53654 14.7781C8.33104 14.7781 8.16504 14.9441 8.16504 15.1496V16.4696H8.90804Z" fill="#A1A4A4"/><path d="M10.3934 16.4696V15.1496C10.3934 14.9441 10.2274 14.7781 10.0219 14.7781C9.81639 14.7781 9.65039 14.9441 9.65039 15.1496V16.4696H10.3934Z" fill="#A1A4A4"/><path d="M11.8795 16.4696V15.1496C11.8795 14.9441 11.7135 14.7781 11.508 14.7781C11.3025 14.7781 11.1365 14.9441 11.1365 15.1496V16.4696H11.8795Z" fill="#A1A4A4"/><path d="M9.36116 12.039L9.68366 11.5805C9.85366 11.3385 10.2137 11.342 10.3787 11.587L10.6882 12.0455C10.8772 12.326 10.6767 12.7035 10.3382 12.7035H9.70616C9.36416 12.7035 9.16416 12.318 9.36066 12.0385L9.36116 12.039Z" fill="black"/></svg></span><span class="sb-label">Thành viên</span><span class="sb-badge" id="sbg-tv">—</span></a>
+      <a class="sb-item" href="index.html"><span class="sb-icon">📊</span><span class="sb-label">Tổng quan</span><span class="sb-badge" id="sbg-da">—</span></a>
+      <a class="sb-item" href="thu-thang.html"><span class="sb-icon">💰</span><span class="sb-label">Thu hàng tháng</span><span class="sb-badge" id="sbg-tt">—</span></a>
+      <a class="sb-item active" href="thu-phat.html"><span class="sb-icon">🍺</span><span class="sb-label">Quỹ bia đội thua</span><span class="sb-badge" id="sbg-tp">—</span></a>
+      <a class="sb-item" href="chi-tieu.html"><span class="sb-icon">📋</span><span class="sb-label">Chi tiêu</span><span class="sb-badge" id="sbg-ct">—</span></a>
+      <a class="sb-item" href="thanh-vien.html"><span class="sb-icon">👥</span><span class="sb-label">Thành viên</span><span class="sb-badge" id="sbg-tv">—</span></a>
     </nav>
     <div class="sb-footer">
-      <div class="sb-year-box" style="margin-bottom:12px">
-        <span class="sb-year-label">Năm tài chính</span>
-        <span class="sb-year-val">2026</span>
-      </div>
       <div class="sb-pwa-btns">
-        <div style="font-size:10px;color:rgba(255,255,255,.35);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Cài app lên màn hình</div>
-        <button class="sb-pwa-btn" id="btn-install-android" onclick="pwaInstall()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17.6 9.48L19.72 5.9a.43.43 0 00-.74-.44l-2.13 3.6A12.47 12.47 0 0012 8c-1.74 0-3.39.37-4.85 1.06L5.02 5.46a.43.43 0 00-.74.44l2.12 3.58A11.86 11.86 0 000 20h24c0-4.17-2.52-7.75-6.4-10.52zM7 17a1 1 0 110-2 1 1 0 010 2zm10 0a1 1 0 110-2 1 1 0 010 2z" fill="#3DDC84"/></svg>
-          Thêm vào Android
-        </button>
-        <button class="sb-pwa-btn" id="btn-install-ios" onclick="pwaIOSGuide()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" fill="white"/></svg>
-          Thêm vào iPhone
-        </button>
+        <button class="btn btn-p btn-sm sb-android-btn" onclick="installPWA()" style="display:none">📲 Cài app (Android)</button>
+        <div class="sb-ios-btn" style="display:none">
+          <div style="font-size:12px;color:var(--gray-500);line-height:1.4">📱 iOS: nhấn <b>⎙ Share</b> → <b>Add to Home Screen</b></div>
+        </div>
+      </div>
+      <a href="share.html" style="display:block;margin-top:8px;font-size:12px;color:var(--p-600);text-decoration:none">👁 Xem tổng quỹ nhanh</a>
+      <div class="sb-year-box" style="margin-top:8px">
+        <span class="sb-year-label">Năm tài chính</span>
+        <span class="sb-year-val" id="sb-year-val">2026</span>
       </div>
     </div>
   </aside>
@@ -50,23 +47,25 @@
       <button class="tb-menu-btn" onclick="toggleSidebar()">☰</button>
       <span class="tb-title">Quỹ bia đội thua</span>
       <div class="tb-chips">
-        <span class="chip chip-meta"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.32 9.20505C5.32 9.66005 5.505 10.08 5.8 10.385C5.84 10.425 5.88 10.46 5.92 10.495V15.245H4.675C3.54 15.245 2.625 14.33 2.625 13.195V4.67505C2.745 4.72505 2.88 4.75505 3.025 4.75505H7.285C6.26 4.77505 5.43 5.56505 5.34 6.57005C5.335 6.63505 5.32 6.69005 5.32 6.75505V9.20505Z" fill="#F77F00"/><path d="M7.28343 4.75753H13.4764V3.25403C13.4764 2.14953 12.5809 1.25403 11.4764 1.25403H4.02393C2.91943 1.25403 2.02393 2.14953 2.02393 3.25403V3.75753C2.02393 4.16753 2.27143 4.51903 2.62443 4.67353C2.74693 4.72703 2.88143 4.75753 3.02393 4.75753H7.28343Z" fill="#D0D5DA"/><path d="M16.7599 9.67505H16.1699V8.17505C16.0499 8.22505 15.9149 8.25505 15.7699 8.25505H9.46492C8.88992 8.25505 8.42492 8.72005 8.42492 9.29505C8.42492 10.18 7.68492 10.89 6.78992 10.845C6.45492 10.83 6.15992 10.695 5.91992 10.495V16.695C5.91992 17.83 6.83992 18.745 7.96992 18.745H14.1199C15.2549 18.745 16.1699 17.83 16.1699 16.695V16.425H16.7599C17.7699 16.425 18.5899 15.605 18.5899 14.595V11.505C18.5899 10.495 17.7699 9.67505 16.7599 9.67505Z" fill="#FFAA00"/><path d="M7.32008 4.75354C6.25808 4.77604 5.43008 5.56604 5.33808 6.57204C5.33258 6.63254 5.31958 6.69154 5.31958 6.75354V9.20654C5.31958 9.65754 5.50458 10.079 5.80208 10.384C5.84008 10.423 5.87858 10.4615 5.92058 10.496C6.16108 10.6965 6.45758 10.828 6.78958 10.845C7.68508 10.892 8.42608 10.1795 8.42608 9.29404C8.42608 8.72104 8.89058 8.25704 9.46308 8.25704H15.7721C15.9141 8.25704 16.0491 8.22654 16.1716 8.17304C16.5246 8.01854 16.7721 7.66704 16.7721 7.25704V6.75354C16.7721 5.64904 15.8766 4.75354 14.7721 4.75354H7.32008Z" fill="#EBEBEB"/></svg> 50k/người thua</span>
-        <span class="chip" id="data-badge"></span>
+        <span class="chip chip-meta" id="data-badge"></span>
       </div>
       <div class="tb-actions">
-        <!-- Desktop toolbar (ẩn trên mobile) -->
         <div class="tb-desktop-only" id="data-toolbar" style="display:none;gap:8px;align-items:center">
           <button class="btn btn-po btn-sm" onclick="importJSON()">⬆ Nhập JSON</button>
           <button class="btn btn-p btn-sm" onclick="exportJSON()">⬇ Xuất JSON</button>
           <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+          <button class="btn btn-p btn-sm" id="btn-gh-sync" onclick="syncToGitHub()" style="display:none;background:var(--p-950);border-color:var(--p-950)">☁ Đồng bộ GitHub</button>
+          <button class="btn btn-g btn-sm" id="btn-gh-cfg" onclick="openGHSetup()" style="display:none" title="Cấu hình GitHub">⚙</button>
         </div>
-        <button class="btn btn-p btn-sm tb-desktop-only" id="btn-gh-sync" onclick="syncToGitHub()" style="display:none;background:var(--p-950);border-color:var(--p-950)">☁ Đồng bộ GitHub</button>
-        <button class="btn btn-g btn-sm tb-desktop-only" id="btn-gh-cfg" onclick="openGHSetup()" style="display:none" title="Cấu hình GitHub">⚙</button>
-        <button class="btn btn-g btn-sm tb-desktop-only" id="btn-refresh" onclick="refreshData()" title="Tải lại dữ liệu mới nhất" style="padding:6px 10px"><svg width="16" height="16" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28.5 3.5H11.5C7.08 3.5 3.5 7.08 3.5 11.5V28.5C3.5 32.92 7.08 36.5 11.5 36.5H28.5C32.92 36.5 36.5 32.92 36.5 28.5V11.5C36.5 7.08 32.92 3.5 28.5 3.5Z" fill="#00A887"/><path d="M30.32 25.95L28.97 25.3C27.16 28.36 23.83 30.41 20.02 30.41C15.99 30.41 12.49 28.1 10.76 24.74C10.64 24.5 10.73 24.22 10.96 24.09L13.34 22.71C13.59 22.57 13.9 22.68 14.03 22.94C15.12 25.14 17.4 26.67 20.02 26.67C22.34 26.67 24.4 25.47 25.59 23.66L24.39 23.08C23.93 22.85 23.9 22.2 24.35 21.94L29.44 19C29.83 18.77 30.33 19.01 30.4 19.46L31.24 25.28C31.32 25.79 30.79 26.18 30.32 25.95Z" fill="white"/><path d="M29.04 15.91L26.66 17.29C26.41 17.43 26.1 17.32 25.97 17.06C24.88 14.86 22.6 13.33 19.98 13.33C17.66 13.33 15.6 14.53 14.41 16.34L15.61 16.92C16.07 17.15 16.1 17.8 15.65 18.06L10.56 21C10.17 21.23 9.67 20.99 9.6 20.54L8.76 14.72C8.68 14.21 9.21 13.82 9.68 14.05L11.03 14.7C12.84 11.64 16.17 9.59 19.98 9.59C24.01 9.59 27.51 11.9 29.24 15.26C29.36 15.5 29.27 15.78 29.04 15.91Z" fill="white"/></svg></button>
+        <button id="btn-refresh" onclick="refreshData()"
+          style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;background:rgba(0,168,135,.1);border:1.5px solid var(--p-600);color:var(--p-700);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0">
+          <svg width="14" height="14" viewBox="0 0 40 40" fill="none"><path d="M28.5 3.5H11.5C7.08 3.5 3.5 7.08 3.5 11.5V28.5C3.5 32.92 7.08 36.5 11.5 36.5H28.5C32.92 36.5 36.5 32.92 36.5 28.5V11.5C36.5 7.08 32.92 3.5 28.5 3.5Z" fill="#00A887"/><path d="M30.32 25.95L28.97 25.3C27.16 28.36 23.83 30.41 20.02 30.41C15.99 30.41 12.49 28.1 10.76 24.74C10.64 24.5 10.73 24.22 10.96 24.09L13.34 22.71C13.59 22.57 13.9 22.68 14.03 22.94C15.12 25.14 17.4 26.67 20.02 26.67C22.34 26.67 24.4 25.47 25.59 23.66L24.39 23.08C23.93 22.85 23.9 22.2 24.35 21.94L29.44 19C29.83 18.77 30.33 19.01 30.4 19.46L31.24 25.28C31.32 25.79 30.79 26.18 30.32 25.95Z" fill="white"/><path d="M29.04 15.91L26.66 17.29C26.41 17.43 26.1 17.32 25.97 17.06C24.88 14.86 22.6 13.33 19.98 13.33C17.66 13.33 15.6 14.53 14.41 16.34L15.61 16.92C16.07 17.15 16.1 17.8 15.65 18.06L10.56 21C10.17 21.23 9.67 20.99 9.6 20.54L8.76 14.72C8.68 14.21 9.21 13.82 9.68 14.05L11.03 14.7C12.84 11.64 16.17 9.59 19.98 9.59C24.01 9.59 27.51 11.9 29.24 15.26C29.36 15.5 29.27 15.78 29.04 15.91Z" fill="white"/></svg>
+          <span id="refresh-label">Cập nhật</span>
+        </button>
         <div class="tb-more-wrap">
-          <button class="tb-more-btn" onclick="toggleMoreMenu()">···</button>
+          <button class="tb-more-btn tb-more-hidden" onclick="toggleMoreMenu()">···</button>
           <div class="tb-more-menu" id="more-menu">
-            <button class="tb-more-item" onclick="refreshData();closeMoreMenu()"><svg width="16" height="16" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28.5 3.5H11.5C7.08 3.5 3.5 7.08 3.5 11.5V28.5C3.5 32.92 7.08 36.5 11.5 36.5H28.5C32.92 36.5 36.5 32.92 36.5 28.5V11.5C36.5 7.08 32.92 3.5 28.5 3.5Z" fill="#00A887"/><path d="M30.32 25.95L28.97 25.3C27.16 28.36 23.83 30.41 20.02 30.41C15.99 30.41 12.49 28.1 10.76 24.74C10.64 24.5 10.73 24.22 10.96 24.09L13.34 22.71C13.59 22.57 13.9 22.68 14.03 22.94C15.12 25.14 17.4 26.67 20.02 26.67C22.34 26.67 24.4 25.47 25.59 23.66L24.39 23.08C23.93 22.85 23.9 22.2 24.35 21.94L29.44 19C29.83 18.77 30.33 19.01 30.4 19.46L31.24 25.28C31.32 25.79 30.79 26.18 30.32 25.95Z" fill="white"/><path d="M29.04 15.91L26.66 17.29C26.41 17.43 26.1 17.32 25.97 17.06C24.88 14.86 22.6 13.33 19.98 13.33C17.66 13.33 15.6 14.53 14.41 16.34L15.61 16.92C16.07 17.15 16.1 17.8 15.65 18.06L10.56 21C10.17 21.23 9.67 20.99 9.6 20.54L8.76 14.72C8.68 14.21 9.21 13.82 9.68 14.05L11.03 14.7C12.84 11.64 16.17 9.59 19.98 9.59C24.01 9.59 27.51 11.9 29.24 15.26C29.36 15.5 29.27 15.78 29.04 15.91Z" fill="white"/></svg> Tải lại dữ liệu</button>
+            <button class="tb-more-item" onclick="refreshData();closeMoreMenu()">🔄 Tải lại dữ liệu</button>
             <button class="tb-more-item" id="mm-import" style="display:none" onclick="importJSON();closeMoreMenu()">⬆ Nhập JSON</button>
             <button class="tb-more-item" id="mm-export" style="display:none" onclick="exportJSON();closeMoreMenu()">⬇ Xuất JSON</button>
             <button class="tb-more-item" id="mm-sync" style="display:none" onclick="syncToGitHub();closeMoreMenu()">☁ Đồng bộ GitHub</button>
@@ -74,19 +73,14 @@
           </div>
         </div>
         <button class="btn-login-off" id="btn-login-off" onclick="openLoginModal()"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.1955 2.38854C17.132 2.00504 16.9045 1.64404 16.5065 1.41904C16.102 1.19004 15.5835 1.19404 15.1825 1.42904C14.558 1.79504 14.3555 2.50704 14.5755 3.09704C14.714 3.46854 14.585 3.88904 14.3045 4.16954L4.19151 14.282C3.91101 14.5625 3.49101 14.6915 3.11901 14.553C2.52901 14.333 1.81701 14.5355 1.45101 15.1605C1.21601 15.5615 1.21201 16.08 1.44101 16.4845C1.66601 16.882 2.02701 17.1095 2.41051 17.1735C2.63601 17.211 2.81101 17.386 2.84851 17.6115C2.91251 17.9955 3.14001 18.357 3.53901 18.582C3.94251 18.81 4.45951 18.806 4.85951 18.5725C5.47851 18.211 5.68251 17.513 5.47501 16.928C5.34451 16.559 5.47551 16.1465 5.75251 15.8695L15.891 5.73054C16.168 5.45354 16.5805 5.32204 16.9495 5.45304C17.535 5.66054 18.2325 5.45654 18.594 4.83754C18.828 4.43704 18.8315 3.92054 18.6035 3.51704C18.3785 3.11854 18.017 2.89054 17.633 2.82704C17.4075 2.78954 17.2325 2.61404 17.1955 2.38854Z" fill="#A1A4A4"/><path d="M2.849 2.38854C2.9125 2.00504 3.14 1.64404 3.538 1.41904C3.9425 1.19004 4.461 1.19404 4.862 1.42904C5.4865 1.79504 5.689 2.50704 5.469 3.09704C5.3305 3.46854 5.4595 3.88904 5.74 4.16954L15.8525 14.282C16.133 14.5625 16.553 14.6915 16.925 14.553C17.515 14.333 18.227 14.5355 18.593 15.1605C18.828 15.5615 18.832 16.08 18.603 16.4845C18.378 16.882 18.017 17.1095 17.6335 17.1735C17.408 17.211 17.233 17.386 17.1955 17.6115C17.1315 17.9955 16.904 18.357 16.505 18.582C16.1015 18.81 15.5845 18.806 15.1845 18.5725C14.5655 18.211 14.3615 17.513 14.569 16.928C14.6995 16.559 14.5685 16.1465 14.2915 15.8695L4.1535 5.73054C3.8765 5.45354 3.464 5.32204 3.095 5.45304C2.5095 5.66054 1.812 5.45654 1.4505 4.83754C1.2165 4.43704 1.213 3.92054 1.441 3.51704C1.666 3.11854 2.0275 2.89054 2.4115 2.82704C2.637 2.78954 2.812 2.61404 2.849 2.38854Z" fill="#A1A4A4"/><path d="M10.0225 15.073C6.43246 15.073 3.52246 14.7785 3.52246 10.0305C3.52246 6.44052 6.43246 3.53052 10.0225 3.53052C13.6125 3.53052 16.5225 6.44052 16.5225 10.0305C16.5225 14.7785 13.6125 15.073 10.0225 15.073Z" fill="#CACBCB"/><path d="M13.2479 12.0935V15.128C13.2479 15.869 12.6474 16.4695 11.9064 16.4695H8.13886C7.39786 16.4695 6.79736 15.869 6.79736 15.128V12.0935H13.2479Z" fill="#CACBCB"/><path d="M9.36116 12.039L9.68366 11.5805C9.85366 11.3385 10.2137 11.342 10.3787 11.587L10.6882 12.0455C10.8772 12.326 10.6767 12.7035 10.3382 12.7035H9.70616C9.36416 12.7035 9.16416 12.318 9.36066 12.0385L9.36116 12.039Z" fill="black"/></svg> Đăng nhập</button>
-        <button class="btn-login-on"  id="btn-login-on"  onclick="logout()" style="display:none">✓ Taola</button>
+        <button class="btn-login-on" id="btn-login-on" onclick="logout()" style="display:none">✓ Taola</button>
       </div>
     </div>
     <div class="page">
-      <!-- YEAR FILTER -->
-      <div class="filter-bar" style="margin-bottom:16px">
-        <span style="font-size:12px;font-weight:700;color:var(--gray-400);white-space:nowrap">Năm:</span>
-        <div class="filter-tabs" id="year-tabs-tp"></div>
-      </div>
       <!-- Charts -->
       <div class="charts-grid" style="margin-bottom:20px">
         <div class="chart-card">
-          <div class="chart-title">Quỹ bia từng tháng</div>
+          <div class="chart-title">Tổng quỹ bia từng tháng</div>
           <div class="chart-wrap"><canvas id="cPM"></canvas></div>
         </div>
         <div class="chart-card">
@@ -98,10 +92,10 @@
       <div class="acc-list" id="acc-list"></div>
       <!-- Summary table -->
       <div class="tbl-outer">
-        <div class="tbl-title"><span class="tbl-title-text">Tổng hợp quỹ bia theo tháng</span><span class="chip chip-r" id="tp-grand">—</span></div>
+        <div class="tbl-title"><span class="tbl-title-text">Tổng hợp quỹ bia theo tháng</span><span class="chip chip-p" id="tp-grand">—</span></div>
         <div class="tbl-scroll">
           <table>
-            <thead><tr><th>Tháng</th><th class="tc">Số trận</th><th class="tr">Tổng quỹ bia</th><th class="tr">Thu thêm</th><th class="tr">TB/trận</th><th class="tr">Chưa nộp</th></tr></thead>
+            <thead><tr><th>Tháng</th><th class="tc">Số trận</th><th class="tr">Tổng quỹ bia</th><th class="tr">TB/trận</th><th class="tr">Chưa nộp</th></tr></thead>
             <tbody id="tb-phat-sum"></tbody>
           </table>
         </div>
@@ -128,21 +122,8 @@
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label">Ghi chú trận</label>
+      <label class="form-label">Ghi chú</label>
       <input class="form-control" id="m-note" placeholder="Sân Mỹ Đình, vv...">
-    </div>
-    <div style="background:var(--p-50);border:1px solid rgba(0,168,135,.15);border-radius:10px;padding:14px;margin-bottom:12px">
-      <div style="font-size:12px;font-weight:700;color:var(--p-700);margin-bottom:10px"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 0.703979C11.1795 0.703979 11.157 1.13598 11.9515 1.17798C12.746 1.22048 13.1615 0.970479 13.698 1.04948C14.071 1.10448 14.3515 1.27098 14.5455 1.43448C14.7575 1.61348 14.7925 1.92498 14.6235 2.14498L12.7755 4.54598C12.611 4.74148 12.631 5.03098 12.824 5.19798C15.7 7.68948 19.25 10.686 19.25 13.3765C19.25 17.8975 15.539 19.2965 10 19.2965C4.461 19.2965 0.75 17.8975 0.75 13.3765C0.75 10.6865 4.3 7.68948 7.176 5.19798C7.369 5.03098 7.389 4.74098 7.2245 4.54598L5.3765 2.14498C5.2075 1.92498 5.2425 1.61348 5.4545 1.43448C5.6485 1.27098 5.929 1.10448 6.302 1.04948C6.8385 0.970479 7.2545 1.22048 8.0485 1.17798C8.843 1.13548 8.8205 0.703979 10 0.703979Z" fill="#FFC522"/><path d="M10.1201 15.9626C8.83606 15.9626 7.85856 15.2026 7.44956 14.6811C7.21106 14.3766 7.26456 13.9366 7.56906 13.6981C7.87206 13.4611 8.30906 13.5126 8.54856 13.8136C8.64556 13.9331 9.52356 14.9541 10.9001 14.4041C11.2346 14.2706 11.3871 14.0286 11.3646 13.8581C11.3306 13.5976 10.8966 13.2861 10.0046 13.1791C7.80456 12.9151 7.47306 11.6681 7.42356 11.2916C7.31256 10.4416 7.84856 9.62658 8.75756 9.26358C10.5966 8.53058 11.9386 9.51558 12.4301 9.97308C12.7131 10.2361 12.7286 10.6796 12.4651 10.9626C12.2011 11.2451 11.7591 11.2611 11.4756 10.9976C11.0261 10.5786 10.2791 10.1641 9.27606 10.5646C8.94156 10.6981 8.78906 10.9401 8.81156 11.1106C8.84556 11.3711 9.27906 11.6826 10.1711 11.7896C12.3711 12.0536 12.7026 13.3006 12.7521 13.6766C12.8636 14.5266 12.3271 15.3416 11.4186 15.7046C10.9606 15.8871 10.5246 15.9631 10.1196 15.9631L10.1201 15.9626Z" fill="#FFF3CC"/><path d="M10.0887 10.402C9.70217 10.402 9.38867 10.089 9.38867 9.70251V8.7045C9.38867 8.318 9.70217 8.005 10.0887 8.005C10.4752 8.005 10.7887 8.318 10.7887 8.7045V9.70251C10.7887 10.089 10.4752 10.402 10.0887 10.402Z" fill="#FFF3CC"/><path d="M10.0887 16.9635C9.70217 16.9635 9.38867 16.6505 9.38867 16.264V15.266C9.38867 14.8795 9.70217 14.5665 10.0887 14.5665C10.4752 14.5665 10.7887 14.8795 10.7887 15.266V16.264C10.7887 16.6505 10.4752 16.9635 10.0887 16.9635Z" fill="#FFF3CC"/></svg> Thu thêm từ cầu thủ khách mời</div>
-      <div class="form-row" style="margin-bottom:0">
-        <div class="form-group" style="margin:0">
-          <label class="form-label">Số tiền thu thêm (đ)</label>
-          <input class="form-control" id="m-thuthem" type="number" min="0" step="50000" placeholder="0">
-        </div>
-        <div class="form-group" style="margin:0">
-          <label class="form-label">Ghi chú thu thêm</label>
-          <input class="form-control" id="m-ghichuthem" placeholder="VD: 2 khách mời × 50k">
-        </div>
-      </div>
     </div>
     <div class="form-group">
       <label class="form-label">Chọn đội thua (Click: chưa nộp → đã nộp → bỏ)</label>
@@ -152,7 +133,17 @@
         <span>· Click để đổi trạng thái</span>
       </div>
       <div class="loser-grid" id="loser-grid"></div>
-      <div id="loser-tags" style="display:flex;flex-wrap:wrap;gap:6px;min-height:24px"></div>
+      <div id="loser-tags" style="display:flex;flex-wrap:wrap;gap:6px;min-height:24px;margin-top:8px"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Thu thêm (khách mời, đ)</label>
+        <input class="form-control" id="m-thuthem" type="number" step="50000" placeholder="0" inputmode="numeric">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Ghi chú thu thêm</label>
+        <input class="form-control" id="m-ghichuthem" placeholder="VD: Thu thêm em Cường...">
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-g" onclick="closeOv('ov-match')">Hủy</button>
@@ -165,10 +156,11 @@
 <div class="ov" id="ov-login">
   <div class="modal login-modal" style="position:relative">
     <button class="modal-close" style="position:absolute;top:16px;right:16px" onclick="closeLoginModal()">×</button>
-    <div class="login-icon" style="padding:0;overflow:hidden"><img src="logo.jpg" style="width:52px;height:52px;object-fit:cover;border-radius:12px" alt="FC Sunday"></div><div class="login-title">Đăng nhập</div>
+    <div class="login-icon"><img src="logo.jpg" alt="FC" style="width:48px;height:48px;border-radius:12px;object-fit:cover"></div>
+    <div class="login-title">Đăng nhập</div>
     <div class="login-sub">Nhập thông tin để chỉnh sửa dữ liệu</div>
     <div class="login-error" id="login-error">⚠ Sai tên đăng nhập hoặc mật khẩu</div>
-    <div class="form-group"><label class="form-label">Mày là ai?</label><input class="form-control" id="login-user" placeholder="mày là ai?" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
+    <div class="form-group"><label class="form-label">Mày là ai?</label><input class="form-control" id="login-user" placeholder="mày là ai?"></div>
     <div class="form-group"><label class="form-label">Mật khẩu</label><div class="pw-wrap"><input class="form-control" id="login-pass" type="password" placeholder="••••••••"><button class="pw-toggle" type="button">👁</button></div></div>
     <div class="remember-row"><input type="checkbox" id="login-remember"><label for="login-remember">Lưu trạng thái đăng nhập</label></div>
     <button class="btn btn-p btn-full" style="height:40px" onclick="submitLogin()">Đăng nhập</button>
@@ -179,85 +171,108 @@
 <script>
 let _cPM, _cTL;
 let _editMatchId = null, _editMatchMi = null;
-let _loserState = {}; // memberId -> 0|1|2
+let _loserState = {};
 
 function renderAll() {
   updateSidebarBadges();
-  buildYearSelector('year-tabs-tp', 'onYearChangeTP');
   renderPhatAccordion();
   renderPhatSummary();
   renderCharts();
 }
-window.onYearChangeTP = function() {
-  renderPhatAccordion();
-  renderPhatSummary();
-  renderCharts();
-};
 
 function renderPhatAccordion() {
   const list = $el('acc-list');
   if (!list) return;
   let html = '';
   for (let i = 0; i < 12; i++) {
-    const matches = matchesInMonth(i);
-    const phatTotal = thuPhatMonth(i);
-    const thuThemTotal = thuThemMonth(i);
-    const unpaid = matches.reduce((s,m)=>s+(m.losers||[]).filter(l=>!l.paid).length*FINE,0);
-    const isOpen = i === 0;
-    html += `<div class="acc-item${isOpen?' open':''}" id="acc-${i}">
+    const matches = matchesInMonth(i, _year);
+    const phatTotal = thuPhatTotalMonth(i, _year);
+    const unpaid = matches.reduce((s,m)=>s+(m.losers||[]).filter(l=>!l.paid).length,0) * FINE;
+    const thuThemTot = thuThemMonth(i, _year);
+    html += `<div class="acc-item" id="acc-${i}">
       <div class="acc-header" onclick="toggleAcc(${i})">
         <span class="acc-title">Tháng ${i+1}</span>
-        <div class="acc-meta">
-          ${matches.length?`<span class="chip chip-n" style="font-size:11px">${matches.length} trận</span>`:''}
+        <div class="acc-meta" id="acc-meta-${i}">
+          ${matches.length?`<span class="chip chip-n" style="font-size:11px">${matches.length} trận`+`</span>`:''}
           ${phatTotal?`<span class="chip chip-r" style="font-size:11px">${fmt(phatTotal)}</span>`:''}
-          ${thuThemTotal?`<span class="chip chip-p" style="font-size:11px">+${fmt(thuThemTotal)}</span>`:''}
+          ${thuThemTot?`<span class="chip chip-p" style="font-size:11px">+${fmt(thuThemTot)}</span>`:''}
           ${unpaid?`<span class="chip chip-w" style="font-size:11px">Nợ: ${fmt(unpaid)}</span>`:''}
         </div>
         ${_auth?`<button class="btn btn-po btn-sm" onclick="event.stopPropagation();openMatchModal(${i})" style="margin-left:8px">+ Thêm trận</button>`:''}
         <span class="acc-arrow">▼</span>
       </div>
-      <div class="acc-body">
+      <div class="acc-body" id="acc-body-${i}">
         ${matches.length ? renderMatchCards(matches, i) : `<div class="acc-empty">Chưa có trận nào trong Tháng ${i+1}</div>`}
         <div class="acc-add-row">${_auth?`<button class="btn btn-po btn-sm" onclick="openMatchModal(${i})">+ Thêm trận Tháng ${i+1}</button>`:''}</div>
       </div>
     </div>`;
   }
   list.innerHTML = html;
+  const curMi = new Date().getMonth();
+  const curItem = $el('acc-' + curMi);
+  if (curItem) curItem.classList.add('open');
 }
 
 function renderMatchCards(matches, mi) {
-  return matches.map(m => {
-    const losers = m.losers || [];
-    const loserTags = losers.map(l => {
-      const mem = S.members.find(x=>x.id===l.memberId);
-      const name = mem ? mem.name : '?';
-      return `<span class="lt ${l.paid?'lt-p':'lt-u'}" onclick="_auth&&toggleLoserPaid(${m.id},${l.memberId})" title="${l.paid?'Đã nộp':'Chưa nộp'}">${name} ${l.paid?'✅':'🔴'}</span>`;
-    }).join('');
-    const phatTotal  = losers.length * FINE;
-    const unpaid     = losers.filter(l=>!l.paid).length * FINE;
-    const thuThem    = m.thuThem || 0;
-    const grandTotal = phatTotal + thuThem;
-    return `<div class="match-card">
-      <div class="match-id">#${m.id}</div>
-      <div class="match-info">
-        <div class="match-date">${fmtDate(m.date)}</div>
-        ${m.note?`<div class="match-note">${esc(m.note)}</div>`:''}
-        <div class="match-losers">${loserTags || '<span style="color:var(--gray-400);font-size:12px">Không có người thua</span>'}</div>
-        ${thuThem ? `<div style="font-size:12px;color:var(--p-700);font-weight:600;margin-bottom:4px"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 0.703979C11.1795 0.703979 11.157 1.13598 11.9515 1.17798C12.746 1.22048 13.1615 0.970479 13.698 1.04948C14.071 1.10448 14.3515 1.27098 14.5455 1.43448C14.7575 1.61348 14.7925 1.92498 14.6235 2.14498L12.7755 4.54598C12.611 4.74148 12.631 5.03098 12.824 5.19798C15.7 7.68948 19.25 10.686 19.25 13.3765C19.25 17.8975 15.539 19.2965 10 19.2965C4.461 19.2965 0.75 17.8975 0.75 13.3765C0.75 10.6865 4.3 7.68948 7.176 5.19798C7.369 5.03098 7.389 4.74098 7.2245 4.54598L5.3765 2.14498C5.2075 1.92498 5.2425 1.61348 5.4545 1.43448C5.6485 1.27098 5.929 1.10448 6.302 1.04948C6.8385 0.970479 7.2545 1.22048 8.0485 1.17798C8.843 1.13548 8.8205 0.703979 10 0.703979Z" fill="#FFC522"/><path d="M10.1201 15.9626C8.83606 15.9626 7.85856 15.2026 7.44956 14.6811C7.21106 14.3766 7.26456 13.9366 7.56906 13.6981C7.87206 13.4611 8.30906 13.5126 8.54856 13.8136C8.64556 13.9331 9.52356 14.9541 10.9001 14.4041C11.2346 14.2706 11.3871 14.0286 11.3646 13.8581C11.3306 13.5976 10.8966 13.2861 10.0046 13.1791C7.80456 12.9151 7.47306 11.6681 7.42356 11.2916C7.31256 10.4416 7.84856 9.62658 8.75756 9.26358C10.5966 8.53058 11.9386 9.51558 12.4301 9.97308C12.7131 10.2361 12.7286 10.6796 12.4651 10.9626C12.2011 11.2451 11.7591 11.2611 11.4756 10.9976C11.0261 10.5786 10.2791 10.1641 9.27606 10.5646C8.94156 10.6981 8.78906 10.9401 8.81156 11.1106C8.84556 11.3711 9.27906 11.6826 10.1711 11.7896C12.3711 12.0536 12.7026 13.3006 12.7521 13.6766C12.8636 14.5266 12.3271 15.3416 11.4186 15.7046C10.9606 15.8871 10.5246 15.9631 10.1196 15.9631L10.1201 15.9626Z" fill="#FFF3CC"/><path d="M10.0887 10.402C9.70217 10.402 9.38867 10.089 9.38867 9.70251V8.7045C9.38867 8.318 9.70217 8.005 10.0887 8.005C10.4752 8.005 10.7887 8.318 10.7887 8.7045V9.70251C10.7887 10.089 10.4752 10.402 10.0887 10.402Z" fill="#FFF3CC"/><path d="M10.0887 16.9635C9.70217 16.9635 9.38867 16.6505 9.38867 16.264V15.266C9.38867 14.8795 9.70217 14.5665 10.0887 14.5665C10.4752 14.5665 10.7887 14.8795 10.7887 15.266V16.264C10.7887 16.6505 10.4752 16.9635 10.0887 16.9635Z" fill="#FFF3CC"/></svg> Thu thêm: +${fmt(thuThem)}${m.ghiChuThem?' — '+esc(m.ghiChuThem):''}</div>` : ''}
-        <div class="match-footer">
-          <div class="match-total">
-            Quỹ bia: ${fmt(phatTotal)}
-            ${thuThem ? ` · Thu thêm: <span style="color:var(--p-700)">+${fmt(thuThem)}</span> · Tổng: <b>${fmt(grandTotal)}</b>` : ''}
-            ${unpaid ? ` · Nợ: <span style="color:var(--c-warning)">${fmt(unpaid)}</span>` : ''}
-          </div>
-          ${_auth?`<div class="match-actions">
-            <button class="btn btn-g btn-ic btn-sm" onclick="openEditMatch(${m.id})" title="Sửa"><svg width="14" height="14" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M25.771 6.174L5.107 26.838L12.944 34.675L33.608 14.011L25.771 6.174Z" fill="#FFAA00"/><path fill-rule="evenodd" clip-rule="evenodd" d="M36.844 10.777L33.61 14.012L25.773 6.174L29.007 2.94C29.882 2.065 31.3 2.065 32.174 2.94L36.844 7.61C37.719 8.485 37.719 9.902 36.844 10.777Z" fill="#FF9000"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.295 37.261L7.125 36.235L3.548 32.657L2.522 36.488C2.396 36.957 2.826 37.386 3.295 37.261Z" fill="#313D4C"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.549 32.657L7.125 36.235L12.946 34.675L5.109 26.838L3.549 32.657Z" fill="#FFCCA8"/></svg></button>
-            <button class="btn btn-d btn-ic btn-sm" onclick="delMatch(${m.id})" title="Xóa"><svg width="14" height="14" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28.635 36.829H11.775C10.292 36.829 9.053 35.7 8.916 34.223L6.358 6.655H34.053L31.494 34.224C31.357 35.7 30.118 36.83 28.635 36.83V36.829Z" fill="#FFCD00"/><path d="M35.049 4.326H5.361C4.313 4.326 3.464 5.175 3.464 6.223V8.855C3.464 9.903 4.313 10.752 5.361 10.752H35.049C36.097 10.752 36.946 9.903 36.946 8.855V6.223C36.946 5.175 36.097 4.326 35.049 4.326Z" fill="#FACA06"/></svg></button>
-          </div>`:''}
-        </div>
-      </div>
-    </div>`;
+  return matches.map(m => renderSingleMatchCard(m)).join('');
+}
+
+function renderSingleMatchCard(m) {
+  const losers = m.losers || [];
+  const loserTags = losers.map(l => {
+    const mem = S.members.find(x=>x.id===l.memberId);
+    const name = mem ? mem.name.split(' ').pop() : '?';
+    return `<span class="lt ${l.paid?'lt-p':'lt-u'}" onclick="_auth&&toggleLoserPaid(${m.id},${l.memberId})" title="${l.paid?'Đã nộp':'Chưa nộp'}">${name} ${l.paid?'✅':'🔴'}</span>`;
   }).join('');
+  const phatTotal = losers.filter(l=>l.paid).length * FINE;
+  const phatTotalAll = losers.length * FINE;
+  const thuThem = m.thuThem || 0;
+  const grandTotal = phatTotalAll + thuThem;
+  const unpaid = losers.filter(l=>!l.paid).length * FINE;
+  return `<div class="match-card" id="mc-${m.id}">
+    <div class="match-id">#${m.id}</div>
+    <div class="match-info">
+      <div class="match-date">${fmtDate(m.date)}</div>
+      ${m.note?`<div class="match-note">${esc(m.note)}</div>`:''}
+      <div class="match-losers">${loserTags || '<span style="color:var(--gray-400);font-size:12px">Không có người thua</span>'}</div>
+      ${thuThem?`<div style="font-size:12px;color:var(--p-700);margin-top:4px">🎁 Thu thêm: +${fmt(thuThem)}${m.ghiChuThem?' — '+esc(m.ghiChuThem):''}</div>`:''}
+      <div class="match-footer">
+        <div class="match-total">
+          Quỹ bia: ${fmt(phatTotalAll)}
+          ${thuThem ? ` · Thu thêm: <span style="color:var(--p-700)">+${fmt(thuThem)}</span> · Tổng: <b>${fmt(grandTotal)}</b>` : ''}
+          ${unpaid ? ` · Nợ: <span style="color:var(--c-warning)">${fmt(unpaid)}</span>` : ''}
+        </div>
+        ${_auth?`<div class="match-actions">
+          <button class="btn btn-g btn-ic btn-sm" onclick="openEditMatch(${m.id})" title="Sửa"><svg width="14" height="14" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M25.771 6.174L5.107 26.838L12.944 34.675L33.608 14.011L25.771 6.174Z" fill="#FFAA00"/><path fill-rule="evenodd" clip-rule="evenodd" d="M36.844 10.777L33.61 14.012L25.773 6.174L29.007 2.94C29.882 2.065 31.3 2.065 32.174 2.94L36.844 7.61C37.719 8.485 37.719 9.902 36.844 10.777Z" fill="#FF9000"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.295 37.261L7.125 36.235L3.548 32.657L2.522 36.488C2.396 36.957 2.826 37.386 3.295 37.261Z" fill="#313D4C"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.549 32.657L7.125 36.235L12.946 34.675L5.109 26.838L3.549 32.657Z" fill="#FFCCA8"/></svg></button>
+          <button class="btn btn-d btn-ic btn-sm" onclick="delMatch(${m.id})" title="Xóa"><svg width="14" height="14" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.242 11.317L7.137 34.101C7.201 35.72 8.532 37 10.152 37H30.183C31.803 37 33.134 35.72 33.198 34.101L34.093 11.317H6.242Z" fill="#6B7683"/><path d="M6.424 15.97L7.136 34.101C7.2 35.72 8.531 37 10.151 37H30.182C31.802 37 33.133 35.72 33.197 34.101L33.909 15.97H6.424Z" fill="#8A94A0"/><path d="M26.996 9.15C26.326 9.15 25.782 8.607 25.782 7.936V6.352C25.782 5.173 24.823 4.213 23.644 4.213H16.697C15.518 4.213 14.559 5.173 14.559 6.352V7.936C14.559 8.607 14.015 9.15 13.345 9.15C12.675 9.15 12.131 8.607 12.131 7.936V6.352C12.131 3.833 14.18 1.786 16.698 1.786H23.645C26.163 1.786 28.212 3.834 28.212 6.352V7.936C28.212 8.607 27.668 9.15 26.998 9.15H26.996Z" fill="#4B596A"/><path d="M34.416 7.93H5.584C4.751 7.93 4.075 8.606 4.075 9.439V11.45C4.075 12.284 4.751 12.959 5.584 12.959H34.416C35.249 12.959 35.925 12.284 35.925 11.45V9.439C35.925 8.606 35.249 7.93 34.416 7.93Z" fill="#8A94A0"/></svg></button>
+        </div>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function _updateMatchCard(matchId) {
+  const match = S.matches.find(m=>m.id===matchId);
+  if (!match) return;
+  const card = $el('mc-' + matchId);
+  if (!card) return;
+  const tmp = document.createElement('div');
+  tmp.innerHTML = renderSingleMatchCard(match);
+  card.replaceWith(tmp.firstElementChild);
+}
+
+function _updateAccordionHeader(mi) {
+  const hdr = $el('acc-meta-' + mi);
+  if (!hdr) return;
+  const matches = matchesInMonth(mi, _year);
+  const phatTotal = thuPhatTotalMonth(mi, _year);
+  const unpaid = matches.reduce((s,m)=>s+(m.losers||[]).filter(l=>!l.paid).length,0) * FINE;
+  const thuThemTot = thuThemMonth(mi, _year);
+  hdr.innerHTML =
+    (matches.length?`<span class="chip chip-n" style="font-size:11px">${matches.length} trận</span>`:'') +
+    (phatTotal?`<span class="chip chip-r" style="font-size:11px">${fmt(phatTotal)}</span>`:'') +
+    (thuThemTot?`<span class="chip chip-p" style="font-size:11px">+${fmt(thuThemTot)}</span>`:'') +
+    (unpaid?`<span class="chip chip-w" style="font-size:11px">Nợ: ${fmt(unpaid)}</span>`:'');
 }
 
 function toggleAcc(i) {
@@ -270,7 +285,13 @@ function toggleLoserPaid(matchId, memberId) {
   const match = S.matches.find(m=>m.id===matchId);
   if (!match) return;
   const loser = match.losers.find(l=>l.memberId===memberId);
-  if (loser) { loser.paid = !loser.paid; saveS(); renderAll(); }
+  if (!loser) return;
+  loser.paid = !loser.paid;
+  saveS();
+  _updateMatchCard(matchId);
+  _updateAccordionHeader(match.monthIdx);
+  updateSidebarBadges();
+  renderCharts();
 }
 
 function openMatchModal(mi) {
@@ -307,29 +328,15 @@ function openEditMatch(id) {
 }
 
 function renderLoserGrid() {
-  // Hiển thị active trước, inactive sau (phân nhóm)
-  const active   = S.members.filter(m => m.status === 'active');
-  const inactive = S.members.filter(m => m.status === 'inactive');
   const grid = $el('loser-grid');
   if (!grid) return;
-
-  const renderItem = m => {
-    const s   = _loserState[m.id] || 0;
+  const am = S.members.filter(m => m.status !== 'left');
+  grid.innerHTML = am.map(m => {
+    const s = _loserState[m.id] || 0;
     const cls = s===1?'s1':s===2?'s2':'';
-    const icon = s===1?'✕ ':s===2?'✓ ':'';
-    // Badge tạm nghỉ
-    const badge = m.status==='inactive'
-      ? `<span style="display:block;font-size:9px;font-weight:600;color:#d97706;margin-top:1px">Tạm nghỉ</span>`
-      : '';
-    return `<div class="loser-item ${cls}" onclick="cycleLoser(${m.id})" style="${m.status==='inactive'?'opacity:.75;border-style:dashed':''}">${icon}${esc(m.name)}${badge}</div>`;
-  };
-
-  let html = active.map(renderItem).join('');
-  if (inactive.length) {
-    html += `<div style="grid-column:1/-1;font-size:11px;font-weight:700;color:var(--gray-400);padding:6px 0 2px;border-top:1px dashed var(--gray-200);margin-top:4px">Tạm nghỉ</div>`;
-    html += inactive.map(renderItem).join('');
-  }
-  grid.innerHTML = html;
+    const icon = s===1?'✕':s===2?'✓':'';
+    return `<div class="loser-item ${cls}" onclick="cycleLoser(${m.id})">${icon} ${esc(m.name.split(' ').pop())}</div>`;
+  }).join('');
   renderLoserTags();
 }
 
@@ -345,7 +352,7 @@ function renderLoserTags() {
   tags.innerHTML = selected.map(([mid,s]) => {
     const m = S.members.find(x=>x.id===+mid);
     if (!m) return '';
-    return `<span class="lt ${s===2?'lt-p':'lt-u'}" onclick="cycleLoser(${mid})">${esc(m.name)}</span>`;
+    return `<span class="lt ${s===2?'lt-p':'lt-u'}" onclick="cycleLoser(${mid})">${m.name.split(' ').pop()}</span>`;
   }).join('');
 }
 
@@ -353,8 +360,8 @@ function saveMatch() {
   if (!_requireAuth()) return;
   const date = $el('m-date')?.value;
   if (!date) { showToast('Vui lòng chọn ngày thi đấu', 'red'); return; }
-  const note       = $el('m-note')?.value?.trim() || '';
-  const thuThem    = parseInt($el('m-thuthem')?.value) || 0;
+  const note = $el('m-note')?.value?.trim() || '';
+  const thuThem = parseFloat($el('m-thuthem')?.value) || 0;
   const ghiChuThem = $el('m-ghichuthem')?.value?.trim() || '';
   const losers = Object.entries(_loserState)
     .filter(([,s])=>s>0)
@@ -364,7 +371,10 @@ function saveMatch() {
     const match = S.matches.find(m=>m.id===_editMatchId);
     if (match) { match.date=date; match.note=note; match.losers=losers; match.thuThem=thuThem; match.ghiChuThem=ghiChuThem; }
   } else {
-    S.matches.push({ id:S.nextMaid++, monthIdx:_editMatchMi, date, note, losers, thuThem, ghiChuThem });
+    const mi = _editMatchMi;
+    const year = _year;
+    // Encode year in date field if needed
+    S.matches.push({ id:S.nextMaid++, monthIdx:mi, date, note, losers, thuThem, ghiChuThem });
   }
   saveS();
   closeOv('ov-match');
@@ -384,19 +394,17 @@ function delMatch(id) {
 function renderPhatSummary() {
   const tb = $el('tb-phat-sum');
   if (!tb) return;
-  let rows = '', grandPhat = 0, grandTran = 0, grandUnpaid = 0, grandThuThem = 0;
+  let rows = '', grandTotal = 0, grandTran = 0, grandUnpaid = 0;
   for (let i=0;i<12;i++) {
-    const matches   = matchesInMonth(i);
-    const phat      = thuPhatMonth(i);
-    const thuThem   = thuThemMonth(i);
-    const unpaid    = matches.reduce((s,m)=>s+(m.losers||[]).filter(l=>!l.paid).length*FINE,0);
-    const avg       = matches.length ? phat/matches.length : 0;
-    grandPhat += phat; grandTran += matches.length; grandUnpaid += unpaid; grandThuThem += thuThem;
+    const matches = matchesInMonth(i, _year);
+    const total = thuPhatTotalMonth(i, _year);
+    const unpaid = matches.reduce((s,m)=>s+(m.losers||[]).filter(l=>!l.paid).length,0) * FINE;
+    const avg = matches.length ? total/matches.length : 0;
+    grandTotal += total; grandTran += matches.length; grandUnpaid += unpaid;
     rows += `<tr>
       <td class="bold">Tháng ${i+1}</td>
       <td class="tc">${matches.length?`<span class="chip chip-n">${matches.length}</span>`:'<span style="color:var(--gray-300)">—</span>'}</td>
-      <td class="tr" style="color:var(--c-danger)">${phat?fmt(phat):'<span style="color:var(--gray-300)">—</span>'}</td>
-      <td class="tr" style="color:var(--p-700)">${thuThem?'+'+fmt(thuThem):'<span style="color:var(--gray-300)">—</span>'}</td>
+      <td class="tr" style="color:var(--gray-800)">${total?fmt(total):'<span style="color:var(--gray-300)">—</span>'}</td>
       <td class="tr">${avg?fmt(avg):'<span style="color:var(--gray-300)">—</span>'}</td>
       <td class="tr" style="color:${unpaid?'var(--c-warning)':'var(--p-700)'}">${unpaid?fmt(unpaid):'<span style="color:var(--p-700)">Đủ ✓</span>'}</td>
     </tr>`;
@@ -404,29 +412,27 @@ function renderPhatSummary() {
   rows += `<tr class="tbl-foot">
     <td class="bold">TỔNG CỘNG</td>
     <td class="tc bold">${grandTran} trận</td>
-    <td class="tr bold">${fmt(grandPhat)}</td>
-    <td class="tr bold" style="color:var(--p-700)">+${fmt(grandThuThem)}</td>
-    <td class="tr">${grandTran?fmt(grandPhat/grandTran):'—'}</td>
+    <td class="tr bold">${fmt(grandTotal)}</td>
+    <td class="tr">${grandTran?fmt(grandTotal/grandTran):'—'}</td>
     <td class="tr bold" style="color:var(--c-warning)">${grandUnpaid?fmt(grandUnpaid):'Đủ ✓'}</td>
   </tr>`;
   tb.innerHTML = rows;
-  $set('tp-grand', fmt(grandPhat + grandThuThem));
+  $set('tp-grand', fmt(grandTotal));
 }
 
 function renderCharts() {
-  const phatData = Array.from({length:12},(_,i)=>thuPhatMonth(i));
+  const phatData = Array.from({length:12},(_,i)=>thuPhatTotalMonth(i, _year));
   const opts = chartDefaults();
 
   if (_cPM) _cPM.destroy();
   _cPM = new Chart($el('cPM'), {
     type:'bar',
-    data:{ labels:MONTHS, datasets:[{data:phatData,backgroundColor:'#dc2626',borderRadius:4}] },
+    data:{ labels:MONTHS, datasets:[{data:phatData,backgroundColor:'#00A887',borderRadius:4}] },
     options:opts
   });
 
-  // Top 10 losers
   const am = activeMembers();
-  const lossData = am.map(m=>({name:m.name, count:memberTotalLoss(m.id)}))
+  const lossData = am.map(m=>({name:m.name.split(' ').pop(),count:memberTotalLoss(m.id)}))
     .filter(x=>x.count>0).sort((a,b)=>b.count-a.count).slice(0,10);
 
   if (_cTL) _cTL.destroy();
