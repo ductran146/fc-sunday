@@ -324,7 +324,7 @@
       1,
       1,
       2,
-      0,
+      1,
       0,
       0,
       0,
@@ -901,17 +901,9 @@
       "amount": 40000,
       "note": "Đồng bộ quỹ tồn",
       "fund": "thang"
-    },
-    {
-      "id": 5,
-      "date": "2026-05-02",
-      "cat": "Tiền đầu kỳ",
-      "amount": -2400000,
-      "note": "Tiền đầu kỳ, đồng bộ quỹ",
-      "fund": "thang"
     }
   ],
-  "nextCid": 6,
+  "nextCid": 5,
   "_meta": {
     "version": "1.0",
     "lastUpdated": "2026-05-02",
