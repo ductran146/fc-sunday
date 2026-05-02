@@ -261,7 +261,7 @@ function renderMonthlyTable() {
     rows += `<tr>
       <td class="bold">Tháng ${i+1}</td>
       <td class="tr">${phi ? fmt(phi) : '<span style="color:var(--gray-300)">—</span>'}</td>
-      <td class="tr" style="color:var(--c-danger)">${phat ? fmt(phat) : '<span style="color:var(--gray-300)">—</span>'}</td>
+      <td class="tr" style="color:var(--gray-800)">${phat ? fmt(phat) : '<span style="color:var(--gray-300)">—</span>'}</td>
       <td class="tr bold">${total ? fmt(total) : '<span style="color:var(--gray-300)">—</span>'}</td>
       <td class="tr" style="color:var(--c-danger)">${chi ? fmt(chi) : '<span style="color:var(--gray-300)">—</span>'}</td>
       <td class="tr bold" style="color:${tonColor}">${fmt(ton)}</td>
