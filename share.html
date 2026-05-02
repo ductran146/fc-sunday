@@ -225,7 +225,7 @@ function memberExemptCount(mid, year) {
   const arr = S.thuThang[_ttKey(mid,year)] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
   return arr.filter(v=>v===2).length;
 }
-function activeMembers() { return (S.members||[]).filter(m=>m.status==='active'); }
+function activeMembers() { return (S.members||[]).filter(m=>m.status!=='left'); }
 function matchesInYear(year) {
   return (S.matches||[]).filter(m => {
     const y = m.date ? parseInt(m.date.split('-')[0]) : BASE_YEAR;
