@@ -752,7 +752,7 @@
         },
         {
           "memberId": 15,
-          "paid": true
+          "paid": false
         },
         {
           "memberId": 18,
