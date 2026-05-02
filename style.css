@@ -503,6 +503,18 @@ tbody tr:hover { background: var(--gray-50); }
   gap: 6px;
   flex-wrap: wrap;
 }
+/* Mobile: scroll ngang, 1 dòng */
+@media (max-width: 600px) {
+  .filter-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .filter-tabs::-webkit-scrollbar { display: none; }
+  .fbtn { flex-shrink: 0; }
+}
 .fbtn {
   display: flex;
   justify-content: center;
