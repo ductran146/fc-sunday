@@ -329,6 +329,15 @@ function renderMembers() {
   const allMembers = S.members.filter(m => m.status !== 'left');
   requestAnimationFrame(() => autoStickyWidth(allMembers, '.tbl-sticky .sticky-2'));
 }
+function startMemInline(id) {
+  if (!_requireAuth()) return;
+  const span = $el(`mem-name-${id}`), inp = $el(`mem-inp-${id}`);
+  const btnEdit = $el(`mem-edit-${id}`), btnSave = $el(`mem-save-${id}`);
+  if (span) span.style.display='none';
+  if (inp)  { inp.style.display='inline-block'; inp.focus(); inp.select(); }
+  if (btnEdit) btnEdit.style.display='none';
+  if (btnSave) btnSave.style.display='flex';
+}
 function _measureText(text, font) {
   const c = document.createElement('canvas');
   const ctx = c.getContext('2d');
@@ -349,6 +358,7 @@ function autoStickyWidth(members, colSelector) {
     el.style.left = s1w + 'px';
   });
 }
+function startMemInline(id) {
   if (!_requireAuth()) return;
   const span = $el(`mem-name-${id}`), inp = $el(`mem-inp-${id}`);
   const btnEdit = $el(`mem-edit-${id}`), btnSave = $el(`mem-save-${id}`);
