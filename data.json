@@ -508,7 +508,7 @@
         },
         {
           "memberId": 18,
-          "paid": true
+          "paid": false
         },
         {
           "memberId": 20,
@@ -546,7 +546,7 @@
         },
         {
           "memberId": 8,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 19,
@@ -580,7 +580,7 @@
         },
         {
           "memberId": 18,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 20,
@@ -595,8 +595,8 @@
           "paid": false
         }
       ],
-      "thuThem": 0,
-      "ghiChuThem": ""
+      "thuThem": 100000,
+      "ghiChuThem": "Thu thêm 100K bạn Hội"
     },
     {
       "id": 4,
@@ -880,7 +880,7 @@
   "nextCid": 5,
   "_meta": {
     "version": "1.0",
-    "lastUpdated": "2026-05-01",
+    "lastUpdated": "2026-05-02",
     "updatedBy": "maylaai"
   }
 }
