@@ -67,8 +67,7 @@ function memberExemptCount(mid, year) {
 // Số tháng bắt buộc = 12 - số tháng miễn  (chỉ áp dụng cho member active)
 function memberRequiredMonths(mid, year) {
   year = year || _year;
-  const mem = S.members.find(m => m.id === mid);
-  if (!mem || mem.status !== 'active') return 0; // tạm nghỉ/đã nghỉ → 0
+  // Trạng thái không ảnh hưởng — chỉ ô miễn (—) mới trừ nghĩa vụ
   return 12 - memberExemptCount(mid, year);
 }
 
@@ -143,8 +142,10 @@ function $el(id) { return document.getElementById(id); }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 /* ─── DATA HELPERS (year-aware) ──────────────── */
-function activeMembers()    { return S.members.filter(m => m.status === 'active'); }
-function N()                { return activeMembers().length; }
+// activeMembers: dùng cho tính tổng thu quỹ tháng — bao gồm cả tạm nghỉ
+// Chỉ loại trừ "đã nghỉ" (left)
+function activeMembers()    { return S.members.filter(m => m.status !== 'left'); }
+function N()                { return S.members.filter(m => m.status === 'active').length; } // KPI hiển thị
 
 // Tổng đã đóng thực tế (value=1), dùng tính tiền
 function memberPaidMonths(mid, year)    { return memberPaidCount(mid, year||_year); }
@@ -267,15 +268,9 @@ function memberUnpaid(mid) {
 /* ─── MEMBER DEBT ────────────────────────────── */
 function memberDebtFee(mid, year) {
   year = year || _year;
-  const mem = S.members.find(m => m.id === mid);
-  // Tạm nghỉ / đã nghỉ → không nợ quỹ tháng
-  if (!mem || mem.status !== 'active') return 0;
-  // Số tháng bắt buộc = min(monthsRequired, 12) - số tháng miễn
-  const req    = monthsRequired(year);                  // tháng tính đến hiện tại (1→12)
-  const exempt = memberExemptCount(mid, year);           // số ô = 2
-  const must   = Math.max(0, Math.min(req, 12) - exempt); // bắt buộc thực tế
-  const paid   = memberPaidCount(mid, year);             // số ô = 1
-  return Math.max(0, must - paid) * FEE;
+  const req    = Math.max(0, Math.min(monthsRequired(year), 12) - memberExemptCount(mid, year));
+  const paid   = memberPaidCount(mid, year);
+  return Math.max(0, req - paid) * FEE;
 }
 function memberDebtFine(mid) {
   return memberUnpaid(mid) * FINE;
