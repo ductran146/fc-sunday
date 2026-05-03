@@ -909,9 +909,17 @@
       "amount": -2400000,
       "note": "Tiền đầu kỳ, đồng bộ quỹ",
       "fund": "thang"
+    },
+    {
+      "id": 6,
+      "date": "2026-05-02",
+      "cat": "Tiền đầu kỳ",
+      "amount": -450000,
+      "note": "Tiền đầu kỳ, đồng bộ quỹ bia",
+      "fund": "bia"
     }
   ],
-  "nextCid": 6,
+  "nextCid": 7,
   "_meta": {
     "version": "1.0",
     "lastUpdated": "2026-05-03",
