@@ -752,7 +752,7 @@
         },
         {
           "memberId": 15,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 18,
@@ -828,7 +828,7 @@
         },
         {
           "memberId": 10,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 13,
@@ -914,7 +914,7 @@
   "nextCid": 6,
   "_meta": {
     "version": "1.0",
-    "lastUpdated": "2026-05-02",
+    "lastUpdated": "2026-05-03",
     "updatedBy": "maylaai"
   }
 }
