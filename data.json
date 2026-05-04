@@ -752,7 +752,7 @@
         },
         {
           "memberId": 15,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 18,
@@ -828,7 +828,7 @@
         },
         {
           "memberId": 10,
-          "paid": false
+          "paid": true
         },
         {
           "memberId": 13,
@@ -882,7 +882,7 @@
       "id": 2,
       "date": "2026-04-30",
       "cat": "Khác",
-      "amount": -5254000,
+      "amount": -2894000,
       "note": "Đồng bộ quỹ tồn",
       "fund": "thang"
     },
@@ -894,12 +894,35 @@
       "note": "Đồng bộ quỹ bia",
       "fund": "bia"
     },
-    
+    {
+      "id": 4,
+      "date": "2026-05-01",
+      "cat": "Khác",
+      "amount": 40000,
+      "note": "Đồng bộ quỹ tồn",
+      "fund": "thang"
+    },
+    {
+      "id": 5,
+      "date": "2026-05-02",
+      "cat": "Tiền đầu kỳ",
+      "amount": -2400000,
+      "note": "Tiền đầu kỳ, đồng bộ quỹ",
+      "fund": "thang"
+    },
+    {
+      "id": 6,
+      "date": "2026-05-02",
+      "cat": "Tiền đầu kỳ",
+      "amount": -450000,
+      "note": "Tiền đầu kỳ, đồng bộ quỹ bia",
+      "fund": "bia"
+    }
   ],
-  "nextCid": 4,
+  "nextCid": 7,
   "_meta": {
     "version": "1.0",
     "lastUpdated": "2026-05-04",
-    "updatedBy": "ductm88"
+    "updatedBy": "maylaai"
   }
 }
