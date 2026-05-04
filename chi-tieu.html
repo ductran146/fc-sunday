@@ -195,8 +195,8 @@ const FUND_CHIP  = { thang: 'chip-p', bia: 'chip-w' };
 
 function selectFund(fund) {
   $el('ci-fund').value = fund;
-  const active   = { border:'2px solid var(--p-600)', background:'var(--p-50)' };
-  const inactive = { border:'2px solid var(--gray-200)', background:'#fff' };
+  const active   = { border:'1px solid var(--p-600)', background:'var(--p-50)' };
+  const inactive = { border:'1px solid var(--gray-200)', background:'#fff' };
   const applyStyle = (el, s) => { el.style.border = s.border; el.style.background = s.background; };
   applyStyle($el('fopt-thang'), fund==='thang' ? active : inactive);
   applyStyle($el('fopt-bia'),   fund==='bia'   ? active : inactive);
