@@ -202,15 +202,15 @@ function renderPhatAccordion() {
     html += `<div class="acc-item" id="acc-${i}">
       <div class="acc-header" onclick="toggleAcc(${i})">
         <span class="acc-title">Tháng ${i+1}</span>
-        <div class="acc-meta" id="acc-meta-${i}">
+        <span class="acc-arrow"></span>
+      </div>
+    <div class="acc-meta" id="acc-meta-${i}">
           ${matches.length?`<span class="chip chip-n" style="font-size:11px">${matches.length} trận`+`</span>`:''}
           ${phatTotal?`<span class="chip chip-r" style="font-size:11px">${fmt(phatTotal)}</span>`:''}
           ${thuThemTot?`<span class="chip chip-p" style="font-size:11px">+${fmt(thuThemTot)}</span>`:''}
           ${unpaid?`<span class="chip chip-w" style="font-size:11px">Nợ: ${fmt(unpaid)}</span>`:''}
         </div>
         ${_auth?`<button class="btn btn-po btn-sm" onclick="event.stopPropagation();openMatchModal(${i})" style="margin-left:8px">+ Thêm trận</button>`:''}
-        <span class="acc-arrow"></span>
-      </div>
       <div class="acc-body" id="acc-body-${i}">
         ${matches.length ? renderMatchCards(matches, i) : `<div class="acc-empty">Chưa có trận nào trong Tháng ${i+1}</div>`}
         <div class="acc-add-row">${_auth?`<button class="btn btn-po btn-sm" onclick="openMatchModal(${i})">+ Thêm trận Tháng ${i+1}</button>`:''}</div>
