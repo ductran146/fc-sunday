@@ -210,7 +210,7 @@ function renderPhatAccordion() {
           ${thuThemTot?`<span class="chip chip-p" style="font-size:11px">+${fmt(thuThemTot)}</span>`:''}
           ${unpaid?`<span class="chip chip-w" style="font-size:11px">Nợ: ${fmt(unpaid)}</span>`:''}
         </div>
-        ${_auth?`<button class="btn btn-po btn-sm" onclick="event.stopPropagation();openMatchModal(${i})" style="margin-left:12px">+ Thêm trận</button>`:''}
+          
       <div class="acc-body" id="acc-body-${i}">
         ${matches.length ? renderMatchCards(matches, i) : `<div class="acc-empty">Chưa có trận nào trong Tháng ${i+1}</div>`}
         <div class="acc-add-row">${_auth?`<button class="btn btn-po btn-sm" onclick="openMatchModal(${i})">+ Thêm trận Tháng ${i+1}</button>`:''}</div>

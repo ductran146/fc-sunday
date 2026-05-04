@@ -627,7 +627,7 @@ td.clickable { cursor: pointer; }
 
 /* ─── ACCORDION (Thu phạt) ───────────────────── */
 .acc-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-.acc-item { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); background: #fff; padding-bottom: 12px;}
+.acc-item { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); background: #fff;}
 .acc-header {
   display: flex; align-items: center;
   padding: 10px 12px; gap: 12px;
@@ -646,7 +646,7 @@ td.clickable { cursor: pointer; }
   transition: color .15s;
 }
 .acc-item.open .acc-title { color: #fff; }
-.acc-meta { display: flex; gap: 4px; align-items: center; padding: 12px}
+.acc-meta { display: flex; gap: 4px; align-items: center; margin-left: 12px; margin-right: 12px; padding-bottom: 12px;}
 .acc-arrow {
   font-size: 14px; color: var(--gray-400);
   transition: transform .25s, color .15s;
