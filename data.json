@@ -885,9 +885,17 @@
       "amount": -5254000,
       "note": "Số dư đầu kỳ, đồng bộ quỹ bóng",
       "fund": "thang"
+    },
+    {
+      "id": 8,
+      "date": "2026-04-30",
+      "cat": "Tiền đầu kỳ",
+      "amount": 1190000,
+      "note": "Đồng bộ số dư đầu kỳ quỹ bia",
+      "fund": "bia"
     }
   ],
-  "nextCid": 8,
+  "nextCid": 9,
   "_meta": {
     "version": "1.0",
     "lastUpdated": "2026-05-04",
