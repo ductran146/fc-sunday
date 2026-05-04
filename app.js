@@ -483,7 +483,7 @@ function updateDataBadge() {
   if (!bdg) return;
   if (_dataSrc === 'remote') {
     bdg.className = 'chip chip-remote';
-    bdg.innerHTML = '<span class="chip-dot"></span> Sync data';
+    bdg.innerHTML = '<span class="chip-dot"></span> Đã đồng bộ';
   } else {
     bdg.className = 'chip chip-local';
     bdg.innerHTML = '<span class="chip-dot" style="background:#d97706"></span> Chưa đồng bộ';
@@ -683,7 +683,7 @@ async function syncToGitHub() {
 
     _dataSrc = 'remote';
     updateDataBadge();
-    showToast('✅ Đã đồng bộ lên GitHub thành công!', 'green');
+    showToast('✅ Đã đồng bộ lên thành công!', 'green');
   } catch(err) {
     showToast('❌ Lỗi: ' + err.message, 'red');
     console.error('[GitHub Sync]', err);
