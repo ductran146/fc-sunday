@@ -867,36 +867,6 @@
       ],
       "thuThem": 150000,
       "ghiChuThem": "Thu thêm 3 bạn của Trường Xẻ"
-    },
-    {
-      "id": 11,
-      "monthIdx": 4,
-      "date": "2026-05-04",
-      "note": "",
-      "losers": [
-        {
-          "memberId": 1,
-          "paid": true
-        },
-        {
-          "memberId": 2,
-          "paid": true
-        },
-        {
-          "memberId": 6,
-          "paid": false
-        },
-        {
-          "memberId": 7,
-          "paid": false
-        },
-        {
-          "memberId": 8,
-          "paid": false
-        }
-      ],
-      "thuThem": 50000,
-      "ghiChuThem": "Thêm"
     }
   ],
   "nextMaid": 12,
