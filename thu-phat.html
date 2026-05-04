@@ -49,7 +49,7 @@
   <div class="content">
     <div class="topbar">
       <button class="tb-menu-btn" onclick="toggleSidebar()">☰</button>
-      <span class="tb-title">Quỹ bia</span>
+      <span class="tb-title">FC Sunday</span>
       <span class="chip chip-meta">50k/thua</span>
       <div class="tb-chips">
         <span class="chip chip-meta" id="data-badge"></span>
@@ -84,6 +84,9 @@
       </div>
     </div>
     <div class="page">
+      <div class="filter-bar" style="margin-bottom:12px">
+        <span class="tb-title">Quỹ bia</span>
+      </div>
       <!-- Charts -->
       <div class="charts-grid" style="margin-bottom:20px">
         <div class="chart-card">
@@ -206,7 +209,7 @@ function renderPhatAccordion() {
           ${unpaid?`<span class="chip chip-w" style="font-size:11px">Nợ: ${fmt(unpaid)}</span>`:''}
         </div>
         ${_auth?`<button class="btn btn-po btn-sm" onclick="event.stopPropagation();openMatchModal(${i})" style="margin-left:8px">+ Thêm trận</button>`:''}
-        <span class="acc-arrow">▼</span>
+        <span class="acc-arrow"></span>
       </div>
       <div class="acc-body" id="acc-body-${i}">
         ${matches.length ? renderMatchCards(matches, i) : `<div class="acc-empty">Chưa có trận nào trong Tháng ${i+1}</div>`}

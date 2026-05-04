@@ -48,7 +48,7 @@
   <div class="content">
     <div class="topbar">
       <button class="tb-menu-btn" onclick="toggleSidebar()">☰</button>
-      <span class="tb-title">Quỹ tháng</span>
+      <span class="tb-title">FC Sunday</span>
       <div class="tb-chips">
         <span class="chip chip-meta"><span class="chip-dot" style="background:var(--p-600)"></span> <span id="chip-members">25</span> thành viên</span>
         <span class="chip chip-meta">200k/tháng</span>
@@ -88,6 +88,7 @@
     <div class="page">
       <!-- YEAR + FILTER -->
       <div class="filter-bar" style="margin-bottom:10px">
+        <span class="tb-title">Quỹ tháng</span>
         <span style="font-size:12px;font-weight:700;color:var(--gray-400);white-space:nowrap">Năm:</span>
         <div class="filter-tabs" id="year-tabs-tt"></div>
       </div>
@@ -95,11 +96,10 @@
         <div class="filter-tabs" id="status-tabs">
           <button class="fbtn active" onclick="setFilter('all',this)">Tất cả</button>
           <button class="fbtn" onclick="setFilter('full',this)">Đủ tháng</button>
-          <button class="fbtn" onclick="setFilter('partial',this)">Còn nợ</button>
         </div>
         <input class="search-box" id="s-tt" placeholder="Tìm tên…" oninput="renderTT()">
-        <div style="display:flex; padding-top: 0px; align-items:center;gap:16px;font-size:11px; color:var(--gray-500);margin-left:auto;flex-shrink:0">
-          <div style="display:flex; align-items:center; gap:10px; font-size:11px; color:var(--gray-500); margin-left:auto; flex-shrink:0; padding-top: 10px;">
+        <div style="display:flex; align-items:center;gap:16px;font-size:11px; color:var(--gray-500);margin-left:auto;flex-shrink:0">
+          <div style="display:flex; align-items:center; gap:10px; font-size:11px; color:var(--gray-500); margin-left:auto; flex-shrink:0;">
   
           <span style="display: inline-flex; align-items: center; line-height: 1;">
             <span class="ic ic-p" style="width:16px; height:16px; font-size:9px; display:inline-flex; align-items:center; justify-content:center; margin-right:4px;">✓</span> 
