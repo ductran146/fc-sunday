@@ -398,37 +398,25 @@ function loadS() {
 }
 async function fetchRemote() {
   try {
+    // Ưu tiên Raw URL nếu đã cấu hình GitHub (bypass GitHub Pages cache 60s)
     const cfg = getGHConfig();
     let url;
     if (cfg?.owner && cfg?.repo) {
       const branch   = cfg.branch || 'main';
       const filePath = cfg.filePath || 'data.json';
+      // Raw URL không cần deploy lại → available ngay sau khi commit
       url = `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${branch}/${filePath}?t=${Date.now()}`;
     } else {
       url = `./data.json?t=${Date.now()}`;
     }
-    // Retry 1 lần nếu fail (tránh lỗi tạm thời)
-    for (let attempt = 0; attempt < 2; attempt++) {
-      try {
-        const r = await fetch(url, { cache: 'no-store' });
-        if (!r.ok) {
-          if (attempt === 0) { await new Promise(res => setTimeout(res, 1500)); continue; }
-          console.warn('fetchRemote HTTP', r.status, url);
-          return false;
-        }
-        const d = await r.json();
-        if (!d || !Array.isArray(d.members)) return false;
-        S = d;
-        localStorage.setItem('fc2026', JSON.stringify(S));
-        _dataSrc = 'remote';
-        return true;
-      } catch(e) {
-        if (attempt === 0) { await new Promise(res => setTimeout(res, 1500)); continue; }
-        console.warn('fetchRemote error', e);
-        return false;
-      }
-    }
-    return false;
+    const r = await fetch(url);
+    if (!r.ok) return false;
+    const d = await r.json();
+    if (!d || !Array.isArray(d.members)) return false;
+    S = d;
+    localStorage.setItem('fc2026', JSON.stringify(S));
+    _dataSrc = 'remote';
+    return true;
   } catch(e) { return false; }
 }
 
@@ -495,10 +483,10 @@ function updateDataBadge() {
   if (!bdg) return;
   if (_dataSrc === 'remote') {
     bdg.className = 'chip chip-remote';
-    bdg.innerHTML = '<span class="chip-dot"></span> Dữ liệu từ GitHub';
+    bdg.innerHTML = '<span class="chip-dot"></span> Sync data';
   } else {
     bdg.className = 'chip chip-local';
-    bdg.innerHTML = '<span class="chip-dot" style="background:#d97706"></span> Chưa đồng bộ GitHub';
+    bdg.innerHTML = '<span class="chip-dot" style="background:#d97706"></span> Chưa đồng bộ';
   }
 }
 function logout() {

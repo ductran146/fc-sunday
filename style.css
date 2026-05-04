@@ -906,7 +906,7 @@ tbody tr:hover .del-btn { opacity: 1; }
 /* Login modal special */
 .login-modal { width: 360px; text-align: center; }
 .login-icon {
-  width: 52px; height: 52px;
+  width: 72px; height: 72px;
   background: var(--p-50);
   border-radius: 12px;
   display: inline-flex; align-items: center; justify-content: center;
