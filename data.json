@@ -877,9 +877,17 @@
       "cat": "Sân bóng",
       "amount": 9160000,
       "note": "Thanh toán tiền sân từ 01/2026 đến 04/2026"
+    },
+    {
+      "id": 7,
+      "date": "2026-04-30",
+      "cat": "Tiền đầu kỳ",
+      "amount": -5254000,
+      "note": "Số dư đầu kỳ, đồng bộ quỹ bóng",
+      "fund": "thang"
     }
   ],
-  "nextCid": 7,
+  "nextCid": 8,
   "_meta": {
     "version": "1.0",
     "lastUpdated": "2026-05-04",
