@@ -177,7 +177,6 @@ span > svg, div > svg, td > svg { vertical-align: middle; display: inline-block;
 
 .sb-footer {
   padding: 16px 20px;
-  padding-bottom: max(32px, calc(16px + env(safe-area-inset-bottom)));
   border-top: 1px solid rgba(255,255,255,.06);
   flex-shrink: 0;
 }
@@ -496,65 +495,29 @@ tbody tr:hover { background: var(--gray-50); }
   display: flex; align-items: center; gap: 8px;
   margin-bottom: 16px; flex-wrap: wrap;
 }
-.filter-tabs {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-/* Mobile: scroll ngang, 1 dòng */
-@media (max-width: 600px) {
-  .filter-tabs {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 2px;
-  }
-  .filter-tabs::-webkit-scrollbar { display: none; }
-  .fbtn { flex-shrink: 0; }
-}
+.filter-tabs { display: flex; gap: 6px; }
 .fbtn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 8px 16px;
-  height: 40px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
   background: #fff;
-  border: 1px solid rgba(17,24,39,.12);
-  border-radius: 12px;
-  font-family: 'Pretendard', -apple-system, sans-serif;
-  font-weight: 700;
-  font-size: 14px;
-  line-height: 20px;
   color: rgba(17,24,39,.7);
+  font-size: 13px; font-weight: 700;
+  font-family: inherit;
   cursor: pointer;
-  white-space: nowrap;
   transition: all .15s;
-  -webkit-appearance: none;
-  flex-shrink: 0;
+  white-space: nowrap;
 }
-.fbtn:hover:not(.active) {
-  background: var(--gray-50);
-  border-color: rgba(17,24,39,.2);
-}
-.fbtn.active {
-  background: rgba(17,24,39,.75);
-  border-color: transparent;
-  color: rgba(255,255,255,.94);
-  box-shadow: 0 1px 3px rgba(0,0,0,.12);
-}
+.fbtn:hover { background: var(--gray-50); }
+.fbtn.active { background: rgba(17,24,39,.75); color: rgba(255,255,255,.94); border-color: transparent; }
 
 .search-box {
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 10px;
-  border: 1px solid rgba(17,24,39,.12);
-  font-size: 14px; font-family: inherit;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  font-size: 13px; font-family: inherit;
   outline: none;
   transition: border-color .15s, box-shadow .15s;
-  box-sizing: border-box;
   min-width: 0; flex: 1; max-width: 220px;
 }
 .search-box:focus { border-color: var(--p-600); box-shadow: 0 0 0 3px rgba(0,168,135,.12); }
@@ -627,10 +590,10 @@ td.clickable { cursor: pointer; }
 
 /* ─── ACCORDION (Thu phạt) ───────────────────── */
 .acc-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-.acc-item { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); background: #fff;}
+.acc-item { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); background: #fff; }
 .acc-header {
   display: flex; align-items: center;
-  padding: 10px 12px; gap: 12px;
+  padding: 14px 20px; gap: 12px;
   cursor: pointer;
   transition: background .15s;
   user-select: none;
@@ -646,7 +609,7 @@ td.clickable { cursor: pointer; }
   transition: color .15s;
 }
 .acc-item.open .acc-title { color: #fff; }
-.acc-meta { display: flex; gap: 4px; align-items: center; margin-left: 12px; margin-right: 12px; padding-bottom: 12px;}
+.acc-meta { display: flex; gap: 8px; align-items: center; }
 .acc-arrow {
   font-size: 14px; color: var(--gray-400);
   transition: transform .25s, color .15s;
@@ -720,11 +683,10 @@ td.clickable { cursor: pointer; }
 .chi-field {
   width: 100% !important;
   height: 40px !important;
-  padding: 0 10px !important;
+  padding: 0 12px !important;
   box-sizing: border-box !important;
-  line-height: 20px;
-  display: flex !important;
-  align-items: center;
+  line-height: 40px;
+  display: block;
 }
 
 /* Form row trong chi tiêu: 2 cột desktop, 1 cột mobile */
@@ -763,73 +725,23 @@ td.clickable { cursor: pointer; }
 /* Form */
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .form-group { margin-bottom: 12px; }
-.form-label {
-  font-family: 'Pretendard', -apple-system, sans-serif;
-  font-style: normal;
-  font-weight: 700;
-  font-size: 13px;
-  line-height: 18px;
-  color: #111827;
-  margin-bottom: 4px;
-  display: block;
-}
+.form-label { font-size: 12px; font-weight: 700; color: var(--gray-600); margin-bottom: 6px; display: block; }
 .form-control {
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  width: 100%;
-  height: 40px;
-  padding: 0 10px;
-  background: #fff;
-  border: 1px solid rgba(17,24,39,.08);
-  border-radius: 10px;
-  font-family: 'Pretendard', -apple-system, sans-serif;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 20px;
-  color: #4B5563;
+  width: 100%; padding: 8px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 14px; font-family: inherit;
+  color: var(--gray-900);
   outline: none;
   transition: border-color .15s, box-shadow .15s;
-  -webkit-appearance: none;
-  appearance: none;
+  background: #fff;
 }
 .form-control:focus {
   border-color: var(--p-600);
   box-shadow: 0 0 0 3px rgba(0,168,135,.12);
 }
 .form-control.error { border-color: var(--c-danger); }
-select.form-control {
-  cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%236B7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 28px;
-}
-input[type="date"].form-control {
-  /* Fix iOS date input overflow */
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  -webkit-appearance: none;
-  appearance: none;
-  line-height: 40px;
-  padding: 0 10px;
-}
-input[type="date"].form-control::-webkit-date-and-time-value {
-  text-align: left;
-  margin: 0;
-}
-textarea.form-control {
-  height: auto;
-  min-height: 80px;
-  padding: 10px;
-  resize: vertical;
-  line-height: 1.5;
-}
+select.form-control { cursor: pointer; }
 
 /* ─── MEMBER STATUS SELECT ───────────────────── */
 .status-sel {
@@ -906,7 +818,7 @@ tbody tr:hover .del-btn { opacity: 1; }
 /* Login modal special */
 .login-modal { width: 360px; text-align: center; }
 .login-icon {
-  width: 72px; height: 72px;
+  width: 52px; height: 52px;
   background: var(--p-50);
   border-radius: 12px;
   display: inline-flex; align-items: center; justify-content: center;
@@ -1040,8 +952,6 @@ tbody tr:hover .del-btn { opacity: 1; }
   position: relative;
   -webkit-appearance: none;
 }
-/* Ẩn hoàn toàn khi chưa login — override mọi media query */
-.tb-more-btn.tb-more-hidden { display: none !important; }
 
 /* Dropdown */
 .tb-more-wrap {
