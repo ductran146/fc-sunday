@@ -98,10 +98,25 @@
           <button class="fbtn" onclick="setFilter('partial',this)">Còn nợ</button>
         </div>
         <input class="search-box" id="s-tt" placeholder="Tìm tên…" oninput="renderTT()">
-        <div style="display:flex; padding-top: 10px; align-items:center;gap:10px;font-size:11px; color:var(--gray-500);margin-left:auto;flex-shrink:0">
-          <span><span class="ic ic-p" style="width:16px;height:16px;font-size:9px;display:inline-flex">✓</span> Đã đóng</span>
-          <span><span class="ic ic-e" style="width:16px;height:16px;font-size:9px;display:inline-flex">—</span> Được miễn</span>
-          <span><span class="ic ic-n" style="width:16px;height:16px;font-size:9px;display:inline-flex">—</span> Chưa đóng</span>
+        <div style="display:flex; padding-top: 0px; align-items:center;gap:16px;font-size:11px; color:var(--gray-500);margin-left:auto;flex-shrink:0">
+          <div style="display:flex; align-items:center; gap:10px; font-size:11px; color:var(--gray-500); margin-left:auto; flex-shrink:0; padding-top: 10px;">
+  
+          <span style="display: inline-flex; align-items: center; line-height: 1;">
+            <span class="ic ic-p" style="width:16px; height:16px; font-size:9px; display:inline-flex; align-items:center; justify-content:center; margin-right:4px;">✓</span> 
+            Đã đóng
+          </span>
+
+          <span style="display: inline-flex; align-items: center; line-height: 1;">
+            <span class="ic ic-e" style="width:16px; height:16px; font-size:9px; display:inline-flex; align-items:center; justify-content:center; margin-right:4px;">—</span> 
+            Được miễn
+          </span>
+
+          <span style="display: inline-flex; align-items: center; line-height: 1;">
+            <span class="ic ic-n" style="width:16px; height:16px; font-size:9px; display:inline-flex; align-items:center; justify-content:center; margin-right:4px;">—</span> 
+            Chưa đóng
+          </span>
+
+        </div>
         </div>
       </div>
       <!-- TABLE -->
