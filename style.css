@@ -627,7 +627,7 @@ td.clickable { cursor: pointer; }
 
 /* ─── ACCORDION (Thu phạt) ───────────────────── */
 .acc-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-.acc-item { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); background: #fff; }
+.acc-item { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); background: #fff; padding-bottom: 12px;}
 .acc-header {
   display: flex; align-items: center;
   padding: 10px 12px; gap: 12px;
