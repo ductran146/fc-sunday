@@ -885,25 +885,9 @@
       "amount": 1640000,
       "note": "Đồng bộ quỹ bia",
       "fund": "bia"
-    },
-    {
-      "id": 6,
-      "date": "2026-05-02",
-      "cat": "Tiền đầu kỳ",
-      "amount": -450000,
-      "note": "Tiền đầu kỳ, đồng bộ quỹ bia",
-      "fund": "bia"
-    },
-    {
-      "id": 7,
-      "date": "2026-04-30",
-      "cat": "Tiền đầu kỳ",
-      "amount": -5254000,
-      "note": "Cập nhật số dư đầu ký, đồng bộ quỹ",
-      "fund": "thang"
     }
   ],
-  "nextCid": 8,
+  "nextCid": 7,
   "_meta": {
     "version": "1.0",
     "lastUpdated": "2026-05-04",
