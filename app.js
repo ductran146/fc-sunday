@@ -115,7 +115,7 @@ function fmt(n) {
   const sign = n < 0 ? '-' : '';
   const abs  = Math.abs(n);
   // Luôn hiển thị số đầy đủ với dấu chấm phân cách ngàn
-  return sign + abs.toLocaleString('vi-VN') + 'đ';
+  return sign + abs.toLocaleString('vi-VN');
 }
 function fmtNum(n) {
   if (!n && n !== 0) return '0';
