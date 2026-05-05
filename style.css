@@ -566,6 +566,7 @@ tbody tr:hover { background: var(--gray-50); }
   flex-shrink: 0; font-size: 13px;
   transition: transform .1s;
   cursor: default;
+  vertical-align: middle;
 }
 .ic-p { background: var(--p-600); color: #fff; }
 .ic-n { border: 1.5px solid rgba(17,24,39,.18); color: transparent; }
@@ -887,6 +888,8 @@ tbody tr:hover .del-btn { opacity: 1; }
   from { opacity: 0; transform: scale(.96) translateY(8px); }
   to   { opacity: 1; transform: scale(1)  translateY(0); }
 }
+@keyframes ptr-spin { to { transform: rotate(360deg); } }
+.ptr-spinning { animation: ptr-spin .7s linear infinite; }
 .modal-header {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 20px;
