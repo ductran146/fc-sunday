@@ -228,7 +228,7 @@ function renderSingleMatchCard(m) {
   const loserTags = losers.map(l => {
     const mem = S.members.find(x=>x.id===l.memberId);
     const name = mem ? mem.name : '?';
-    return `<span class="lt ${l.paid?'lt-p':'lt-u'}" onclick="_auth&&toggleLoserPaid(${m.id},${l.memberId})" title="${l.paid?'Đã nộp':'Chưa nộp'}">${name} ${l.paid?'✓':'🔴'}</span>`;
+    return `<span class="lt ${l.paid?'lt-p':'lt-u'}" onclick="_auth&&toggleLoserPaid(${m.id},${l.memberId})" title="${l.paid?'Đã nộp':'Chưa nộp'}">${name} ${l.paid?'✓':'✕'}</span>`;
   }).join('');
   const phatTotal = losers.filter(l=>l.paid).length * FINE;
   const phatTotalAll = losers.length * FINE;
