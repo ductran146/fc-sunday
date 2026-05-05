@@ -646,7 +646,8 @@ td.clickable { cursor: pointer; }
   transition: color .15s;
 }
 .acc-item.open .acc-title { color: #fff; }
-.acc-meta { display: flex; gap: 4px; align-items: center; padding: 12px;}
+.acc-meta:not(:empty) { display: flex; gap: 4px; align-items: center; padding: 12px; }
+.acc-meta:empty { display: none; }
 .acc-arrow {
   font-size: 14px; color: var(--gray-400);
   transition: transform .25s, color .15s;
