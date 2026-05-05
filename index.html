@@ -204,7 +204,7 @@ function renderAll() {
 }
 function renderKPIs() {
   const ton = totalTon();
-  $el('kpi-ton').textContent = fmtNum(ton) + ' đ';
+  $el('kpi-ton').textContent = fmtNum(ton) + ' ₫';
   $el('kpi-ton').style.color = ton >= 0 ? '#fff' : '#fca5a5';
   $set('hero-year', _year);
 
