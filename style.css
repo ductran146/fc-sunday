@@ -604,7 +604,7 @@ td.clickable { cursor: pointer; }
   margin-bottom: 20px;
 }
 .hero-watermark {
-  position: absolute; right: 16px; bottom: 185px;
+  position: absolute; right: 0px; bottom: 185px;
   font-size: 120px; opacity: .05;
   pointer-events: none; user-select: none;
   line-height: 1;
