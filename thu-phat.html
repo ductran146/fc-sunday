@@ -202,7 +202,7 @@ function renderPhatAccordion() {
       </div>
     <div class="acc-meta" id="acc-meta-${i}">${[
           matches.length?`<span class="chip chip-n" style="font-size:11px">${matches.length} trận</span>`:'',
-          phatTotal?`<span class="chip chip-r" style="font-size:11px">Tổng: ${fmt(phatTotal)}</span>`:'',
+          phatTotal?`<span class="chip chip-r" style="font-size:11px">Σ: ${fmt(phatTotal)}</span>`:'',
           thuThemTot?`<span class="chip chip-p" style="font-size:11px">Thêm: +${fmt(thuThemTot)}</span>`:'',
           unpaid?`<span class="chip chip-w" style="font-size:11px">Nợ: ${fmt(unpaid)}</span>`:''
         ].join('')}</div>
