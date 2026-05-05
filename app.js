@@ -379,11 +379,19 @@ async function refreshData() {
   if (label) label.textContent = 'Cập nhật';
 }
 
+/* ─── FIREBASE CONFIG ────────────────────────── */
+// Kiểm tra URL database tại: Firebase Console → Realtime Database → Data tab
+const FB_DB_URL = 'https://fc-sunday-ed1d1-default-rtdb.asia-southeast1.firebasedatabase.app/data.json';
+
 /* ─── PERSISTENCE ────────────────────────────── */
 function saveS() {
+  S._meta = { version: '1.0', lastUpdated: new Date().toISOString().split('T')[0], updatedBy: 'admin' };
   localStorage.setItem('fc2026', JSON.stringify(S));
-  _dataSrc = 'local';
+  _dataSrc = 'firebase';
   updateDataBadge();
+  saveToFirebase().then(ok => {
+    if (!ok) showToast('⚠ Lưu local, chưa lên Firebase', 'default');
+  });
 }
 function loadS() {
   try {
@@ -396,27 +404,49 @@ function loadS() {
     return true;
   } catch(e) { return false; }
 }
+
 async function fetchRemote() {
+  // 1. Thử Firebase Realtime Database
+  const fbOk = await _fetchFirebase();
+  if (fbOk) return true;
+  // 2. Fallback: đọc data.json tĩnh từ GitHub Pages
+  return _fetchStaticJson();
+}
+
+async function _fetchFirebase() {
   try {
-    // Ưu tiên Raw URL nếu đã cấu hình GitHub (bypass GitHub Pages cache 60s)
-    const cfg = getGHConfig();
-    let url;
-    if (cfg?.owner && cfg?.repo) {
-      const branch   = cfg.branch || 'main';
-      const filePath = cfg.filePath || 'data.json';
-      // Raw URL không cần deploy lại → available ngay sau khi commit
-      url = `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${branch}/${filePath}?t=${Date.now()}`;
-    } else {
-      url = `./data.json?t=${Date.now()}`;
-    }
-    const r = await fetch(url);
+    const r = await fetch(`${FB_DB_URL}?t=${Date.now()}`);
     if (!r.ok) return false;
     const d = await r.json();
     if (!d || !Array.isArray(d.members)) return false;
     S = d;
     localStorage.setItem('fc2026', JSON.stringify(S));
-    _dataSrc = 'remote';
+    _dataSrc = 'firebase';
     return true;
+  } catch(e) { return false; }
+}
+
+async function _fetchStaticJson() {
+  try {
+    const r = await fetch(`./data.json?t=${Date.now()}`);
+    if (!r.ok) return false;
+    const d = await r.json();
+    if (!d || !Array.isArray(d.members)) return false;
+    S = d;
+    localStorage.setItem('fc2026', JSON.stringify(S));
+    _dataSrc = 'static';
+    return true;
+  } catch(e) { return false; }
+}
+
+async function saveToFirebase() {
+  try {
+    const r = await fetch(FB_DB_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(S)
+    });
+    return r.ok;
   } catch(e) { return false; }
 }
 
@@ -434,14 +464,10 @@ function updateAuthUI() {
   const btnOff  = $el('btn-login-off');
   const btnOn   = $el('btn-login-on');
   const toolbar = $el('data-toolbar');
-  const btnSync = $el('btn-gh-sync');
-  const btnCfg  = $el('btn-gh-cfg');
   const btnMore = document.querySelector('.tb-more-btn');
   if (btnOff)  btnOff.style.display  = _auth ? 'none' : 'flex';
   if (btnOn)   btnOn.style.display   = _auth ? 'flex' : 'none';
   if (toolbar) toolbar.style.display = _auth ? 'flex' : 'none';
-  if (btnSync) btnSync.style.display = _auth ? 'inline-flex' : 'none';
-  if (btnCfg)  btnCfg.style.display  = _auth ? 'inline-flex' : 'none';
   // Ẩn button ··· khi chưa login — dùng class để thắng CSS media query
   if (btnMore) {
     if (_auth) btnMore.classList.remove('tb-more-hidden');
@@ -449,7 +475,7 @@ function updateAuthUI() {
   }
   // More menu admin items
   const show = _auth ? 'flex' : 'none';
-  ['mm-import','mm-export','mm-sync','mm-cfg'].forEach(id => {
+  ['mm-import','mm-export'].forEach(id => {
     const el = $el(id);
     if (el) el.style.display = show;
   });
@@ -481,12 +507,18 @@ function closeMoreMenu() {
 function updateDataBadge() {
   const bdg = $el('data-badge');
   if (!bdg) return;
-  if (_dataSrc === 'remote') {
+  if (_dataSrc === 'firebase') {
     bdg.className = 'chip chip-remote';
-    bdg.innerHTML = '<span class="chip-dot"></span> Đã đồng bộ';
+    bdg.innerHTML = '<span class="chip-dot"></span> Firebase';
+  } else if (_dataSrc === 'static') {
+    bdg.className = 'chip chip-local';
+    bdg.innerHTML = '<span class="chip-dot" style="background:#d97706"></span> Offline';
+  } else if (_dataSrc === 'local') {
+    bdg.className = 'chip chip-local';
+    bdg.innerHTML = '<span class="chip-dot" style="background:#d97706"></span> Cache';
   } else {
     bdg.className = 'chip chip-local';
-    bdg.innerHTML = '<span class="chip-dot" style="background:#d97706"></span> Chưa đồng bộ';
+    bdg.innerHTML = '<span class="chip-dot" style="background:#6b7280"></span> Mặc định';
   }
 }
 function logout() {
@@ -534,7 +566,7 @@ function exportJSON() {
   a.href = url; a.download = 'data.json';
   document.body.appendChild(a); a.click();
   setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
-  showToast('✅ Đã xuất data.json — upload lên GitHub', 'green');
+  showToast('✅ Đã xuất data.json', 'green');
 }
 function importJSON() {
   const fi = $el('import-file');
@@ -554,142 +586,6 @@ function handleImport(e) {
     e.target.value = '';
   };
   reader.readAsText(file);
-}
-
-/* ─── GITHUB SYNC ────────────────────────────── */
-// Lưu PAT và repo info vào localStorage (chỉ trên máy admin)
-function getGHConfig() {
-  try { return JSON.parse(localStorage.getItem('fc_gh') || 'null'); } catch(e) { return null; }
-}
-function saveGHConfig(cfg) { localStorage.setItem('fc_gh', JSON.stringify(cfg)); }
-
-function openGHSetup() {
-  if (!_requireAuth()) return;
-  const cfg = getGHConfig() || {};
-  const html = `
-    <div style="font-size:13px;color:var(--gray-600);margin-bottom:16px;line-height:1.6">
-      Nhập thông tin GitHub để đồng bộ <code>data.json</code> trực tiếp từ trình duyệt.<br>
-      Token lưu trên máy này, không gửi đi nơi nào khác.
-    </div>
-    <div class="form-group">
-      <label class="form-label">GitHub Personal Access Token</label>
-      <input class="form-control" id="gh-token" type="password" value="${esc(cfg.token||'')}" placeholder="ghp_xxxx...">
-      <div style="font-size:11px;color:var(--gray-400);margin-top:4px">Settings → Developer settings → Personal access tokens → quyền <b>repo</b></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Owner (tên tài khoản)</label>
-        <input class="form-control" id="gh-owner" value="${esc(cfg.owner||'')}" placeholder="ductm88">
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Repository name</label>
-        <input class="form-control" id="gh-repo" value="${esc(cfg.repo||'')}" placeholder="fc2026">
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Branch</label>
-      <input class="form-control" id="gh-branch" value="${esc(cfg.branch||'main')}" placeholder="main">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Đường dẫn file data trong repo</label>
-      <input class="form-control" id="gh-filepath" value="${esc(cfg.filePath||'data.json')}" placeholder="data.json hoặc fc2026/data.json">
-      <div style="font-size:11px;color:var(--gray-400);margin-top:4px">Nếu file nằm trong thư mục con thì điền VD: <b>fc2026/data.json</b></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-g" onclick="closeOv('ov-gh-setup')">Hủy</button>
-      <button class="btn btn-p" onclick="saveGHSetup()">Lưu cấu hình</button>
-    </div>`;
-  let ov = $el('ov-gh-setup');
-  if (!ov) {
-    ov = document.createElement('div');
-    ov.className = 'ov'; ov.id = 'ov-gh-setup';
-    ov.innerHTML = `<div class="modal"><div class="modal-header"><span class="modal-title">⚙ Cấu hình GitHub Sync</span><button class="modal-close" onclick="closeOv('ov-gh-setup')">×</button></div><div id="gh-setup-body"></div></div>`;
-    ov.addEventListener('click', e => { if (e.target===ov) closeOv('ov-gh-setup'); });
-    document.body.appendChild(ov);
-  }
-  $el('gh-setup-body').innerHTML = html;
-  openOv('ov-gh-setup');
-}
-function saveGHSetup() {
-  const token    = $el('gh-token')?.value?.trim();
-  const owner    = $el('gh-owner')?.value?.trim();
-  const repo     = $el('gh-repo')?.value?.trim();
-  const branch   = $el('gh-branch')?.value?.trim() || 'main';
-  const filePath = ($el('gh-filepath')?.value?.trim() || 'data.json').replace(/^\//, '');
-  if (!token||!owner||!repo) { showToast('Vui lòng điền đầy đủ thông tin', 'red'); return; }
-  saveGHConfig({ token, owner, repo, branch, filePath });
-  closeOv('ov-gh-setup');
-  showToast('✓ Đã lưu cấu hình GitHub', 'green');
-}
-
-async function syncToGitHub() {
-  if (!_requireAuth()) return;
-  const cfg = getGHConfig();
-  if (!cfg?.token) { openGHSetup(); return; }
-
-  const btn = $el('btn-gh-sync');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Đang đồng bộ...'; }
-
-  try {
-    S._meta = { version:'1.0', lastUpdated: new Date().toISOString().split('T')[0], updatedBy:'maylaai' };
-    saveS();
-
-    const content  = btoa(unescape(encodeURIComponent(JSON.stringify(S, null, 2))));
-    const filePath = cfg.filePath || 'data.json'; // đường dẫn file trong repo
-    const apiUrl   = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${filePath}`;
-    const headers  = { 'Authorization': `token ${cfg.token}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' };
-
-    // Bước 1: Lấy SHA hiện tại — bắt buộc để GitHub cho phép update
-    let sha = '';
-    const getRes = await fetch(`${apiUrl}?ref=${cfg.branch}`, { headers });
-    if (getRes.ok) {
-      const j = await getRes.json();
-      sha = j.sha || '';
-    } else if (getRes.status === 404) {
-      // File chưa tồn tại → tạo mới, không cần SHA
-      sha = '';
-    } else {
-      const e = await getRes.json();
-      throw new Error(`Không lấy được SHA: ${e.message || getRes.status}`);
-    }
-
-    // Bước 2: PUT file lên GitHub
-    const body = {
-      message: `Update data.json — ${new Date().toLocaleString('vi-VN')}`,
-      content,
-      branch: cfg.branch
-    };
-    if (sha) body.sha = sha; // bắt buộc nếu file đã tồn tại
-
-    const putRes = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
-    if (!putRes.ok) {
-      const err = await putRes.json();
-      // Lỗi SHA conflict → thử lấy lại SHA và retry 1 lần
-      if (err.message && err.message.includes('does not match')) {
-        showToast('⏳ SHA conflict, đang thử lại...', 'default');
-        const retryGet = await fetch(`${apiUrl}?ref=${cfg.branch}&t=${Date.now()}`, { headers });
-        if (!retryGet.ok) throw new Error('Không lấy được SHA mới nhất');
-        const retryJ = await retryGet.json();
-        body.sha = retryJ.sha;
-        const retryPut = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
-        if (!retryPut.ok) {
-          const retryErr = await retryPut.json();
-          throw new Error(retryErr.message || retryPut.status);
-        }
-      } else {
-        throw new Error(err.message || putRes.status);
-      }
-    }
-
-    _dataSrc = 'remote';
-    updateDataBadge();
-    showToast('✅ Đã đồng bộ lên thành công!', 'green');
-  } catch(err) {
-    showToast('❌ Lỗi: ' + err.message, 'red');
-    console.error('[GitHub Sync]', err);
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '☁ Đồng bộ GitHub'; }
-  }
 }
 
 /* ─── YEAR SELECTOR UI ───────────────────────── */
