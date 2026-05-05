@@ -381,7 +381,7 @@ async function refreshData() {
 
 /* ─── FIREBASE CONFIG ────────────────────────── */
 // Kiểm tra URL database tại: Firebase Console → Realtime Database → Data tab
-const FB_DB_URL = 'https://fc-sunday-ed1d1-default-rtdb.asia-southeast1.firebasedatabase.app/data.json';
+const FB_DB_URL = 'https://fc-sunday-8f932-default-rtdb.asia-southeast1.firebasedatabase.app/.json';
 
 /* ─── PERSISTENCE ────────────────────────────── */
 function saveS() {
@@ -509,7 +509,7 @@ function updateDataBadge() {
   if (!bdg) return;
   if (_dataSrc === 'firebase') {
     bdg.className = 'chip chip-remote';
-    bdg.innerHTML = '<span class="chip-dot"></span> Firebase';
+    bdg.innerHTML = '<span class="chip-dot"></span> Đã đồng bộ';
   } else if (_dataSrc === 'static') {
     bdg.className = 'chip chip-local';
     bdg.innerHTML = '<span class="chip-dot" style="background:#d97706"></span> Offline';
@@ -593,18 +593,26 @@ function buildYearSelector(containerId, onChangeCallback) {
   const el = $el(containerId);
   if (!el) return;
   const years = availableYears();
-  el.innerHTML = years.map(y =>
-    `<button class="fbtn${y===_year?' active':''}" onclick="_setYear(${y},'${containerId}','${onChangeCallback}')">${y}</button>`
-  ).join('');
+  if (el.tagName === 'SELECT') {
+    el.innerHTML = years.map(y => `<option value="${y}"${y===_year?' selected':''}>${y}</option>`).join('');
+  } else {
+    el.innerHTML = years.map(y =>
+      `<button class="fbtn${y===_year?' active':''}" onclick="_setYear(${y},'${containerId}','${onChangeCallback}')">${y}</button>`
+    ).join('');
+  }
 }
 function _setYear(y, containerId, cb) {
   _year = y;
-  // re-highlight active button
   const el = $el(containerId);
-  if (el) el.querySelectorAll('.fbtn').forEach(b => {
-    b.classList.toggle('active', parseInt(b.textContent)===y);
-  });
-  // update sidebar year box
+  if (el) {
+    if (el.tagName === 'SELECT') {
+      el.value = String(y);
+    } else {
+      el.querySelectorAll('.fbtn').forEach(b => {
+        b.classList.toggle('active', parseInt(b.textContent)===y);
+      });
+    }
+  }
   document.querySelectorAll('.sb-year-val').forEach(e => e.textContent = _year);
   if (window[cb]) window[cb]();
 }
@@ -667,6 +675,68 @@ function chartDefaults() {
   };
 }
 
+/* ─── PULL-TO-REFRESH ────────────────────────── */
+function _initPullToRefresh() {
+  const CIRC = 69.1; // 2π × r=11
+
+  const indicator = document.createElement('div');
+  indicator.id = 'ptr-indicator';
+  indicator.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;justify-content:center;height:0;overflow:hidden;background:var(--p-800,#00332d);border-bottom:1px solid rgba(255,255,255,.1);transition:height .15s ease;';
+  indicator.innerHTML = `
+    <div style="position:relative;width:28px;height:28px;display:flex;align-items:center;justify-content:center;">
+      <div id="ptr-spinner" style="width:28px;height:28px;">
+        <svg width="28" height="28" viewBox="0 0 28 28" style="transform:rotate(-90deg)">
+          <circle cx="14" cy="14" r="11" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="2.5"/>
+          <circle id="ptr-arc" cx="14" cy="14" r="11" fill="none" stroke="rgba(255,255,255,.8)"
+            stroke-width="2.5" stroke-dasharray="${CIRC}" stroke-dashoffset="${CIRC}"
+            stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span id="ptr-check" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:rgba(255,255,255,.85);">✓</span>
+    </div>`;
+  document.body.prepend(indicator);
+
+  let startY = 0, pulling = false;
+  const THRESHOLD = 75;
+
+  document.addEventListener('touchstart', e => {
+    const scrollEl = document.querySelector('.page') || document.scrollingElement;
+    if ((scrollEl?.scrollTop ?? window.scrollY) === 0) { startY = e.touches[0].clientY; pulling = true; }
+  }, { passive: true });
+
+  document.addEventListener('touchmove', e => {
+    if (!pulling) return;
+    const dy = e.touches[0].clientY - startY;
+    if (dy <= 0) { pulling = false; indicator.style.height = '0'; return; }
+    indicator.style.height = Math.min(dy * 0.45, 52) + 'px';
+    const pct = Math.min(dy / THRESHOLD, 1);
+    const arc = document.getElementById('ptr-arc');
+    if (arc) arc.style.strokeDashoffset = CIRC * (1 - pct);
+  }, { passive: true });
+
+  document.addEventListener('touchend', async e => {
+    if (!pulling) return;
+    pulling = false;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (dy >= THRESHOLD) {
+      const spinner = document.getElementById('ptr-spinner');
+      const arc = document.getElementById('ptr-arc');
+      const check = document.getElementById('ptr-check');
+      if (arc) arc.style.strokeDashoffset = CIRC * 0.25; // ~75% arc so gap is visible while spinning
+      if (spinner) spinner.classList.add('ptr-spinning');
+      await refreshData();
+      if (spinner) spinner.classList.remove('ptr-spinning');
+      if (spinner) spinner.style.display = 'none';
+      if (check) check.style.display = 'flex';
+      await new Promise(r => setTimeout(r, 700));
+      if (check) check.style.display = 'none';
+      if (spinner) { spinner.style.display = ''; }
+      if (arc) arc.style.strokeDashoffset = CIRC;
+    }
+    indicator.style.height = '0';
+  }, { passive: true });
+}
+
 /* ─── GLOBAL INIT ────────────────────────────── */
 async function initApp() {
   const ok = await fetchRemote();
@@ -677,6 +747,7 @@ async function initApp() {
   updateDataBadge();
   updateSidebarBadges();
   _initPWA();
+  _initPullToRefresh();
   renderAll();
 }
 

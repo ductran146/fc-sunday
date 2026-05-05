@@ -84,8 +84,7 @@
       <!-- YEAR + FILTER -->
       <div class="filter-bar" style="margin-bottom:10px">
         <span class="tb-title">Quỹ tháng</span>
-        <span style="font-size:12px;font-weight:700;color:var(--gray-400);white-space:nowrap">Năm:</span>
-        <div class="filter-tabs" id="year-tabs-tt"></div>
+        <select class="year-select" id="year-tabs-tt" onchange="_setYear(parseInt(this.value),'year-tabs-tt','onYearChangeTT')"></select>
       </div>
       <div class="filter-bar">
         <div class="filter-tabs" id="status-tabs">
@@ -219,7 +218,7 @@ function renderTT() {
   if (thead) {
     let hdr = '<tr><th class="sticky-1 tr">#</th><th class="sticky-2">Họ và Tên</th>';
     for (let i=0;i<12;i++) hdr += `<th class="tc" style="min-width:44px">${MONTHS[i]}</th>`;
-    hdr += '<th class="tc" style="min-width:80px">Đã đóng</th><th class="tr" style="min-width:100px">Tổng tiền</th></tr>';
+    hdr += '<th class="tc" style="width:88px;min-width:88px">Đã đóng</th><th class="tr" style="min-width:100px">Tổng tiền</th></tr>';
     thead.innerHTML = hdr;
   }
 
@@ -242,7 +241,7 @@ function renderTT() {
     }
     // Chip: paid/req, nếu có miễn thì hiện thêm badge
     const exemptBadge = exempt ? `<span class="chip chip-w" style="font-size:9px;margin-left:4px">−${exempt}</span>` : '';
-    html += `<td class="tc"><span class="chip ${chipCls}">${paid}/${req}</span>${exemptBadge}</td>
+    html += `<td class="tc" style="width:88px;min-width:88px"><span class="chip ${chipCls}">${paid}/${req}</span>${exemptBadge}</td>
       <td class="tr bold" style="color:${totalColor}">${paid?fmt(total):'-'}</td></tr>`;
   }
 
@@ -253,7 +252,7 @@ function renderTT() {
     const nPaid   = am.reduce((s,m)=>s+(getTT(m.id,i,_year)===1?1:0),0);
     const nExempt = am.reduce((s,m)=>s+(getTT(m.id,i,_year)===2?1:0),0);
     const exemptMark = nExempt ? `<span style="color:var(--c-warning);font-size:10px"> −${nExempt}</span>` : '';
-    footHtml += `<td class="tc bold">${nPaid}/${am.length}${exemptMark}</td>`;
+    footHtml += `<td class="tc bold" style="width:88px;min-width:88px">${nPaid}/${am.length}${exemptMark}</td>`;
     footTotal += nPaid * FEE;
   }
   footHtml += `<td class="tc">—</td><td class="tr bold">${fmt(footTotal)}</td></tr>`;
