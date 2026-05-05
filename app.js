@@ -381,7 +381,7 @@ async function refreshData() {
 
 /* ─── FIREBASE CONFIG ────────────────────────── */
 // Kiểm tra URL database tại: Firebase Console → Realtime Database → Data tab
-const FB_DB_URL = 'https://fc-sunday-ed1d1-default-rtdb.asia-southeast1.firebasedatabase.app/data.json';
+const FB_DB_URL = 'https://fc-sunday-8f932-default-rtdb.asia-southeast1.firebasedatabase.app/.json';
 
 /* ─── PERSISTENCE ────────────────────────────── */
 function saveS() {
@@ -509,7 +509,7 @@ function updateDataBadge() {
   if (!bdg) return;
   if (_dataSrc === 'firebase') {
     bdg.className = 'chip chip-remote';
-    bdg.innerHTML = '<span class="chip-dot"></span> Firebase';
+    bdg.innerHTML = '<span class="chip-dot"></span> Đã đồng bộ';
   } else if (_dataSrc === 'static') {
     bdg.className = 'chip chip-local';
     bdg.innerHTML = '<span class="chip-dot" style="background:#d97706"></span> Offline';
@@ -593,18 +593,26 @@ function buildYearSelector(containerId, onChangeCallback) {
   const el = $el(containerId);
   if (!el) return;
   const years = availableYears();
-  el.innerHTML = years.map(y =>
-    `<button class="fbtn${y===_year?' active':''}" onclick="_setYear(${y},'${containerId}','${onChangeCallback}')">${y}</button>`
-  ).join('');
+  if (el.tagName === 'SELECT') {
+    el.innerHTML = years.map(y => `<option value="${y}"${y===_year?' selected':''}>${y}</option>`).join('');
+  } else {
+    el.innerHTML = years.map(y =>
+      `<button class="fbtn${y===_year?' active':''}" onclick="_setYear(${y},'${containerId}','${onChangeCallback}')">${y}</button>`
+    ).join('');
+  }
 }
 function _setYear(y, containerId, cb) {
   _year = y;
-  // re-highlight active button
   const el = $el(containerId);
-  if (el) el.querySelectorAll('.fbtn').forEach(b => {
-    b.classList.toggle('active', parseInt(b.textContent)===y);
-  });
-  // update sidebar year box
+  if (el) {
+    if (el.tagName === 'SELECT') {
+      el.value = String(y);
+    } else {
+      el.querySelectorAll('.fbtn').forEach(b => {
+        b.classList.toggle('active', parseInt(b.textContent)===y);
+      });
+    }
+  }
   document.querySelectorAll('.sb-year-val').forEach(e => e.textContent = _year);
   if (window[cb]) window[cb]();
 }

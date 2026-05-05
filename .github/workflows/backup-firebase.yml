@@ -17,7 +17,7 @@ jobs:
 
       - name: Fetch data from Firebase
         run: |
-          curl -sf "https://fc-sunday-ed1d1-default-rtdb.asia-southeast1.firebasedatabase.app/data.json" \
+          curl -sf "https://fc-sunday-8f932-default-rtdb.asia-southeast1.firebasedatabase.app/.json" \
             -o data.json
           echo "Fetched $(wc -c < data.json) bytes"
 
