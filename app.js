@@ -371,7 +371,7 @@ async function refreshData() {
     updateDataBadge();
     updateSidebarBadges();
     if (window.renderAll) renderAll();
-    showToast('✓ Đã cập nhật dữ liệu mới nhất', 'green');
+    showToast('✓  Đã cập nhật dữ liệu mới nhất', 'green');
   } else {
     showToast('⚠ Không thể tải — dùng dữ liệu cũ', 'default');
   }
