@@ -658,7 +658,7 @@ function updateSidebarBadges() {
   const thuThangMonths = Array.from({length:12},(_,i)=>thuThangMonthTotal(i,_year)>0?1:0).reduce((a,b)=>a+b,0);
   $set('sbg-tt', thuThangMonths || 0);
   $set('sbg-tp', matchesInYear(_year).length);
-  $set('sbg-ct', S.chiTieu.length);
+  $set('sbg-ct', chiTieuInYear(_year).length);
   $set('sbg-tv', N());
 }
 

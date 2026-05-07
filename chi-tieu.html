@@ -50,7 +50,7 @@
       <button class="tb-menu-btn" onclick="toggleSidebar()">☰</button>
       <span class="tb-title">FC Sunday</span>
       <div class="tb-chips">
-        <span class="chip chip-meta">Năm 2026</span>
+        <span class="chip chip-meta" id="lbl-year-ct"></span>
         <span class="chip" id="data-badge"></span>
       </div>
       <div class="tb-actions">
@@ -203,6 +203,7 @@ function selectFund(fund) {
 
 function renderAll() {
   updateSidebarBadges();
+  $set('lbl-year-ct', 'Năm ' + _year);
   renderChiTable();
   renderCharts();
 }

@@ -157,7 +157,7 @@
       <div class="tbl-outer">
         <div class="tbl-title">
           <span class="tbl-title-text">Bảng tổng hợp 12 tháng</span>
-          <span class="chip chip-p">2026</span>
+          <span class="chip chip-p" id="lbl-year-table"></span>
         </div>
         <div class="tbl-scroll">
           <table>
@@ -207,6 +207,7 @@ function renderKPIs() {
   $el('kpi-ton').textContent = fmtNum(ton) + ' ₫';
   $el('kpi-ton').style.color = ton >= 0 ? '#fff' : '#fca5a5';
   $set('hero-year', _year);
+  $set('lbl-year-table', _year);
 
   // 2 quỹ breakdown
   const tTonThang = tonQuyThang();

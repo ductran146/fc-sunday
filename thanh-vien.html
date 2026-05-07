@@ -498,11 +498,11 @@ function confirmPayDebt() {
   const id = _payDebtMid;
   if (!id || !_requireAuth()) return;
 
-  // 1. Thanh toán nợ quỹ tháng — tick đủ các tháng còn thiếu
-  const req    = Math.max(0, Math.min(monthsRequired(_year), 12) - memberExemptCount(id, _year));
-  for (let i = 0; i < req; i++) {
+  // 1. Thanh toán nợ quỹ tháng — tick tất cả tháng chưa đóng đến tháng hiện tại
+  const maxMonth = Math.min(monthsRequired(_year), 12);
+  for (let i = 0; i < maxMonth; i++) {
     if (getTT(id, i, _year) === 0) {
-      setTT(id, i, 1, _year); // đánh dấu đã đóng
+      setTT(id, i, 1, _year);
     }
   }
 
