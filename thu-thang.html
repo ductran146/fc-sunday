@@ -180,8 +180,7 @@
 </div>
 
 <style>
-/* Ô đang pending (chưa lưu): viền cam, GIỮ hình tròn */
-.ic-pending { box-shadow: 0 0 0 2px #d97706; }
+/* Ô đang pending: không thay đổi style, chỉ đánh dấu nội bộ */
 </style>
 <script src="app.js"></script>
 <script>
@@ -349,7 +348,7 @@ document.addEventListener('click', e => {
   // Cập nhật UI ô ngay lập tức (optimistic), không lưu vào S
   const icon = cell.querySelector('.ic');
   if (icon) {
-    icon.className = `ic ${_icClass(next)} ic-pending`;
+    icon.className = `ic ${_icClass(next)}`;
     icon.textContent = _icLabel(next);
     cell.title = _icTitle(next);
   }
