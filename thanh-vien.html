@@ -394,7 +394,8 @@ function delMem(id) {
   const m = S.members.find(x=>x.id===id);
   if (!confirm(`Xóa thành viên "${m?.name}"? Dữ liệu đóng phí sẽ bị xóa.`)) return;
   S.members = S.members.filter(x=>x.id!==id);
-  delete S.thuThang[id];
+  delete S.thuThang[String(id)];
+  availableYears().forEach(y => { if (y !== BASE_YEAR) delete S.thuThang[`${id}_${y}`]; });
   S.matches = S.matches.map(m=>({...m, losers:(m.losers||[]).filter(l=>l.memberId!==id)}));
   saveS();
   showToast('Đã xóa thành viên', 'default');

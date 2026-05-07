@@ -387,10 +387,11 @@ const FB_DB_URL = 'https://fc-sunday-8f932-default-rtdb.asia-southeast1.firebase
 function saveS() {
   S._meta = { version: '1.0', lastUpdated: new Date().toISOString().split('T')[0], updatedBy: 'admin' };
   localStorage.setItem('fc2026', JSON.stringify(S));
-  _dataSrc = 'firebase';
+  _dataSrc = 'local';
   updateDataBadge();
   saveToFirebase().then(ok => {
-    if (!ok) showToast('⚠ Lưu local, chưa lên Firebase', 'default');
+    if (ok) { _dataSrc = 'firebase'; updateDataBadge(); }
+    else showToast('⚠ Lưu local, chưa lên Firebase', 'default');
   });
 }
 function loadS() {
