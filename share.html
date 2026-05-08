@@ -342,13 +342,25 @@ function memberDebt(mid, year) {
 
 /* ── Load data ── */
 async function loadData() {
+  // Ưu tiên 1: localStorage — cùng nguồn với index.html (app.js luôn sync vào đây)
+  try {
+    const raw = localStorage.getItem('fc2026');
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (d && Array.isArray(d.members) && d.members.length > 0) {
+        return d; // Dùng ngay, không cần fetch
+      }
+    }
+  } catch(e) {}
+
+  // Ưu tiên 2: Remote (GitHub Raw hoặc data.json) — khi chưa có localStorage
   const cfg = (() => { try { return JSON.parse(localStorage.getItem('fc_gh')||'null'); } catch(e) { return null; } })();
   let url = './data.json?t=' + Date.now();
   if (cfg?.owner && cfg?.repo) {
     const branch = cfg.branch||'main', fp = cfg.filePath||'data.json';
     url = `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${branch}/${fp}?t=${Date.now()}`;
   }
-  const r = await fetch(url);
+  const r = await fetch(url, { cache: 'no-store' });
   if (!r.ok) throw new Error('HTTP ' + r.status);
   return await r.json();
 }
@@ -496,11 +508,27 @@ function render() {
   }, { passive: true });
 }
 
+async function refreshFromRemote() {
+  const cfg = (() => { try { return JSON.parse(localStorage.getItem('fc_gh')||'null'); } catch(e) { return null; } })();
+  let url = './data.json?t=' + Date.now();
+  if (cfg?.owner && cfg?.repo) {
+    const branch = cfg.branch||'main', fp = cfg.filePath||'data.json';
+    url = `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${branch}/${fp}?t=${Date.now()}`;
+  }
+  const r = await fetch(url, { cache: 'no-store' });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const d = await r.json();
+  if (d && Array.isArray(d.members)) {
+    localStorage.setItem('fc2026', JSON.stringify(d)); // Sync với index.html
+  }
+  return d;
+}
+
 async function refresh() {
   const icon = document.getElementById('refresh-icon');
   if (icon) { icon.className = 'spin'; icon.textContent = '↻'; }
   try {
-    S = await loadData();
+    S = await refreshFromRemote();
     render();
     if (icon) {
       icon.className = '';
