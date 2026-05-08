@@ -323,14 +323,21 @@ function monthsRequired(year) {
   if (year > now.getFullYear()) return 0;
   return now.getMonth() + 1;
 }
+function memberDebtFee(mid, year) {
+  year = year || _year;
+  // Không check status — tạm nghỉ vẫn nợ phí đã phát sinh
+  const req  = Math.max(0, Math.min(monthsRequired(year), 12) - memberExemptCount(mid, year));
+  const paid = memberPaidCount(mid, year);
+  return Math.max(0, req - paid) * FEE;
+}
+function memberDebtFine(mid, year) {
+  // Chỉ tính match chưa nộp trong đúng năm, không tràn sang năm khác
+  return matchesInYear(year||_year).reduce(
+    (s,m) => s + (m.losers||[]).filter(l=>l.memberId===mid && !l.paid).length, 0
+  ) * FINE;
+}
 function memberDebt(mid, year) {
-  const mem = S.members.find(m=>m.id===mid);
-  if (!mem || mem.status!=='active') return 0;
-  const req    = Math.max(0, Math.min(monthsRequired(year||_year), 12) - memberExemptCount(mid, year));
-  const paid   = memberPaidCount(mid, year);
-  const debtFee  = Math.max(0, req - paid) * FEE;
-  const debtFine = (S.matches||[]).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.memberId===mid&&!l.paid).length,0)*FINE;
-  return debtFee + debtFine;
+  return memberDebtFee(mid, year) + memberDebtFine(mid, year);
 }
 
 /* ── Load data ── */
