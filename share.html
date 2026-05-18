@@ -322,7 +322,30 @@
 
 <script>
 const FEE = 200000, FINE = 50000, BASE_YEAR = 2026;
+// Đồng bộ nguồn dữ liệu với index.html: ưu tiên Firebase realtime, fallback data.json
+const FB_DB_URL = 'https://fc-sunday-8f932-default-rtdb.asia-southeast1.firebasedatabase.app/.json';
 let S = null, _year = new Date().getFullYear();
+
+function normalizeRemoteData(d) {
+  if (!d || typeof d !== 'object') return null;
+  const toArray = (v) => {
+    if (Array.isArray(v)) return v;
+    if (v && typeof v === 'object') {
+      return Object.keys(v)
+        .sort((a,b) => (Number(a) || 0) - (Number(b) || 0))
+        .map(k => v[k])
+        .filter(Boolean);
+    }
+    return [];
+  };
+  return {
+    ...d,
+    members: toArray(d.members),
+    matches: toArray(d.matches),
+    chiTieu: toArray(d.chiTieu),
+    thuThang: d.thuThang || {}
+  };
+}
 
 /* ── Helpers ── */
 function moneyValue(v) { return Number(v) || 0; }
@@ -412,7 +435,7 @@ function thuPhatTotalGrand(year) {
   return t;
 }
 function thuThemMonth(mi, year) {
-  return matchesInMonth(mi, year||_year).reduce((s,m)=>s+(m.thuThem||0),0);
+  return matchesInMonth(mi, year||_year).reduce((s,m)=>s+moneyValue(m.thuThem),0);
 }
 function thuThemGrand(year) {
   year = year || _year;
@@ -427,23 +450,23 @@ function chiTieuInYear(year) {
 }
 // Tất cả chi (tổng)
 function chiTotal(year) {
-  return chiTieuInYear(year||_year).reduce((s,c)=>s+c.amount,0);
+  return chiTieuInYear(year||_year).reduce((s,c)=>s+moneyValue(c.amount),0);
 }
 // Chi theo quỹ: 'thang' | 'bia' | undefined (tất cả)
 function chiByFund(fund, year) {
   return chiTieuInYear(year||_year)
     .filter(c => fund ? (c.fund||'thang') === fund : true)
-    .reduce((s,c)=>s+c.amount,0);
+    .reduce((s,c)=>s+moneyValue(c.amount),0);
 }
 function chiMonth(mi, year) {
   year = year || _year;
-  return chiTieuInYear(year).filter(c=>parseInt(String(c.date).split('-')[1])-1===mi).reduce((s,c)=>s+c.amount,0);
+  return chiTieuInYear(year).filter(c=>parseInt(String(c.date).split('-')[1])-1===mi).reduce((s,c)=>s+moneyValue(c.amount),0);
 }
 function chiMonthByFund(mi, fund, year) {
   year = year || _year;
   return chiTieuInYear(year)
     .filter(c => parseInt(String(c.date).split('-')[1])-1===mi && (c.fund||'thang')===fund)
-    .reduce((s,c)=>s+c.amount,0);
+    .reduce((s,c)=>s+moneyValue(c.amount),0);
 }
 
 // Tổng quỹ tháng = Thu phí − Chi quỹ tháng
@@ -467,13 +490,16 @@ function monthsRequired(year) {
   if (year > now.getFullYear()) return 0;
   return now.getMonth() + 1;
 }
+function memberUnpaid(mid) {
+  return (S.matches||[]).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.memberId===mid && !l.paid).length,0);
+}
 function memberDebt(mid, year) {
-  const mem = S.members.find(m=>m.id===mid);
-  if (!mem || mem.status!=='active') return 0;
-  const req    = Math.max(0, Math.min(monthsRequired(year||_year), 12) - memberExemptCount(mid, year));
-  const paid   = memberPaidCount(mid, year);
+  // Đồng bộ app.js: trạng thái không ảnh hưởng đến nợ; chỉ ô miễn (2) mới trừ nghĩa vụ.
+  year = year || _year;
+  const req      = Math.max(0, Math.min(monthsRequired(year), 12) - memberExemptCount(mid, year));
+  const paid     = memberPaidCount(mid, year);
   const debtFee  = Math.max(0, req - paid) * FEE;
-  const debtFine = matchesInYear(year||_year).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.memberId===mid&&!l.paid).length,0)*FINE;
+  const debtFine = memberUnpaid(mid) * FINE; // app.js đang tính nợ phạt chưa nộp trên toàn bộ dữ liệu
   return debtFee + debtFine;
 }
 function esc(str) {
@@ -482,7 +508,7 @@ function esc(str) {
 function getMonthDebtDetails(year) {
   year = year || _year;
   const due = Math.max(0, Math.min(monthsRequired(year), 12));
-  return activeMembers().filter(m => m.status === 'active').map(m => {
+  return activeMembers().map(m => {
     const months = [];
     for (let i = 0; i < due; i++) {
       if (getTT(m.id, i, year) === 0) months.push(i + 1);
@@ -500,7 +526,7 @@ function getBeerDebtDetails(year) {
       rows.push({ member, date: match.date || '', amount: FINE });
     });
   });
-  return rows.sort((a,b) => String(a.date).localeCompare(String(b.date)) || (a.member.name||'').localeCompare(b.member.name||'', 'vi'));
+  return rows.sort((a,b) => (a.member.name||'').localeCompare(b.member.name||'', 'vi') || String(a.date).localeCompare(String(b.date)));
 }
 function fmtShortDate(dateStr) {
   if (!dateStr) return 'Chưa có ngày';
@@ -543,15 +569,44 @@ function closeDebtDialog() {
 
 /* ── Load data ── */
 async function loadData() {
-  const cfg = (() => { try { return JSON.parse(localStorage.getItem('fc_gh')||'null'); } catch(e) { return null; } })();
-  let url = './data.json?t=' + Date.now();
-  if (cfg?.owner && cfg?.repo) {
-    const branch = cfg.branch||'main', fp = cfg.filePath||'data.json';
-    url = `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${branch}/${fp}?t=${Date.now()}`;
+  // GIỐNG index.html/app.js: ưu tiên lấy dữ liệu mới nhất từ Firebase Realtime Database.
+  // Không đọc data.json trước, vì data.json có thể là bản cũ nên số quỹ sẽ lệch.
+  const trySource = async (url) => {
+    const r = await fetch(url, { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const raw = await r.json();
+    const d = normalizeRemoteData(raw);
+    if (!d || !Array.isArray(d.members) || d.members.length === 0) throw new Error('Dữ liệu không hợp lệ');
+    return d;
+  };
+
+  try {
+    const d = await trySource(`${FB_DB_URL}?t=${Date.now()}`);
+    try { localStorage.setItem('fc2026', JSON.stringify(d)); } catch(e) {}
+    window.__fcDataSource = 'firebase';
+    return d;
+  } catch(e) {
+    console.warn('[share.html] Không lấy được Firebase, fallback data.json:', e);
   }
-  const r = await fetch(url);
-  if (!r.ok) throw new Error('HTTP ' + r.status);
-  return await r.json();
+
+  try {
+    const d = await trySource(`./data.json?t=${Date.now()}`);
+    try { localStorage.setItem('fc2026', JSON.stringify(d)); } catch(e) {}
+    window.__fcDataSource = 'data.json';
+    return d;
+  } catch(e) {
+    console.warn('[share.html] Không lấy được data.json, fallback localStorage:', e);
+  }
+
+  const raw = localStorage.getItem('fc2026');
+  if (raw) {
+    const d = normalizeRemoteData(JSON.parse(raw));
+    if (d && Array.isArray(d.members) && d.members.length > 0) {
+      window.__fcDataSource = 'localStorage';
+      return d;
+    }
+  }
+  throw new Error('Không tải được dữ liệu');
 }
 
 /* ── Render ── */
