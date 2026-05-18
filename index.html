@@ -113,10 +113,10 @@
               <span style="font-size:12px;color:rgba(255,255,255,.45);font-weight:400">Chi</span>
               <span style="font-size:12px;font-weight:500;color:rgba(255,255,255,.85)" id="kpi-chi-thang-s">—</span>
             </div>
-            <div style="display:flex;align-items:baseline;gap:10px">
-              <span style="font-size:12px;color:rgba(255,255,255,.45);font-weight:400">Còn nợ</span>
+            <button type="button" onclick="openDebtDialog('month')" title="Xem chi tiết nợ quỹ tháng" style="display:flex;align-items:baseline;gap:10px;background:transparent;border:0;padding:0;margin:0;cursor:pointer;font-family:inherit;text-align:left;width:100%">
+              <span style="font-size:12px;color:rgba(255,255,255,.45);font-weight:400;text-decoration:underline;text-underline-offset:3px">Còn nợ</span>
               <span style="font-size:12px;font-weight:600;color:#fbbf24" id="kpi-no-thang-s">—</span>
-            </div>
+            </button>
           </div>
           <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:12px 14px">
             <div style="font-size:10px;color:rgba(255,255,255,.5);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:4px"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.32 9.20505C5.32 9.66005 5.505 10.08 5.8 10.385C5.84 10.425 5.88 10.46 5.92 10.495V15.245H4.675C3.54 15.245 2.625 14.33 2.625 13.195V4.67505C2.745 4.72505 2.88 4.75505 3.025 4.75505H7.285C6.26 4.77505 5.43 5.56505 5.34 6.57005C5.335 6.63505 5.32 6.69005 5.32 6.75505V9.20505Z" fill="#F77F00"/><path d="M7.28343 4.75753C7.29593 4.75753 7.30743 4.75403 7.31993 4.75403H13.4764V3.54353V3.25403C13.4764 2.14953 12.5809 1.25403 11.4764 1.25403H4.02393C2.91943 1.25403 2.02393 2.14953 2.02393 3.25403V3.75753C2.02393 4.16753 2.27143 4.51903 2.62443 4.67353C2.74693 4.72703 2.88143 4.75753 3.02393 4.75753H7.28343Z" fill="#D0D5DA"/><path d="M16.7599 9.67505H16.1699V8.17505C16.0499 8.22505 15.9149 8.25505 15.7699 8.25505H9.46492C8.88992 8.25505 8.42492 8.72005 8.42492 9.29505C8.42492 10.18 7.68492 10.89 6.78992 10.845C6.45492 10.83 6.15992 10.695 5.91992 10.495V16.695C5.91992 17.83 6.83992 18.745 7.96992 18.745H14.1199C15.2549 18.745 16.1699 17.83 16.1699 16.695V16.425H16.7599C17.7699 16.425 18.5899 15.605 18.5899 14.595V11.505C18.5899 10.495 17.7699 9.67505 16.7599 9.67505Z" fill="#FFAA00"/><path d="M11.5584 10.575C11.5584 10.292 11.3289 10.0625 11.0459 10.0625C10.7629 10.0625 10.5334 10.292 10.5334 10.575V15.5775C10.5334 15.8605 10.7629 16.09 11.0459 16.09C11.3289 16.09 11.5584 15.8605 11.5584 15.5775V10.575Z" fill="#F77F00"/><path d="M13.5066 10.0625C13.2236 10.0625 12.9941 10.292 12.9941 10.575V15.5775C12.9941 15.8605 13.2236 16.09 13.5066 16.09C13.7896 16.09 14.0191 15.8605 14.0191 15.5775V10.575C14.0191 10.292 13.7896 10.0625 13.5066 10.0625Z" fill="#F77F00"/><path d="M9.09849 12.6446C9.09849 12.3616 8.86899 12.1321 8.58599 12.1321C8.30299 12.1321 8.07349 12.3616 8.07349 12.6446V15.5776C8.07349 15.8606 8.30299 16.0901 8.58599 16.0901C8.86899 16.0901 9.09849 15.8606 9.09849 15.5776V12.6446Z" fill="#F77F00"/><path d="M7.32008 4.75354C7.30758 4.75354 7.29608 4.75704 7.28358 4.75704C6.25808 4.77604 5.43008 5.56604 5.33808 6.57204C5.33258 6.63254 5.31958 6.69154 5.31958 6.75354V9.20654C5.31958 9.65754 5.50458 10.079 5.80208 10.384C5.84008 10.423 5.87858 10.4615 5.92058 10.496C6.16108 10.6965 6.45758 10.828 6.78958 10.845C7.68508 10.892 8.42608 10.1795 8.42608 9.29404C8.42608 8.72104 8.89058 8.25704 9.46308 8.25704H15.7721C15.9141 8.25704 16.0491 8.22654 16.1716 8.17304C16.5246 8.01854 16.7721 7.66704 16.7721 7.25704V6.75354C16.7721 5.64904 15.8766 4.75354 14.7721 4.75354H7.31958H7.32008Z" fill="#EBEBEB"/></svg>Quỹ bia</div>
@@ -129,10 +129,10 @@
               <span style="font-size:12px;color:rgba(255,255,255,.45);font-weight:400">Chi</span>
               <span style="font-size:12px;font-weight:500;color:rgba(255,255,255,.85)" id="kpi-chi-bia-s">—</span>
             </div>
-            <div style="display:flex;align-items:baseline;gap:10px">
-              <span style="font-size:12px;color:rgba(255,255,255,.45);font-weight:400">Còn nợ</span>
+            <button type="button" onclick="openDebtDialog('beer')" title="Xem chi tiết nợ quỹ bia" style="display:flex;align-items:baseline;gap:10px;background:transparent;border:0;padding:0;margin:0;cursor:pointer;font-family:inherit;text-align:left;width:100%">
+              <span style="font-size:12px;color:rgba(255,255,255,.45);font-weight:400;text-decoration:underline;text-underline-offset:3px">Còn nợ</span>
               <span style="font-size:12px;font-weight:600;color:#fbbf24" id="kpi-no-bia-s">—</span>
-            </div>
+            </button>
           </div>
         </div>
         <div class="hero-divider"></div>
@@ -199,6 +199,19 @@
     <button class="btn btn-p btn-full" style="height:40px" onclick="submitLogin()">Đăng nhập</button>
   </div>
 </div>
+<div class="modal-backdrop" id="debt-modal-backdrop" onclick="closeDebtDialog()" style="display:none">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:720px;width:min(720px,calc(100vw - 32px));max-height:calc(100dvh - 48px);overflow:hidden;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px">
+      <div>
+        <div id="debt-modal-title" style="font-size:18px;font-weight:800;color:var(--gray-900)">Chi tiết còn nợ</div>
+        <div id="debt-modal-sub" style="font-size:13px;color:var(--gray-500);margin-top:2px">—</div>
+      </div>
+      <button class="modal-close" onclick="closeDebtDialog()" style="position:static;flex-shrink:0">×</button>
+    </div>
+    <div id="debt-modal-total" style="background:var(--gray-50);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:var(--gray-600)">—</div>
+    <div id="debt-modal-body" style="overflow:auto;border:1px solid var(--border);border-radius:12px"></div>
+  </div>
+</div>
 <div id="toast"></div>
 <script src="app.js"></script>
 <script>
@@ -228,8 +241,8 @@ function renderKPIs() {
     $el('kpi-ton-bia').textContent = fmt(tTonBia);
     $el('kpi-ton-bia').style.color = tTonBia >= 0 ? '#fff' : '#fca5a5';
   }
-  const noThang = activeMembers().reduce((s,m)=>s+memberDebtFee(m.id,_year),0);
-  const noBia = matchesInYear(_year).reduce((s,m)=>s+(m.losers||[]).filter(l=>!l.paid).length,0) * FINE;
+  const noThang = getMonthDebtDetails(_year).reduce((s,x)=>s+x.amount,0);
+  const noBia = getBeerDebtDetails(_year).reduce((s,x)=>s+x.amount,0);
 
   $set('kpi-thu-phi-s',   fmt(thuThangGrand()));
   $set('kpi-chi-thang-s', fmt(chiByFund('thang')));
@@ -318,6 +331,65 @@ function renderCharts() {
     options: opts
   });
 }
+
+function getMonthDebtDetails(year) {
+  year = year || _year;
+  const due = Math.max(0, Math.min(monthsRequired(year), 12));
+  return activeMembers().map(m => {
+    const months = [];
+    for (let i = 0; i < due; i++) {
+      if (getTT(m.id, i, year) === 0) months.push(i + 1);
+    }
+    return { member: m, months, amount: months.length * FEE };
+  }).filter(x => x.amount > 0).sort((a,b) => b.amount - a.amount || a.member.name.localeCompare(b.member.name, 'vi'));
+}
+function getBeerDebtDetails(year) {
+  year = year || _year;
+  const byId = new Map((S.members||[]).map(m => [m.id, m]));
+  const rows = [];
+  matchesInYear(year).forEach(match => {
+    (match.losers||[]).filter(l => !l.paid).forEach(l => {
+      const member = byId.get(l.memberId) || { name: 'Không rõ' };
+      rows.push({ member, date: match.date || '', amount: FINE });
+    });
+  });
+  return rows.sort((a,b) => (a.member.name||'').localeCompare(b.member.name||'', 'vi') || String(a.date).localeCompare(String(b.date)));
+}
+function fmtShortDate(dateStr) {
+  if (!dateStr) return 'Chưa có ngày';
+  const parts = String(dateStr).split('-');
+  if (parts.length >= 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  return dateStr;
+}
+function closeDebtDialog() {
+  const bd = $el('debt-modal-backdrop');
+  if (bd) bd.style.display = 'none';
+}
+function openDebtDialog(type) {
+  const bd = $el('debt-modal-backdrop');
+  if (!bd) return;
+  const title = $el('debt-modal-title');
+  const sub = $el('debt-modal-sub');
+  const totalBox = $el('debt-modal-total');
+  const body = $el('debt-modal-body');
+  if (type === 'month') {
+    const data = getMonthDebtDetails(_year);
+    const total = data.reduce((s,x)=>s+x.amount,0);
+    title.textContent = 'Chi tiết còn nợ quỹ tháng';
+    sub.textContent = `Năm ${_year} · Tính đến tháng ${Math.min(monthsRequired(_year),12)}`;
+    totalBox.innerHTML = `<b>Tổng còn nợ:</b> <span style="color:var(--c-warning);font-weight:800">${fmt(total)}</span> · <b>${data.length}</b> người`;
+    body.innerHTML = data.length ? `<table class="table" style="margin:0"><thead><tr><th>Thành viên</th><th>Tháng còn nợ</th><th class="tr">Số tiền</th></tr></thead><tbody>${data.map(x=>`<tr><td class="bold">${esc(x.member.name)}</td><td>${x.months.map(m=>'T'+m).join(', ')}</td><td class="tr bold" style="color:var(--c-warning)">${fmt(x.amount)}</td></tr>`).join('')}</tbody></table>` : `<div style="padding:18px;text-align:center;color:var(--gray-500)">Không có ai còn nợ quỹ tháng.</div>`;
+  } else {
+    const rows = getBeerDebtDetails(_year);
+    const total = rows.reduce((s,x)=>s+x.amount,0);
+    title.textContent = 'Chi tiết còn nợ quỹ bia';
+    sub.textContent = `Năm ${_year} · Các lượt thua chưa nộp`;
+    totalBox.innerHTML = `<b>Tổng còn nợ:</b> <span style="color:var(--c-warning);font-weight:800">${fmt(total)}</span> · <b>${rows.length}</b> lượt nợ`;
+    body.innerHTML = rows.length ? `<table class="table" style="margin:0"><thead><tr><th>Thành viên</th><th>Ngày nợ</th><th class="tr">Số tiền</th></tr></thead><tbody>${rows.map(x=>`<tr><td class="bold">${esc(x.member.name)}</td><td>${fmtShortDate(x.date)}</td><td class="tr bold" style="color:var(--c-warning)">${fmt(x.amount)}</td></tr>`).join('')}</tbody></table>` : `<div style="padding:18px;text-align:center;color:var(--gray-500)">Không có ai còn nợ quỹ bia.</div>`;
+  }
+  bd.style.display = 'flex';
+}
+
 wireLoginModal();
 initApp();
 </script>
