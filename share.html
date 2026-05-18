@@ -300,10 +300,10 @@
   }
   .debt-table.beer-debt-table th:first-child { z-index: 3; background: #f9fafb; }
   .debt-table.beer-debt-table th:nth-child(2), .debt-table.beer-debt-table td:nth-child(2) { width: 224px; }
-  .debt-table.beer-debt-table th:nth-child(3), .debt-table.beer-debt-table td:nth-child(3) { width: 112px; }
+  .debt-table.beer-debt-table th:nth-child(3), .debt-table.beer-debt-table td:nth-child(3) { width: 112px; padding-left:12px; padding-right:12px; }
   .debt-member-cell { display:flex; align-items:center; gap:6px; min-width:0; }
   .debt-member-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .debt-loss-badge { flex-shrink:0; display:inline-flex; align-items:center; padding:2px 6px; border-radius:999px; background:#fff7ed; color:#d97706; font-size:10px; font-weight:900; white-space:nowrap; }
+  .debt-loss-badge { flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; min-width:22px; padding:2px 6px; border-radius:999px; background:#fff7ed; color:#d97706; font-size:10px; font-weight:900; white-space:nowrap; }
   .debt-date-list { white-space:normal; line-height:1.45; }
   .debt-money-total { color:#d97706; font-weight:900; font-variant-numeric:tabular-nums; white-space:nowrap; }
   @media (min-width: 641px) {
@@ -614,7 +614,7 @@ function openDebtDialog(type) {
     const totalTurns = rows.reduce((s,x)=>s+x.count,0);
     totalBox.innerHTML = `<b>Tổng còn nợ:</b> <span style="color:#d97706;font-weight:900">${fmt(total)}</span> · <b>${rows.length}</b> người · <b>${totalTurns}</b> trận thua`;
     body.innerHTML = rows.length
-      ? `<div class="debt-table-wrap"><table class="debt-table beer-debt-table"><thead><tr><th>Thành viên</th><th>Ngày</th><th class="tr">Số tiền</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b class="debt-member-cell"><span class="debt-member-name">${esc(x.member.name)}</span><span class="debt-loss-badge">${x.count} trận thua</span></b></td><td class="debt-date-list">${x.dates.map(fmtShortDate).join(', ')}</td><td class="tr"><span class="debt-money-total">${fmt(x.amount)}</span></td></tr>`).join('')}</tbody></table></div>`
+      ? `<div class="debt-table-wrap"><table class="debt-table beer-debt-table"><thead><tr><th>Thành viên</th><th>Ngày</th><th class="tr">Số tiền</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b class="debt-member-cell"><span class="debt-member-name">${esc(x.member.name)}</span><span class="debt-loss-badge">${x.count}</span></b></td><td class="debt-date-list">${x.dates.map(fmtShortDate).join(', ')}</td><td class="tr"><span class="debt-money-total">${fmt(x.amount)}</span></td></tr>`).join('')}</tbody></table></div>`
       : `<div class="debt-empty">Không có ai còn nợ quỹ bia.</div>`;
   }
   bd.style.display = 'flex';
