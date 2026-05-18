@@ -329,7 +329,7 @@ function memberDebt(mid, year) {
   const req    = Math.max(0, Math.min(monthsRequired(year||_year), 12) - memberExemptCount(mid, year));
   const paid   = memberPaidCount(mid, year);
   const debtFee  = Math.max(0, req - paid) * FEE;
-  const debtFine = (S.matches||[]).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.memberId===mid&&!l.paid).length,0)*FINE;
+  const debtFine = matchesInYear(year||_year).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.memberId===mid&&!l.paid).length,0)*FINE;
   return debtFee + debtFine;
 }
 
