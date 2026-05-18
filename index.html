@@ -16,24 +16,30 @@
 
 <style>
   .debt-table-wrap { overflow:auto; border:1px solid var(--border); border-radius:12px; }
-  .debt-detail-table { min-width:680px; width:100%; border-collapse:collapse; }
+  .debt-detail-table { min-width:560px; width:100%; border-collapse:collapse; table-layout:fixed; }
+  .debt-detail-table th, .debt-detail-table td { padding:10px 12px; }
   .debt-detail-table th:first-child, .debt-detail-table td:first-child {
     position: sticky; left: 0; z-index: 2; background:#fff;
-    box-shadow: 1px 0 0 var(--border); min-width:150px; max-width:180px;
+    box-shadow: 1px 0 0 var(--border); width:122px; min-width:122px; max-width:122px;
   }
   .debt-detail-table th:first-child { z-index: 3; background:var(--gray-50); }
-  .debt-date-list { min-width:230px; white-space:normal; }
+  .debt-detail-table th:nth-child(2), .debt-detail-table td:nth-child(2) { width:174px; }
+  .debt-detail-table th:nth-child(3), .debt-detail-table td:nth-child(3) { width:264px; }
+  .debt-date-list { white-space:normal; word-break:normal; line-height:1.45; }
   .debt-formula {
-    display:grid; grid-template-columns:86px 18px 34px 18px 104px; gap:0; align-items:baseline;
+    display:grid; grid-template-columns:74px 14px 26px 14px 94px; gap:0; align-items:baseline;
     font-variant-numeric: tabular-nums; color:var(--c-warning); font-weight:800; white-space:nowrap;
   }
   .debt-formula .debt-unit, .debt-formula .debt-sum { text-align:right; }
   .debt-formula .debt-count { text-align:right; }
   .debt-formula .debt-mul, .debt-formula .debt-eq { text-align:center; }
   @media (max-width: 640px) {
-    .debt-detail-table { min-width:640px; }
-    .debt-detail-table th:first-child, .debt-detail-table td:first-child { min-width:128px; max-width:150px; }
-    .debt-formula { grid-template-columns:78px 16px 28px 16px 92px; }
+    .debt-detail-table { min-width:530px; font-size:13px; }
+    .debt-detail-table th, .debt-detail-table td { padding:9px 10px; }
+    .debt-detail-table th:first-child, .debt-detail-table td:first-child { width:108px; min-width:108px; max-width:108px; }
+    .debt-detail-table th:nth-child(2), .debt-detail-table td:nth-child(2) { width:150px; }
+    .debt-detail-table th:nth-child(3), .debt-detail-table td:nth-child(3) { width:272px; }
+    .debt-formula { grid-template-columns:72px 12px 24px 12px 88px; }
   }
 </style>
 </head>
