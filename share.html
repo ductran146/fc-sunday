@@ -351,42 +351,115 @@ function memberExemptCount(mid, year) {
   const arr = S.thuThang[_ttKey(mid,year)] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
   return arr.filter(v=>v===2).length;
 }
-function activeMembers() { return (S.members||[]).filter(m=>m.status!=='left'); }
-function matchesInYear(year) {
-  return (S.matches||[]).filter(m => {
-    const y = m.date ? parseInt(m.date.split('-')[0]) : BASE_YEAR;
-    return y === (year||_year);
-  });
+// activeMembers: dùng cho tính tổng thu quỹ tháng — bao gồm cả tạm nghỉ
+// Chỉ loại trừ "đã nghỉ" (left)
+function activeMembers() { return (S.members||[]).filter(m => m.status !== 'left'); }
+function N() { return (S.members||[]).filter(m => m.status === 'active').length; }
+
+// Thu tháng: chỉ tính ô = 1 (đã đóng), ô = 2 (miễn) không thu tiền
+function thuThangMonthTotal(mi, year) {
+  year = year || _year;
+  return activeMembers().reduce((s,m) => s + (getTT(m.id,mi,year)===1 ? 1 : 0), 0) * FEE;
 }
 function thuThangGrand(year) {
-  year = year||_year;
-  return activeMembers().reduce((s,m) => {
-    const arr = S.thuThang[_ttKey(m.id,year)] || (year===BASE_YEAR ? S.thuThang[String(m.id)] : null) || [];
-    return s + arr.filter(v=>v===1).length * FEE;
-  }, 0);
+  year = year || _year;
+  let t = 0;
+  for (let i = 0; i < 12; i++) t += thuThangMonthTotal(i, year);
+  return t;
+}
+
+function matchesInMonth(mi, year) {
+  year = year || _year;
+  return (S.matches||[]).filter(m => {
+    if (m.monthIdx !== mi) return false;
+    // Nếu không có date → coi là BASE_YEAR (tương thích data cũ)
+    if (!m.date) return year === BASE_YEAR;
+    const y = parseInt(String(m.date).split('-')[0]);
+    // Nếu năm trong date không hợp lệ → fallback BASE_YEAR
+    if (isNaN(y)) return year === BASE_YEAR;
+    return y === year;
+  });
+}
+function matchesInYear(year) {
+  year = year || _year;
+  return (S.matches||[]).filter(m => {
+    if (!m.date) return year === BASE_YEAR;
+    const y = parseInt(String(m.date).split('-')[0]);
+    if (isNaN(y)) return year === BASE_YEAR;
+    return y === year;
+  });
+}
+// Quỹ bia thu thực tế = chỉ tính người đã nộp (paid: true)
+function thuPhatMonth(mi, year) {
+  return matchesInMonth(mi, year||_year)
+    .reduce((s,m) => s + (m.losers||[]).filter(l=>l.paid).length * FINE, 0);
 }
 function thuPhatGrand(year) {
-  // Giống index.html: chỉ tính tiền quỹ bia đã nộp thực tế (paid: true) trong năm đang xem
-  return matchesInYear(year).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.paid).length*FINE, 0);
+  year = year || _year;
+  let t = 0;
+  for (let i = 0; i < 12; i++) t += thuPhatMonth(i, year);
+  return t;
+}
+// Tổng phải thu (cả chưa nộp) — dùng cho báo cáo nợ
+function thuPhatTotalMonth(mi, year) {
+  return matchesInMonth(mi, year||_year)
+    .reduce((s,m) => s + (m.losers||[]).length * FINE, 0);
+}
+function thuPhatTotalGrand(year) {
+  year = year || _year;
+  let t = 0;
+  for (let i = 0; i < 12; i++) t += thuPhatTotalMonth(i, year);
+  return t;
+}
+function thuThemMonth(mi, year) {
+  return matchesInMonth(mi, year||_year).reduce((s,m)=>s+(m.thuThem||0),0);
 }
 function thuThemGrand(year) {
-  return matchesInYear(year).reduce((s,m)=>s+moneyValue(m.thuThem), 0);
+  year = year || _year;
+  let t = 0;
+  for (let i = 0; i < 12; i++) t += thuThemMonth(i, year);
+  return t;
 }
+
 function chiTieuInYear(year) {
   year = year || _year;
-  return (S.chiTieu||[]).filter(c => c.date && parseInt(c.date.split('-')[0]) === year);
+  return (S.chiTieu||[]).filter(c => c.date && parseInt(String(c.date).split('-')[0]) === year);
 }
+// Tất cả chi (tổng)
+function chiTotal(year) {
+  return chiTieuInYear(year||_year).reduce((s,c)=>s+c.amount,0);
+}
+// Chi theo quỹ: 'thang' | 'bia' | undefined (tất cả)
 function chiByFund(fund, year) {
   return chiTieuInYear(year||_year)
     .filter(c => fund ? (c.fund||'thang') === fund : true)
-    .reduce((s,c)=>s+moneyValue(c.amount), 0);
+    .reduce((s,c)=>s+c.amount,0);
 }
-function chiTotal(year) {
-  return chiTieuInYear(year||_year).reduce((s,c)=>s+moneyValue(c.amount), 0);
+function chiMonth(mi, year) {
+  year = year || _year;
+  return chiTieuInYear(year).filter(c=>parseInt(String(c.date).split('-')[1])-1===mi).reduce((s,c)=>s+c.amount,0);
 }
-function tonQuyThang(year) { return thuThangGrand(year) - chiByFund('thang', year); }
-function tonQuyBia(year)   { return thuPhatGrand(year) + thuThemGrand(year) - chiByFund('bia', year); }
-function totalTon(year)    { return tonQuyThang(year) + tonQuyBia(year); }
+function chiMonthByFund(mi, fund, year) {
+  year = year || _year;
+  return chiTieuInYear(year)
+    .filter(c => parseInt(String(c.date).split('-')[1])-1===mi && (c.fund||'thang')===fund)
+    .reduce((s,c)=>s+c.amount,0);
+}
+
+// Tổng quỹ tháng = Thu phí − Chi quỹ tháng
+function tonQuyThang(year) {
+  year = year || _year;
+  return thuThangGrand(year) - chiByFund('thang', year);
+}
+// Tổng quỹ bia = Thu quỹ bia + Thu thêm − Chi quỹ bia
+function tonQuyBia(year) {
+  year = year || _year;
+  return thuPhatGrand(year) + thuThemGrand(year) - chiByFund('bia', year);
+}
+function totalTon(year) {
+  year = year || _year;
+  return tonQuyThang(year) + tonQuyBia(year);
+}
 function monthsRequired(year) {
   const now = new Date();
   year = year||_year;
