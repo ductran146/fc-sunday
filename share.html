@@ -294,6 +294,51 @@
   .debt-table .tr { text-align: right; }
   .debt-empty { padding: 20px; text-align: center; color: #6b7280; font-size: 13px; }
 
+
+  .debt-table.month-debt-table {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+  }
+  .debt-table.month-debt-table th,
+  .debt-table.month-debt-table td {
+    padding: 10px 10px;
+    white-space: normal;
+    vertical-align: middle;
+  }
+  .debt-table.month-debt-table th:first-child,
+  .debt-table.month-debt-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: #fff;
+    box-shadow: 1px 0 0 #e5e7eb;
+  }
+  .debt-table.month-debt-table th:first-child {
+    z-index: 3;
+    background: #f9fafb;
+  }
+  .debt-table.month-debt-table th:nth-child(1),
+  .debt-table.month-debt-table td:nth-child(1) { width: 38%; }
+  .debt-table.month-debt-table th:nth-child(2),
+  .debt-table.month-debt-table td:nth-child(2) { width: 34%; }
+  .debt-table.month-debt-table th:nth-child(3),
+  .debt-table.month-debt-table td:nth-child(3) { width: 28%; }
+  .debt-month-list { color:#374151; line-height:1.45; }
+  .debt-table.month-debt-table .tr { text-align:right; }
+  @media (max-width: 420px) {
+    .debt-modal-content { padding-left: 12px; padding-right: 12px; }
+    .debt-table.month-debt-table { font-size: 12px; }
+    .debt-table.month-debt-table th,
+    .debt-table.month-debt-table td { padding: 9px 8px; }
+    .debt-table.month-debt-table th:nth-child(1),
+    .debt-table.month-debt-table td:nth-child(1) { width: 37%; }
+    .debt-table.month-debt-table th:nth-child(2),
+    .debt-table.month-debt-table td:nth-child(2) { width: 33%; }
+    .debt-table.month-debt-table th:nth-child(3),
+    .debt-table.month-debt-table td:nth-child(3) { width: 30%; }
+  }
+
   .debt-table.beer-debt-table {
     width:max-content;
     min-width:100%;
@@ -620,7 +665,7 @@ function openDebtDialog(type) {
     sub.textContent = `Năm ${_year} · Tính đến tháng ${Math.min(monthsRequired(_year),12)}`;
     totalBox.innerHTML = `<b>Tổng còn nợ:</b> <span style="color:#d97706;font-weight:900">${fmt(total)}</span> · <b>${data.length}</b> người`;
     body.innerHTML = data.length
-      ? `<div class="debt-table-wrap"><table class="debt-table"><thead><tr><th>Thành viên</th><th>Tháng còn nợ</th><th class="tr">Số tiền</th></tr></thead><tbody>${data.map(x=>`<tr><td><b>${esc(x.member.name)}</b></td><td>${x.months.map(m=>'T'+m).join(', ')}</td><td class="tr"><b style="color:#d97706">${fmt(x.amount)}</b></td></tr>`).join('')}</tbody></table></div>`
+      ? `<div class="debt-table-wrap"><table class="debt-table month-debt-table"><thead><tr><th>Thành viên</th><th>Tháng còn nợ</th><th class="tr">Số tiền</th></tr></thead><tbody>${data.map(x=>`<tr><td><b>${esc(x.member.name)}</b></td><td class="debt-month-list">${x.months.map(m=>'T'+m).join(', ')}</td><td class="tr"><b style="color:#d97706">${fmt(x.amount)}</b></td></tr>`).join('')}</tbody></table></div>`
       : `<div class="debt-empty">Không có ai còn nợ quỹ tháng.</div>`;
   } else {
     const rows = getBeerDebtDetails(_year);
