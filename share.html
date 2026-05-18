@@ -294,6 +294,26 @@
   .debt-table .tr { text-align: right; }
   .debt-empty { padding: 20px; text-align: center; color: #6b7280; font-size: 13px; }
 
+  .debt-table { min-width: 680px; }
+  .debt-table th:first-child, .debt-table td:first-child {
+    position: sticky; left: 0; z-index: 2; background: #fff;
+    box-shadow: 1px 0 0 #e5e7eb; min-width: 150px; max-width: 180px;
+  }
+  .debt-table th:first-child { z-index: 3; background: #f9fafb; }
+  .debt-date-list { min-width: 230px; white-space: normal; }
+  .debt-formula {
+    display: grid; grid-template-columns: 86px 18px 34px 18px 104px; gap: 0; align-items: baseline;
+    font-variant-numeric: tabular-nums; color: #d97706; font-weight: 900; white-space: nowrap;
+  }
+  .debt-formula .debt-unit, .debt-formula .debt-sum { text-align: right; }
+  .debt-formula .debt-count { text-align: right; }
+  .debt-formula .debt-mul, .debt-formula .debt-eq { text-align: center; }
+  @media (max-width: 640px) {
+    .debt-table { min-width: 640px; }
+    .debt-table th:first-child, .debt-table td:first-child { min-width: 128px; max-width: 150px; }
+    .debt-formula { grid-template-columns: 78px 16px 28px 16px 92px; }
+  }
+
 </style>
 </head>
 <body>
@@ -591,11 +611,11 @@ function openDebtDialog(type) {
     const rows = getBeerDebtDetails(_year);
     const total = rows.reduce((s,x)=>s+x.amount,0);
     title.textContent = 'Chi tiết còn nợ quỹ bia';
-    sub.textContent = `Năm ${_year} · Các lượt thua chưa nộp`;
+    sub.textContent = `Năm ${_year} · Các trận thua chưa nộp`;
     const totalTurns = rows.reduce((s,x)=>s+x.count,0);
-    totalBox.innerHTML = `<b>Tổng còn nợ:</b> <span style="color:#d97706;font-weight:900">${fmt(total)}</span> · <b>${rows.length}</b> người · <b>${totalTurns}</b> lượt nợ`;
+    totalBox.innerHTML = `<b>Tổng còn nợ:</b> <span style="color:#d97706;font-weight:900">${fmt(total)}</span> · <b>${rows.length}</b> người · <b>${totalTurns}</b> trận thua`;
     body.innerHTML = rows.length
-      ? `<div class="debt-table-wrap"><table class="debt-table"><thead><tr><th>Thành viên</th><th>Ngày nợ</th><th class="tr">Số tiền</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.member.name)}</b></td><td>${x.dates.map(fmtShortDate).join(', ')}</td><td class="tr" style="white-space:nowrap"><b style="color:#d97706">${fmt(FINE)} x ${x.count} = ${fmt(x.amount)}</b></td></tr>`).join('')}</tbody></table></div>`
+      ? `<div class="debt-table-wrap"><table class="debt-table"><thead><tr><th>Thành viên</th><th>Ngày nợ</th><th class="tr">Số tiền</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.member.name)}</b></td><td class="debt-date-list">${x.dates.map(fmtShortDate).join(', ')}</td><td class="tr"><span class="debt-formula"><span class="debt-unit">${fmt(FINE)}</span><span class="debt-mul">×</span><span class="debt-count">${x.count}</span><span class="debt-eq">=</span><span class="debt-sum">${fmt(x.amount)}</span></span></td></tr>`).join('')}</tbody></table></div>`
       : `<div class="debt-empty">Không có ai còn nợ quỹ bia.</div>`;
   }
   bd.style.display = 'flex';
