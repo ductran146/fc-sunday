@@ -57,7 +57,7 @@
     padding: 16px 0 14px;
   }
   .hdr-brand { display: flex; align-items: center; gap: 10px; }
-  .hdr-logo { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+  .hdr-logo { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
   .hdr-name { font-size: 15px; font-weight: 800; line-height: 1.2; }
   .hdr-sub  { font-size: 11px; color: var(--sub); font-weight: 500; margin-top: 1px; }
 
@@ -95,7 +95,7 @@
     margin-bottom: 4px;
   }
   .hdr-hero-amount-row {
-    display: flex; align-items: center; gap: 10px;
+    display: flex; align-items: center; gap: 24px;
     margin-bottom: 4px;
   }
   .hdr-hero-amount {
@@ -243,6 +243,57 @@
   }
   .loading-logo { width: 64px; height: 64px; border-radius: 16px; object-fit: cover; }
   .loading-text { font-size: 14px; color: var(--sub); }
+
+  /* ── Debt detail button + dialog ── */
+  .debt-link {
+    display: flex; align-items: baseline; gap: 6px;
+    width: 100%; margin-top: 2px; padding: 0;
+    background: transparent; border: 0; cursor: pointer;
+    color: inherit; font-family: inherit; text-align: left;
+  }
+  .debt-link-label {
+    font-size: 11px; color: var(--sub);
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .debt-link-amount { font-size: 11px; font-weight: 800; color: var(--gold); }
+  .debt-backdrop {
+    position: fixed; inset: 0; z-index: 10000;
+    display: none; align-items: center; justify-content: center;
+    padding: 18px; background: rgba(0,0,0,.58);
+    backdrop-filter: blur(8px);
+  }
+  .debt-modal {
+    width: min(720px, 100%); max-height: calc(100dvh - 42px);
+    overflow: hidden; display: flex; flex-direction: column;
+    background: #fff; color: #111827; border-radius: 18px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.35);
+  }
+  .debt-modal-head {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    padding: 18px 18px 12px; border-bottom: 1px solid #eef0f3;
+  }
+  .debt-modal-title { font-size: 18px; font-weight: 900; color: #111827; }
+  .debt-modal-sub { font-size: 13px; color: #6b7280; margin-top: 2px; }
+  .debt-modal-close {
+    width: 32px; height: 32px; border-radius: 999px; border: 0;
+    background: #f3f4f6; color: #374151; font-size: 22px; line-height: 1;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .debt-modal-content { padding: 14px 18px 18px; overflow: auto; }
+  .debt-total-box {
+    background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px;
+    padding: 12px 14px; margin-bottom: 12px;
+    font-size: 13px; color: #4b5563;
+  }
+  .debt-total-box b { color: #111827; }
+  .debt-table-wrap { overflow: auto; border: 1px solid #e5e7eb; border-radius: 12px; }
+  .debt-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 420px; }
+  .debt-table th, .debt-table td { padding: 11px 12px; border-bottom: 1px solid #eef0f3; text-align: left; vertical-align: top; }
+  .debt-table th { background: #f9fafb; color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  .debt-table tr:last-child td { border-bottom: 0; }
+  .debt-table .tr { text-align: right; }
+  .debt-empty { padding: 20px; text-align: center; color: #6b7280; font-size: 13px; }
+
 </style>
 </head>
 <body>
@@ -253,12 +304,30 @@
   </div>
 </div>
 
+<div class="debt-backdrop" id="debt-modal-backdrop" onclick="closeDebtDialog()">
+  <div class="debt-modal" onclick="event.stopPropagation()">
+    <div class="debt-modal-head">
+      <div>
+        <div class="debt-modal-title" id="debt-modal-title">Chi tiết còn nợ</div>
+        <div class="debt-modal-sub" id="debt-modal-sub">—</div>
+      </div>
+      <button class="debt-modal-close" type="button" onclick="closeDebtDialog()">×</button>
+    </div>
+    <div class="debt-modal-content">
+      <div class="debt-total-box" id="debt-modal-total">—</div>
+      <div id="debt-modal-body"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const FEE = 200000, FINE = 50000, BASE_YEAR = 2026;
 let S = null, _year = new Date().getFullYear();
 
 /* ── Helpers ── */
+function moneyValue(v) { return Number(v) || 0; }
 function fmt(n) {
+  n = moneyValue(n);
   if (!n && n !== 0) return '0đ';
   const sign = n < 0 ? '-' : '';
   return sign + Math.abs(n).toLocaleString('vi-VN') + 'đ';
@@ -297,21 +366,23 @@ function thuThangGrand(year) {
   }, 0);
 }
 function thuPhatGrand(year) {
-  // Chỉ tính tiền đã nộp thực tế (paid: true)
+  // Giống index.html: chỉ tính tiền quỹ bia đã nộp thực tế (paid: true) trong năm đang xem
   return matchesInYear(year).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.paid).length*FINE, 0);
 }
 function thuThemGrand(year) {
-  return matchesInYear(year).reduce((s,m)=>s+(m.thuThem||0), 0);
+  return matchesInYear(year).reduce((s,m)=>s+moneyValue(m.thuThem), 0);
+}
+function chiTieuInYear(year) {
+  year = year || _year;
+  return (S.chiTieu||[]).filter(c => c.date && parseInt(c.date.split('-')[0]) === year);
 }
 function chiByFund(fund, year) {
-  return (S.chiTieu||[])
-    .filter(c => c.date && parseInt(c.date.split('-')[0])===(year||_year) && (c.fund||'thang')===fund)
-    .reduce((s,c)=>s+c.amount, 0);
+  return chiTieuInYear(year||_year)
+    .filter(c => fund ? (c.fund||'thang') === fund : true)
+    .reduce((s,c)=>s+moneyValue(c.amount), 0);
 }
 function chiTotal(year) {
-  return (S.chiTieu||[])
-    .filter(c => c.date && parseInt(c.date.split('-')[0])===(year||_year))
-    .reduce((s,c)=>s+c.amount, 0);
+  return chiTieuInYear(year||_year).reduce((s,c)=>s+moneyValue(c.amount), 0);
 }
 function tonQuyThang(year) { return thuThangGrand(year) - chiByFund('thang', year); }
 function tonQuyBia(year)   { return thuPhatGrand(year) + thuThemGrand(year) - chiByFund('bia', year); }
@@ -329,8 +400,72 @@ function memberDebt(mid, year) {
   const req    = Math.max(0, Math.min(monthsRequired(year||_year), 12) - memberExemptCount(mid, year));
   const paid   = memberPaidCount(mid, year);
   const debtFee  = Math.max(0, req - paid) * FEE;
-  const debtFine = (S.matches||[]).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.memberId===mid&&!l.paid).length,0)*FINE;
+  const debtFine = matchesInYear(year||_year).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.memberId===mid&&!l.paid).length,0)*FINE;
   return debtFee + debtFine;
+}
+function esc(str) {
+  return String(str ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[ch] || ch));
+}
+function getMonthDebtDetails(year) {
+  year = year || _year;
+  const due = Math.max(0, Math.min(monthsRequired(year), 12));
+  return activeMembers().filter(m => m.status === 'active').map(m => {
+    const months = [];
+    for (let i = 0; i < due; i++) {
+      if (getTT(m.id, i, year) === 0) months.push(i + 1);
+    }
+    return { member: m, months, amount: months.length * FEE };
+  }).filter(x => x.amount > 0).sort((a,b) => b.amount - a.amount || a.member.name.localeCompare(b.member.name, 'vi'));
+}
+function getBeerDebtDetails(year) {
+  year = year || _year;
+  const byId = new Map((S.members||[]).map(m => [m.id, m]));
+  const rows = [];
+  matchesInYear(year).forEach(match => {
+    (match.losers||[]).filter(l => !l.paid).forEach(l => {
+      const member = byId.get(l.memberId) || { name: 'Không rõ' };
+      rows.push({ member, date: match.date || '', amount: FINE });
+    });
+  });
+  return rows.sort((a,b) => String(a.date).localeCompare(String(b.date)) || (a.member.name||'').localeCompare(b.member.name||'', 'vi'));
+}
+function fmtShortDate(dateStr) {
+  if (!dateStr) return 'Chưa có ngày';
+  const parts = String(dateStr).split('-');
+  if (parts.length >= 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  return String(dateStr);
+}
+function openDebtDialog(type) {
+  const bd = document.getElementById('debt-modal-backdrop');
+  if (!bd) return;
+  const title = document.getElementById('debt-modal-title');
+  const sub = document.getElementById('debt-modal-sub');
+  const totalBox = document.getElementById('debt-modal-total');
+  const body = document.getElementById('debt-modal-body');
+  if (type === 'month') {
+    const data = getMonthDebtDetails(_year);
+    const total = data.reduce((s,x)=>s+x.amount,0);
+    title.textContent = 'Chi tiết còn nợ quỹ tháng';
+    sub.textContent = `Năm ${_year} · Tính đến tháng ${Math.min(monthsRequired(_year),12)}`;
+    totalBox.innerHTML = `<b>Tổng còn nợ:</b> <span style="color:#d97706;font-weight:900">${fmt(total)}</span> · <b>${data.length}</b> người`;
+    body.innerHTML = data.length
+      ? `<div class="debt-table-wrap"><table class="debt-table"><thead><tr><th>Thành viên</th><th>Tháng còn nợ</th><th class="tr">Số tiền</th></tr></thead><tbody>${data.map(x=>`<tr><td><b>${esc(x.member.name)}</b></td><td>${x.months.map(m=>'T'+m).join(', ')}</td><td class="tr"><b style="color:#d97706">${fmt(x.amount)}</b></td></tr>`).join('')}</tbody></table></div>`
+      : `<div class="debt-empty">Không có ai còn nợ quỹ tháng.</div>`;
+  } else {
+    const rows = getBeerDebtDetails(_year);
+    const total = rows.reduce((s,x)=>s+x.amount,0);
+    title.textContent = 'Chi tiết còn nợ quỹ bia';
+    sub.textContent = `Năm ${_year} · Các lượt thua chưa nộp`;
+    totalBox.innerHTML = `<b>Tổng còn nợ:</b> <span style="color:#d97706;font-weight:900">${fmt(total)}</span> · <b>${rows.length}</b> lượt nợ`;
+    body.innerHTML = rows.length
+      ? `<div class="debt-table-wrap"><table class="debt-table"><thead><tr><th>Thành viên</th><th>Ngày nợ</th><th class="tr">Số tiền</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.member.name)}</b></td><td>${fmtShortDate(x.date)}</td><td class="tr"><b style="color:#d97706">${fmt(x.amount)}</b></td></tr>`).join('')}</tbody></table></div>`
+      : `<div class="debt-empty">Không có ai còn nợ quỹ bia.</div>`;
+  }
+  bd.style.display = 'flex';
+}
+function closeDebtDialog() {
+  const bd = document.getElementById('debt-modal-backdrop');
+  if (bd) bd.style.display = 'none';
 }
 
 /* ── Load data ── */
@@ -355,6 +490,8 @@ function render() {
   const chiThang  = chiByFund('thang', _year);
   const thuBia    = thuPhatGrand(_year) + thuThemGrand(_year);
   const chiBia    = chiByFund('bia', _year);
+  const noThang   = getMonthDebtDetails(_year).reduce((s,x)=>s+x.amount,0);
+  const noBia     = getBeerDebtDetails(_year).reduce((s,x)=>s+x.amount,0);
   const am        = activeMembers();
   const req       = monthsRequired(_year);
   const matches   = matchesInYear(_year);
@@ -374,7 +511,9 @@ function render() {
     <div class="sticky-hdr" id="sticky-hdr">
       <div class="hdr-top">
         <div class="hdr-brand">
+          <a href="index.html">
           <img src="logo.jpg" class="hdr-logo" alt="FC Sunday">
+            </a>
           <div>
             <div class="hdr-name">FC Sunday</div>
             <div class="hdr-sub">Tổng hợp thu chi quỹ đội bóng</div>
@@ -416,7 +555,11 @@ function render() {
             <div class="fund-amount ${tThang<0?'negative':''}">${fmt(tThang)}</div>
             <div class="fund-detail">
               Thu phí: ${fmt(thuPhi)}<br>
-              Chi tiêu: ${fmt(chiThang)}
+              Chi tiêu: ${fmt(chiThang)}<br>
+              <button type="button" class="debt-link" onclick="openDebtDialog('month')">
+                <span class="debt-link-label">Còn nợ</span>
+                <span class="debt-link-amount">${fmt(noThang)}</span>
+              </button>
             </div>
           </div>
           <div class="fund-card">
@@ -426,7 +569,11 @@ function render() {
             <div class="fund-amount ${tBia<0?'negative':''}">${fmt(tBia)}</div>
             <div class="fund-detail">
               Thu bia: ${fmt(thuBia)}<br>
-              Chi tiêu: ${fmt(chiBia)}
+              Chi tiêu: ${fmt(chiBia)}<br>
+              <button type="button" class="debt-link" onclick="openDebtDialog('beer')">
+                <span class="debt-link-label">Còn nợ</span>
+                <span class="debt-link-amount">${fmt(noBia)}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -476,7 +623,7 @@ function render() {
           }).join('')}
         </div>
       </div>
-
+            <div class="hdr-hero-sub">Đóng quỹ là trách nhiệm của từng thành viên. Anh em cố gắng đóng quỹ đầy đủ, không để nợ quỹ quá nhiều. Cảm ơn!</div>
     </div>
   `;
 
