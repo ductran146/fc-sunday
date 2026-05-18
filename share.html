@@ -287,35 +287,30 @@
   }
   .debt-total-box b { color: #111827; }
   .debt-table-wrap { overflow: auto; border: 1px solid #e5e7eb; border-radius: 12px; }
-  .debt-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 530px; table-layout: fixed; }
-  .debt-table th, .debt-table td { padding: 10px 12px; border-bottom: 1px solid #eef0f3; text-align: left; vertical-align: top; }
+  .debt-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 500px; table-layout: fixed; }
+  .debt-table th, .debt-table td { padding: 10px 12px; border-bottom: 1px solid #eef0f3; text-align: left; vertical-align: middle; }
   .debt-table th { background: #f9fafb; color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
   .debt-table tr:last-child td { border-bottom: 0; }
   .debt-table .tr { text-align: right; }
   .debt-empty { padding: 20px; text-align: center; color: #6b7280; font-size: 13px; }
 
-  .debt-table th:first-child, .debt-table td:first-child {
+  .debt-table.beer-debt-table th:first-child, .debt-table.beer-debt-table td:first-child {
     position: sticky; left: 0; z-index: 2; background: #fff;
-    box-shadow: 1px 0 0 #e5e7eb; width: 122px; min-width: 122px; max-width: 122px;
+    box-shadow: 1px 0 0 #e5e7eb; width: 154px;
   }
-  .debt-table th:first-child { z-index: 3; background: #f9fafb; }
-  .debt-table th:nth-child(2), .debt-table td:nth-child(2) { width: 150px; }
-  .debt-table th:nth-child(3), .debt-table td:nth-child(3) { width: 258px; }
-  .debt-date-list { white-space: normal; word-break: normal; line-height: 1.45; }
-  .debt-formula {
-    display: grid; grid-template-columns: 74px 14px 26px 14px 94px; gap: 0; align-items: baseline;
-    font-variant-numeric: tabular-nums; color: #d97706; font-weight: 900; white-space: nowrap;
-  }
-  .debt-formula .debt-unit, .debt-formula .debt-sum { text-align: right; }
-  .debt-formula .debt-count { text-align: right; }
-  .debt-formula .debt-mul, .debt-formula .debt-eq { text-align: center; }
-  @media (max-width: 640px) {
-    .debt-table { min-width: 530px; font-size: 13px; }
-    .debt-table th, .debt-table td { padding: 9px 10px; }
-    .debt-table th:first-child, .debt-table td:first-child { width: 108px; min-width: 108px; max-width: 108px; }
-    .debt-table th:nth-child(2), .debt-table td:nth-child(2) { width: 150px; }
-    .debt-table th:nth-child(3), .debt-table td:nth-child(3) { width: 272px; }
-    .debt-formula { grid-template-columns: 72px 12px 24px 12px 88px; }
+  .debt-table.beer-debt-table th:first-child { z-index: 3; background: #f9fafb; }
+  .debt-table.beer-debt-table th:nth-child(2), .debt-table.beer-debt-table td:nth-child(2) { width: 224px; }
+  .debt-table.beer-debt-table th:nth-child(3), .debt-table.beer-debt-table td:nth-child(3) { width: 112px; }
+  .debt-member-cell { display:flex; align-items:center; gap:6px; min-width:0; }
+  .debt-member-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .debt-loss-badge { flex-shrink:0; display:inline-flex; align-items:center; padding:2px 6px; border-radius:999px; background:#fff7ed; color:#d97706; font-size:10px; font-weight:900; white-space:nowrap; }
+  .debt-date-list { white-space:normal; line-height:1.45; }
+  .debt-money-total { color:#d97706; font-weight:900; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  @media (min-width: 641px) {
+    .debt-table.beer-debt-table th:first-child, .debt-table.beer-debt-table td:first-child { width:176px; }
+    .debt-table.beer-debt-table th:nth-child(2), .debt-table.beer-debt-table td:nth-child(2) { width:238px; }
+    .debt-table.beer-debt-table th:nth-child(3), .debt-table.beer-debt-table td:nth-child(3) { width:126px; }
+    .debt-loss-badge { font-size:11px; padding:2px 7px; }
   }
 
 </style>
@@ -619,7 +614,7 @@ function openDebtDialog(type) {
     const totalTurns = rows.reduce((s,x)=>s+x.count,0);
     totalBox.innerHTML = `<b>Tổng còn nợ:</b> <span style="color:#d97706;font-weight:900">${fmt(total)}</span> · <b>${rows.length}</b> người · <b>${totalTurns}</b> trận thua`;
     body.innerHTML = rows.length
-      ? `<div class="debt-table-wrap"><table class="debt-table"><thead><tr><th>Thành viên</th><th>Ngày nợ</th><th class="tr">Số tiền</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.member.name)}</b></td><td class="debt-date-list">${x.dates.map(fmtShortDate).join(', ')}</td><td class="tr"><span class="debt-formula"><span class="debt-unit">${fmt(FINE)}</span><span class="debt-mul">×</span><span class="debt-count">${x.count}</span><span class="debt-eq">=</span><span class="debt-sum">${fmt(x.amount)}</span></span></td></tr>`).join('')}</tbody></table></div>`
+      ? `<div class="debt-table-wrap"><table class="debt-table beer-debt-table"><thead><tr><th>Thành viên</th><th>Ngày</th><th class="tr">Số tiền</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b class="debt-member-cell"><span class="debt-member-name">${esc(x.member.name)}</span><span class="debt-loss-badge">${x.count} trận thua</span></b></td><td class="debt-date-list">${x.dates.map(fmtShortDate).join(', ')}</td><td class="tr"><span class="debt-money-total">${fmt(x.amount)}</span></td></tr>`).join('')}</tbody></table></div>`
       : `<div class="debt-empty">Không có ai còn nợ quỹ bia.</div>`;
   }
   bd.style.display = 'flex';
