@@ -518,15 +518,52 @@ function getMonthDebtDetails(year) {
 }
 function getBeerDebtDetails(year) {
   year = year || _year;
-  const byId = new Map((S.members||[]).map(m => [m.id, m]));
-  const rows = [];
+
+  // Gom nợ quỹ bia theo từng thành viên.
+  // Lưu ý: dữ liệu cũ có thể lưu memberId dạng number hoặc string,
+  // nên phải normalize id trước khi group. Nếu không normalize,
+  // cùng 1 người có thể bị tách thành nhiều dòng.
+  const members = S.members || [];
+  const byId = new Map();
+  members.forEach(m => {
+    byId.set(String(m.id), m);
+    byId.set(Number(m.id), m);
+  });
+
+  const normalizeName = name => String(name || 'Không rõ').trim().replace(/\s+/g, ' ');
+  const grouped = new Map();
+
   matchesInYear(year).forEach(match => {
-    (match.losers||[]).filter(l => !l.paid).forEach(l => {
-      const member = byId.get(l.memberId) || { name: 'Không rõ' };
-      rows.push({ member, date: match.date || '', amount: FINE });
+    (match.losers || []).filter(l => !l.paid).forEach(l => {
+      const rawId = l.memberId ?? l.id ?? l.mid ?? null;
+      const member = byId.get(String(rawId)) || byId.get(Number(rawId)) || null;
+      const displayName = normalizeName(member?.name || l.memberName || l.name || l.member?.name || 'Không rõ');
+
+      // Ưu tiên group theo id đã normalize; nếu không có id thì group theo tên.
+      const key = member ? `id:${member.id}` : `name:${displayName.toLowerCase()}`;
+
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          member: member || { id: rawId || displayName, name: displayName },
+          dates: [],
+          count: 0,
+          amount: 0
+        });
+      }
+
+      const item = grouped.get(key);
+      item.dates.push(match.date || '');
+      item.count += 1;
+      item.amount += FINE;
     });
   });
-  return rows.sort((a,b) => (a.member.name||'').localeCompare(b.member.name||'', 'vi') || String(a.date).localeCompare(String(b.date)));
+
+  return [...grouped.values()]
+    .map(x => ({
+      ...x,
+      dates: x.dates.sort((a,b) => String(a).localeCompare(String(b)))
+    }))
+    .sort((a,b) => b.amount - a.amount || (a.member.name || '').localeCompare(b.member.name || '', 'vi'));
 }
 function fmtShortDate(dateStr) {
   if (!dateStr) return 'Chưa có ngày';
@@ -555,9 +592,10 @@ function openDebtDialog(type) {
     const total = rows.reduce((s,x)=>s+x.amount,0);
     title.textContent = 'Chi tiết còn nợ quỹ bia';
     sub.textContent = `Năm ${_year} · Các lượt thua chưa nộp`;
-    totalBox.innerHTML = `<b>Tổng còn nợ:</b> <span style="color:#d97706;font-weight:900">${fmt(total)}</span> · <b>${rows.length}</b> lượt nợ`;
+    const totalTurns = rows.reduce((s,x)=>s+x.count,0);
+    totalBox.innerHTML = `<b>Tổng còn nợ:</b> <span style="color:#d97706;font-weight:900">${fmt(total)}</span> · <b>${rows.length}</b> người · <b>${totalTurns}</b> lượt nợ`;
     body.innerHTML = rows.length
-      ? `<div class="debt-table-wrap"><table class="debt-table"><thead><tr><th>Thành viên</th><th>Ngày nợ</th><th class="tr">Số tiền</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.member.name)}</b></td><td>${fmtShortDate(x.date)}</td><td class="tr"><b style="color:#d97706">${fmt(x.amount)}</b></td></tr>`).join('')}</tbody></table></div>`
+      ? `<div class="debt-table-wrap"><table class="debt-table"><thead><tr><th>Thành viên</th><th>Ngày nợ</th><th class="tr">Số tiền</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.member.name)}</b></td><td>${x.dates.map(fmtShortDate).join(', ')}</td><td class="tr" style="white-space:nowrap"><b style="color:#d97706">${fmt(FINE)} x ${x.count} = ${fmt(x.amount)}</b></td></tr>`).join('')}</tbody></table></div>`
       : `<div class="debt-empty">Không có ai còn nợ quỹ bia.</div>`;
   }
   bd.style.display = 'flex';
