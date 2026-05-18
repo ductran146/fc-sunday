@@ -243,6 +243,57 @@
   }
   .loading-logo { width: 64px; height: 64px; border-radius: 16px; object-fit: cover; }
   .loading-text { font-size: 14px; color: var(--sub); }
+
+  /* ── Debt detail button + dialog ── */
+  .debt-link {
+    display: flex; align-items: baseline; gap: 6px;
+    width: 100%; margin-top: 2px; padding: 0;
+    background: transparent; border: 0; cursor: pointer;
+    color: inherit; font-family: inherit; text-align: left;
+  }
+  .debt-link-label {
+    font-size: 11px; color: var(--sub);
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .debt-link-amount { font-size: 11px; font-weight: 800; color: var(--gold); }
+  .debt-backdrop {
+    position: fixed; inset: 0; z-index: 10000;
+    display: none; align-items: center; justify-content: center;
+    padding: 18px; background: rgba(0,0,0,.58);
+    backdrop-filter: blur(8px);
+  }
+  .debt-modal {
+    width: min(720px, 100%); max-height: calc(100dvh - 42px);
+    overflow: hidden; display: flex; flex-direction: column;
+    background: #fff; color: #111827; border-radius: 18px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.35);
+  }
+  .debt-modal-head {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    padding: 18px 18px 12px; border-bottom: 1px solid #eef0f3;
+  }
+  .debt-modal-title { font-size: 18px; font-weight: 900; color: #111827; }
+  .debt-modal-sub { font-size: 13px; color: #6b7280; margin-top: 2px; }
+  .debt-modal-close {
+    width: 32px; height: 32px; border-radius: 999px; border: 0;
+    background: #f3f4f6; color: #374151; font-size: 22px; line-height: 1;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .debt-modal-content { padding: 14px 18px 18px; overflow: auto; }
+  .debt-total-box {
+    background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px;
+    padding: 12px 14px; margin-bottom: 12px;
+    font-size: 13px; color: #4b5563;
+  }
+  .debt-total-box b { color: #111827; }
+  .debt-table-wrap { overflow: auto; border: 1px solid #e5e7eb; border-radius: 12px; }
+  .debt-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 420px; }
+  .debt-table th, .debt-table td { padding: 11px 12px; border-bottom: 1px solid #eef0f3; text-align: left; vertical-align: top; }
+  .debt-table th { background: #f9fafb; color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  .debt-table tr:last-child td { border-bottom: 0; }
+  .debt-table .tr { text-align: right; }
+  .debt-empty { padding: 20px; text-align: center; color: #6b7280; font-size: 13px; }
+
 </style>
 </head>
 <body>
@@ -253,12 +304,30 @@
   </div>
 </div>
 
+<div class="debt-backdrop" id="debt-modal-backdrop" onclick="closeDebtDialog()">
+  <div class="debt-modal" onclick="event.stopPropagation()">
+    <div class="debt-modal-head">
+      <div>
+        <div class="debt-modal-title" id="debt-modal-title">Chi tiết còn nợ</div>
+        <div class="debt-modal-sub" id="debt-modal-sub">—</div>
+      </div>
+      <button class="debt-modal-close" type="button" onclick="closeDebtDialog()">×</button>
+    </div>
+    <div class="debt-modal-content">
+      <div class="debt-total-box" id="debt-modal-total">—</div>
+      <div id="debt-modal-body"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const FEE = 200000, FINE = 50000, BASE_YEAR = 2026;
 let S = null, _year = new Date().getFullYear();
 
 /* ── Helpers ── */
+function moneyValue(v) { return Number(v) || 0; }
 function fmt(n) {
+  n = moneyValue(n);
   if (!n && n !== 0) return '0đ';
   const sign = n < 0 ? '-' : '';
   return sign + Math.abs(n).toLocaleString('vi-VN') + 'đ';
@@ -282,40 +351,115 @@ function memberExemptCount(mid, year) {
   const arr = S.thuThang[_ttKey(mid,year)] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
   return arr.filter(v=>v===2).length;
 }
-function activeMembers() { return (S.members||[]).filter(m=>m.status!=='left'); }
-function matchesInYear(year) {
-  return (S.matches||[]).filter(m => {
-    const y = m.date ? parseInt(m.date.split('-')[0]) : BASE_YEAR;
-    return y === (year||_year);
-  });
+// activeMembers: dùng cho tính tổng thu quỹ tháng — bao gồm cả tạm nghỉ
+// Chỉ loại trừ "đã nghỉ" (left)
+function activeMembers() { return (S.members||[]).filter(m => m.status !== 'left'); }
+function N() { return (S.members||[]).filter(m => m.status === 'active').length; }
+
+// Thu tháng: chỉ tính ô = 1 (đã đóng), ô = 2 (miễn) không thu tiền
+function thuThangMonthTotal(mi, year) {
+  year = year || _year;
+  return activeMembers().reduce((s,m) => s + (getTT(m.id,mi,year)===1 ? 1 : 0), 0) * FEE;
 }
 function thuThangGrand(year) {
-  year = year||_year;
-  return activeMembers().reduce((s,m) => {
-    const arr = S.thuThang[_ttKey(m.id,year)] || (year===BASE_YEAR ? S.thuThang[String(m.id)] : null) || [];
-    return s + arr.filter(v=>v===1).length * FEE;
-  }, 0);
+  year = year || _year;
+  let t = 0;
+  for (let i = 0; i < 12; i++) t += thuThangMonthTotal(i, year);
+  return t;
+}
+
+function matchesInMonth(mi, year) {
+  year = year || _year;
+  return (S.matches||[]).filter(m => {
+    if (m.monthIdx !== mi) return false;
+    // Nếu không có date → coi là BASE_YEAR (tương thích data cũ)
+    if (!m.date) return year === BASE_YEAR;
+    const y = parseInt(String(m.date).split('-')[0]);
+    // Nếu năm trong date không hợp lệ → fallback BASE_YEAR
+    if (isNaN(y)) return year === BASE_YEAR;
+    return y === year;
+  });
+}
+function matchesInYear(year) {
+  year = year || _year;
+  return (S.matches||[]).filter(m => {
+    if (!m.date) return year === BASE_YEAR;
+    const y = parseInt(String(m.date).split('-')[0]);
+    if (isNaN(y)) return year === BASE_YEAR;
+    return y === year;
+  });
+}
+// Quỹ bia thu thực tế = chỉ tính người đã nộp (paid: true)
+function thuPhatMonth(mi, year) {
+  return matchesInMonth(mi, year||_year)
+    .reduce((s,m) => s + (m.losers||[]).filter(l=>l.paid).length * FINE, 0);
 }
 function thuPhatGrand(year) {
-  // Chỉ tính tiền đã nộp thực tế (paid: true)
-  return matchesInYear(year).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.paid).length*FINE, 0);
+  year = year || _year;
+  let t = 0;
+  for (let i = 0; i < 12; i++) t += thuPhatMonth(i, year);
+  return t;
+}
+// Tổng phải thu (cả chưa nộp) — dùng cho báo cáo nợ
+function thuPhatTotalMonth(mi, year) {
+  return matchesInMonth(mi, year||_year)
+    .reduce((s,m) => s + (m.losers||[]).length * FINE, 0);
+}
+function thuPhatTotalGrand(year) {
+  year = year || _year;
+  let t = 0;
+  for (let i = 0; i < 12; i++) t += thuPhatTotalMonth(i, year);
+  return t;
+}
+function thuThemMonth(mi, year) {
+  return matchesInMonth(mi, year||_year).reduce((s,m)=>s+(m.thuThem||0),0);
 }
 function thuThemGrand(year) {
-  return matchesInYear(year).reduce((s,m)=>s+(m.thuThem||0), 0);
+  year = year || _year;
+  let t = 0;
+  for (let i = 0; i < 12; i++) t += thuThemMonth(i, year);
+  return t;
 }
-function chiByFund(fund, year) {
-  return (S.chiTieu||[])
-    .filter(c => c.date && parseInt(c.date.split('-')[0])===(year||_year) && (c.fund||'thang')===fund)
-    .reduce((s,c)=>s+c.amount, 0);
+
+function chiTieuInYear(year) {
+  year = year || _year;
+  return (S.chiTieu||[]).filter(c => c.date && parseInt(String(c.date).split('-')[0]) === year);
 }
+// Tất cả chi (tổng)
 function chiTotal(year) {
-  return (S.chiTieu||[])
-    .filter(c => c.date && parseInt(c.date.split('-')[0])===(year||_year))
-    .reduce((s,c)=>s+c.amount, 0);
+  return chiTieuInYear(year||_year).reduce((s,c)=>s+c.amount,0);
 }
-function tonQuyThang(year) { return thuThangGrand(year) - chiByFund('thang', year); }
-function tonQuyBia(year)   { return thuPhatGrand(year) + thuThemGrand(year) - chiByFund('bia', year); }
-function totalTon(year)    { return tonQuyThang(year) + tonQuyBia(year); }
+// Chi theo quỹ: 'thang' | 'bia' | undefined (tất cả)
+function chiByFund(fund, year) {
+  return chiTieuInYear(year||_year)
+    .filter(c => fund ? (c.fund||'thang') === fund : true)
+    .reduce((s,c)=>s+c.amount,0);
+}
+function chiMonth(mi, year) {
+  year = year || _year;
+  return chiTieuInYear(year).filter(c=>parseInt(String(c.date).split('-')[1])-1===mi).reduce((s,c)=>s+c.amount,0);
+}
+function chiMonthByFund(mi, fund, year) {
+  year = year || _year;
+  return chiTieuInYear(year)
+    .filter(c => parseInt(String(c.date).split('-')[1])-1===mi && (c.fund||'thang')===fund)
+    .reduce((s,c)=>s+c.amount,0);
+}
+
+// Tổng quỹ tháng = Thu phí − Chi quỹ tháng
+function tonQuyThang(year) {
+  year = year || _year;
+  return thuThangGrand(year) - chiByFund('thang', year);
+}
+// Tổng quỹ bia = Thu quỹ bia + Thu thêm − Chi quỹ bia
+function tonQuyBia(year) {
+  year = year || _year;
+  return thuPhatGrand(year) + thuThemGrand(year) - chiByFund('bia', year);
+}
+function totalTon(year) {
+  year = year || _year;
+  return tonQuyThang(year) + tonQuyBia(year);
+}
 function monthsRequired(year) {
   const now = new Date();
   year = year||_year;
@@ -331,6 +475,70 @@ function memberDebt(mid, year) {
   const debtFee  = Math.max(0, req - paid) * FEE;
   const debtFine = matchesInYear(year||_year).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.memberId===mid&&!l.paid).length,0)*FINE;
   return debtFee + debtFine;
+}
+function esc(str) {
+  return String(str ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[ch] || ch));
+}
+function getMonthDebtDetails(year) {
+  year = year || _year;
+  const due = Math.max(0, Math.min(monthsRequired(year), 12));
+  return activeMembers().filter(m => m.status === 'active').map(m => {
+    const months = [];
+    for (let i = 0; i < due; i++) {
+      if (getTT(m.id, i, year) === 0) months.push(i + 1);
+    }
+    return { member: m, months, amount: months.length * FEE };
+  }).filter(x => x.amount > 0).sort((a,b) => b.amount - a.amount || a.member.name.localeCompare(b.member.name, 'vi'));
+}
+function getBeerDebtDetails(year) {
+  year = year || _year;
+  const byId = new Map((S.members||[]).map(m => [m.id, m]));
+  const rows = [];
+  matchesInYear(year).forEach(match => {
+    (match.losers||[]).filter(l => !l.paid).forEach(l => {
+      const member = byId.get(l.memberId) || { name: 'Không rõ' };
+      rows.push({ member, date: match.date || '', amount: FINE });
+    });
+  });
+  return rows.sort((a,b) => String(a.date).localeCompare(String(b.date)) || (a.member.name||'').localeCompare(b.member.name||'', 'vi'));
+}
+function fmtShortDate(dateStr) {
+  if (!dateStr) return 'Chưa có ngày';
+  const parts = String(dateStr).split('-');
+  if (parts.length >= 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  return String(dateStr);
+}
+function openDebtDialog(type) {
+  const bd = document.getElementById('debt-modal-backdrop');
+  if (!bd) return;
+  const title = document.getElementById('debt-modal-title');
+  const sub = document.getElementById('debt-modal-sub');
+  const totalBox = document.getElementById('debt-modal-total');
+  const body = document.getElementById('debt-modal-body');
+  if (type === 'month') {
+    const data = getMonthDebtDetails(_year);
+    const total = data.reduce((s,x)=>s+x.amount,0);
+    title.textContent = 'Chi tiết còn nợ quỹ tháng';
+    sub.textContent = `Năm ${_year} · Tính đến tháng ${Math.min(monthsRequired(_year),12)}`;
+    totalBox.innerHTML = `<b>Tổng còn nợ:</b> <span style="color:#d97706;font-weight:900">${fmt(total)}</span> · <b>${data.length}</b> người`;
+    body.innerHTML = data.length
+      ? `<div class="debt-table-wrap"><table class="debt-table"><thead><tr><th>Thành viên</th><th>Tháng còn nợ</th><th class="tr">Số tiền</th></tr></thead><tbody>${data.map(x=>`<tr><td><b>${esc(x.member.name)}</b></td><td>${x.months.map(m=>'T'+m).join(', ')}</td><td class="tr"><b style="color:#d97706">${fmt(x.amount)}</b></td></tr>`).join('')}</tbody></table></div>`
+      : `<div class="debt-empty">Không có ai còn nợ quỹ tháng.</div>`;
+  } else {
+    const rows = getBeerDebtDetails(_year);
+    const total = rows.reduce((s,x)=>s+x.amount,0);
+    title.textContent = 'Chi tiết còn nợ quỹ bia';
+    sub.textContent = `Năm ${_year} · Các lượt thua chưa nộp`;
+    totalBox.innerHTML = `<b>Tổng còn nợ:</b> <span style="color:#d97706;font-weight:900">${fmt(total)}</span> · <b>${rows.length}</b> lượt nợ`;
+    body.innerHTML = rows.length
+      ? `<div class="debt-table-wrap"><table class="debt-table"><thead><tr><th>Thành viên</th><th>Ngày nợ</th><th class="tr">Số tiền</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.member.name)}</b></td><td>${fmtShortDate(x.date)}</td><td class="tr"><b style="color:#d97706">${fmt(x.amount)}</b></td></tr>`).join('')}</tbody></table></div>`
+      : `<div class="debt-empty">Không có ai còn nợ quỹ bia.</div>`;
+  }
+  bd.style.display = 'flex';
+}
+function closeDebtDialog() {
+  const bd = document.getElementById('debt-modal-backdrop');
+  if (bd) bd.style.display = 'none';
 }
 
 /* ── Load data ── */
@@ -355,6 +563,8 @@ function render() {
   const chiThang  = chiByFund('thang', _year);
   const thuBia    = thuPhatGrand(_year) + thuThemGrand(_year);
   const chiBia    = chiByFund('bia', _year);
+  const noThang   = getMonthDebtDetails(_year).reduce((s,x)=>s+x.amount,0);
+  const noBia     = getBeerDebtDetails(_year).reduce((s,x)=>s+x.amount,0);
   const am        = activeMembers();
   const req       = monthsRequired(_year);
   const matches   = matchesInYear(_year);
@@ -418,7 +628,11 @@ function render() {
             <div class="fund-amount ${tThang<0?'negative':''}">${fmt(tThang)}</div>
             <div class="fund-detail">
               Thu phí: ${fmt(thuPhi)}<br>
-              Chi tiêu: ${fmt(chiThang)}
+              Chi tiêu: ${fmt(chiThang)}<br>
+              <button type="button" class="debt-link" onclick="openDebtDialog('month')">
+                <span class="debt-link-label">Còn nợ</span>
+                <span class="debt-link-amount">${fmt(noThang)}</span>
+              </button>
             </div>
           </div>
           <div class="fund-card">
@@ -428,7 +642,11 @@ function render() {
             <div class="fund-amount ${tBia<0?'negative':''}">${fmt(tBia)}</div>
             <div class="fund-detail">
               Thu bia: ${fmt(thuBia)}<br>
-              Chi tiêu: ${fmt(chiBia)}
+              Chi tiêu: ${fmt(chiBia)}<br>
+              <button type="button" class="debt-link" onclick="openDebtDialog('beer')">
+                <span class="debt-link-label">Còn nợ</span>
+                <span class="debt-link-amount">${fmt(noBia)}</span>
+              </button>
             </div>
           </div>
         </div>
