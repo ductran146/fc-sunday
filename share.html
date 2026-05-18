@@ -253,17 +253,97 @@
   </div>
 </div>
 
-<!-- Dùng toàn bộ logic, công thức, và loadData() Firebase từ app.js -->
-<script src="app.js"></script>
 <script>
-/* ── share.html chỉ giữ UI render, toàn bộ logic/data dùng từ app.js ── */
-let _year = new Date().getFullYear();
+const FEE = 200000, FINE = 50000, BASE_YEAR = 2026;
+let S = null, _year = new Date().getFullYear();
 
-/* fmt dùng riêng cho share.html (app.js dùng fmtNum, cần đơn vị đ) */
+/* ── Helpers ── */
 function fmt(n) {
   if (!n && n !== 0) return '0đ';
   const sign = n < 0 ? '-' : '';
   return sign + Math.abs(n).toLocaleString('vi-VN') + 'đ';
+}
+function fmtDate(d) {
+  return d.toLocaleString('vi-VN', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit' });
+}
+function _ttKey(mid, year) { return year === BASE_YEAR ? String(mid) : `${mid}_${year}`; }
+function getTT(mid, mi, year) {
+  year = year || _year;
+  const arr = S.thuThang[_ttKey(mid,year)] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
+  return arr[mi] || 0;
+}
+function memberPaidCount(mid, year) {
+  year = year || _year;
+  const arr = S.thuThang[_ttKey(mid,year)] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
+  return arr.filter(v=>v===1).length;
+}
+function memberExemptCount(mid, year) {
+  year = year || _year;
+  const arr = S.thuThang[_ttKey(mid,year)] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
+  return arr.filter(v=>v===2).length;
+}
+function activeMembers() { return (S.members||[]).filter(m=>m.status!=='left'); }
+function matchesInYear(year) {
+  return (S.matches||[]).filter(m => {
+    const y = m.date ? parseInt(m.date.split('-')[0]) : BASE_YEAR;
+    return y === (year||_year);
+  });
+}
+function thuThangGrand(year) {
+  year = year||_year;
+  return activeMembers().reduce((s,m) => {
+    const arr = S.thuThang[_ttKey(m.id,year)] || (year===BASE_YEAR ? S.thuThang[String(m.id)] : null) || [];
+    return s + arr.filter(v=>v===1).length * FEE;
+  }, 0);
+}
+function thuPhatGrand(year) {
+  // Chỉ tính tiền đã nộp thực tế (paid: true)
+  return matchesInYear(year).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.paid).length*FINE, 0);
+}
+function thuThemGrand(year) {
+  return matchesInYear(year).reduce((s,m)=>s+(m.thuThem||0), 0);
+}
+function chiByFund(fund, year) {
+  return (S.chiTieu||[])
+    .filter(c => c.date && parseInt(c.date.split('-')[0])===(year||_year) && (c.fund||'thang')===fund)
+    .reduce((s,c)=>s+c.amount, 0);
+}
+function chiTotal(year) {
+  return (S.chiTieu||[])
+    .filter(c => c.date && parseInt(c.date.split('-')[0])===(year||_year))
+    .reduce((s,c)=>s+c.amount, 0);
+}
+function tonQuyThang(year) { return thuThangGrand(year) - chiByFund('thang', year); }
+function tonQuyBia(year)   { return thuPhatGrand(year) + thuThemGrand(year) - chiByFund('bia', year); }
+function totalTon(year)    { return tonQuyThang(year) + tonQuyBia(year); }
+function monthsRequired(year) {
+  const now = new Date();
+  year = year||_year;
+  if (year < now.getFullYear()) return 12;
+  if (year > now.getFullYear()) return 0;
+  return now.getMonth() + 1;
+}
+function memberDebt(mid, year) {
+  const mem = S.members.find(m=>m.id===mid);
+  if (!mem || mem.status!=='active') return 0;
+  const req    = Math.max(0, Math.min(monthsRequired(year||_year), 12) - memberExemptCount(mid, year));
+  const paid   = memberPaidCount(mid, year);
+  const debtFee  = Math.max(0, req - paid) * FEE;
+  const debtFine = (S.matches||[]).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.memberId===mid&&!l.paid).length,0)*FINE;
+  return debtFee + debtFine;
+}
+
+/* ── Load data ── */
+async function loadData() {
+  const cfg = (() => { try { return JSON.parse(localStorage.getItem('fc_gh')||'null'); } catch(e) { return null; } })();
+  let url = './data.json?t=' + Date.now();
+  if (cfg?.owner && cfg?.repo) {
+    const branch = cfg.branch||'main', fp = cfg.filePath||'data.json';
+    url = `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${branch}/${fp}?t=${Date.now()}`;
+  }
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return await r.json();
 }
 
 /* ── Render ── */
@@ -486,7 +566,7 @@ function initPullToRefresh(onRefresh) {
   }, { passive: true });
 }
 
-/* ── Init: dùng loadData() từ app.js (Firebase) ── */
+/* ── Init ── */
 (async () => {
   try {
     S = await loadData();
