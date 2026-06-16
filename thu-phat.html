@@ -5,6 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Quỹ bia đội thua — FC Sunday</title>
 <link rel="stylesheet" href="style.css">
+<style>
+@font-face {
+  font-family: 'TossFace';
+  src: url('TossFaceFontWeb.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  unicode-range:
+    U+2630,   /* ☰ */
+    U+26A0,   /* ⚠ */
+    U+2713,   /* ✓ */
+    U+2715,   /* ✕ */
+    U+1F381,  /* 🎁 */
+    U+1F441,  /* 👁 */
+    U+1F504,  /* 🔄 */
+    U+1F608,  /* 😈 */
+    U+1F4A3;  /* 💣 */
+}
+body, button, input, select, textarea, .chip, .chart-title {
+  font-family: 'TossFace', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+</style>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#00332d">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -90,7 +111,7 @@
           <div class="chart-wrap"><canvas id="cPM"></canvas></div>
         </div>
         <div class="chart-card">
-          <div class="chart-title">Top thua nhiều nhất</div>
+          <div class="chart-title">💣 Top quả tạ</div>
           <div class="chart-wrap"><canvas id="cTL"></canvas></div>
         </div>
       </div>
@@ -438,7 +459,7 @@ function renderCharts() {
   });
 
   const am = activeMembers();
-  const lossData = am.map(m=>({name:m.name.split(' ').pop(),count:memberTotalLoss(m.id)}))
+  const lossData = am.map(m=>({name:m.name,count:memberTotalLoss(m.id)}))
     .filter(x=>x.count>0).sort((a,b)=>b.count-a.count).slice(0,10);
 
   if (_cTL) _cTL.destroy();
