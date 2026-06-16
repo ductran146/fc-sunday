@@ -13,6 +13,28 @@
 <meta name="theme-color" content="#00332d">
 <link rel="stylesheet" href="style.css">
 <style>
+/* ── TossFace emoji font ── */
+@font-face {
+  font-family: 'TossFace';
+  src: url('TossFaceFontWeb.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  unicode-range:
+    U+2630,   /* ☰ */
+    U+26A0,   /* ⚠ */
+    U+2713,   /* ✓ */
+    U+1F37A,  /* 🍺 */
+    U+1F381,  /* 🎁 */
+    U+1F441,  /* 👁 */
+    U+1F4B0,  /* 💰 */
+    U+1F4CB,  /* 📋 */
+    U+1F4E5,  /* 📥 */
+    U+1F608;  /* 😈 */
+}
+/* Áp dụng TossFace lên toàn trang — emoji sẽ tự fallback sang font này nhờ unicode-range */
+body, button, input, select, textarea, .chip, .sb-label, .tb-title, .tbl-title-text, .login-sub {
+  font-family: 'TossFace', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+}
 /* ── Fix bảng chi tiêu: sticky cột Ngày, scroll ngang bình thường ── */
 
 /* Wrapper: chỉ scroll ngang, không giới hạn chiều cao */
@@ -47,6 +69,45 @@
 .chi-list.tbl-scroll table tbody tr:hover td:first-child {
   background: var(--gray-50, #f9fafb);
 }
+
+/* Cột Số tiền: thêm min-width rộng hơn 12px */
+.chi-list.tbl-scroll table th:nth-child(2),
+.chi-list.tbl-scroll table td:nth-child(2) {
+  min-width: 104px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+/* ── Tab system ── */
+.chi-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--gray-100, #f3f4f6);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 16px;
+}
+.chi-tab-btn {
+  flex: 1;
+  padding: 9px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--gray-500, #6b7280);
+  cursor: pointer;
+  transition: all .18s;
+  white-space: nowrap;
+}
+.chi-tab-btn.active {
+  background: #fff;
+  color: var(--gray-800, #1f2937);
+  box-shadow: 0 1px 4px rgba(0,0,0,.1);
+}
+.chi-tab-panel { display: none; }
+.chi-tab-panel.active { display: block; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
@@ -119,87 +180,86 @@
       <div class="filter-bar" style="margin-bottom:12px">
         <span class="tb-title">Chi tiêu</span>
       </div>
-      <div class="chi-layout">
-        <div class="chi-left">
-          <div class="card">
-            <div style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:14px">Thêm khoản chi</div>
-            <div class="form-group">
-              <label class="form-label">Trừ vào quỹ *</label>
-              <div class="fund-picker">
-                <div id="fopt-thang" onclick="selectFund('thang')" style="border:1px solid var(--p-600);border-radius:10px;padding:10px 12px;cursor:pointer;background:var(--p-50);transition:all .15s;min-width:0">
-                  <div style="font-size:13px;font-weight:700;color:var(--p-700)"><svg width="20" height="20" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 1.408C22.359 1.408 22.314 2.272 23.903 2.356C25.492 2.441 26.323 1.941 27.396 2.099C28.142 2.209 28.703 2.542 29.091 2.869C29.515 3.227 29.585 3.85 29.247 4.29L25.551 9.092C25.222 9.483 25.262 10.062 25.648 10.396C31.4 15.379 38.5 21.372 38.5 26.753C38.5 35.795 31.078 38.593 20 38.593C8.922 38.593 1.5 35.795 1.5 26.753C1.5 21.373 8.6 15.379 14.352 10.396C14.738 10.062 14.778 9.482 14.449 9.092L10.753 4.29C10.415 3.85 10.485 3.227 10.909 2.869C11.297 2.542 11.858 2.209 12.604 2.099C13.677 1.941 14.509 2.441 16.097 2.356C17.686 2.271 17.641 1.408 20 1.408Z" fill="#FFC522"/><path d="M20.24 31.925C17.672 31.925 15.717 30.405 14.899 29.362C14.422 28.753 14.529 27.873 15.138 27.396C15.744 26.922 16.618 27.025 17.097 27.627C17.291 27.866 19.047 29.908 21.8 28.808C22.469 28.541 22.774 28.057 22.729 27.716C22.661 27.195 21.793 26.572 20.009 26.358C15.609 25.83 14.946 23.336 14.847 22.583C14.625 20.883 15.697 19.253 17.515 18.527C21.193 17.061 23.877 19.031 24.86 19.946C25.426 20.472 25.457 21.359 24.93 21.925C24.402 22.49 23.518 22.522 22.951 21.995C22.052 21.157 20.558 20.328 18.552 21.129C17.883 21.396 17.578 21.88 17.623 22.221C17.691 22.742 18.558 23.365 20.342 23.579C24.742 24.107 25.405 26.601 25.504 27.353C25.727 29.053 24.654 30.683 22.837 31.409C21.921 31.774 21.049 31.926 20.239 31.926L20.24 31.925Z" fill="#FFF3CC"/></svg> Quỹ hàng tháng</div>
-                  <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Sân bóng, thiết bị...</div>
-                </div>
-                <div id="fopt-bia" onclick="selectFund('bia')"
-                  style="border:1px solid var(--gray-200);border-radius:10px;padding:10px 12px;cursor:pointer;background:#fff;transition:all .15s;min-width:0">
-                  <div style="font-size:13px;font-weight:700;color:var(--gray-600)"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.32 9.20505C5.32 9.66005 5.505 10.08 5.8 10.385C5.84 10.425 5.88 10.46 5.92 10.495V15.245H4.675C3.54 15.245 2.625 14.33 2.625 13.195V4.67505C2.745 4.72505 2.88 4.75505 3.025 4.75505H7.285C6.26 4.77505 5.43 5.56505 5.34 6.57005C5.335 6.63505 5.32 6.69005 5.32 6.75505V9.20505Z" fill="#F77F00"/><path d="M7.28343 4.75753H13.4764V3.25403C13.4764 2.14953 12.5809 1.25403 11.4764 1.25403H4.02393C2.91943 1.25403 2.02393 2.14953 2.02393 3.25403V3.75753C2.02393 4.16753 2.27143 4.51903 2.62443 4.67353C2.74693 4.72703 2.88143 4.75753 3.02393 4.75753H7.28343Z" fill="#D0D5DA"/><path d="M16.7599 9.67505H16.1699V8.17505C16.0499 8.22505 15.9149 8.25505 15.7699 8.25505H9.46492C8.88992 8.25505 8.42492 8.72005 8.42492 9.29505C8.42492 10.18 7.68492 10.89 6.78992 10.845C6.45492 10.83 6.15992 10.695 5.91992 10.495V16.695C5.91992 17.83 6.83992 18.745 7.96992 18.745H14.1199C15.2549 18.745 16.1699 17.83 16.1699 16.695V16.425H16.7599C17.7699 16.425 18.5899 15.605 18.5899 14.595V11.505C18.5899 10.495 17.7699 9.67505 16.7599 9.67505Z" fill="#FFAA00"/><path d="M7.32008 4.75354C6.25808 4.77604 5.43008 5.56604 5.33808 6.57204C5.33258 6.63254 5.31958 6.69154 5.31958 6.75354V9.20654C5.31958 9.65754 5.50458 10.079 5.80208 10.384C5.84008 10.423 5.87858 10.4615 5.92058 10.496C6.16108 10.6965 6.45758 10.828 6.78958 10.845C7.68508 10.892 8.42608 10.1795 8.42608 9.29404C8.42608 8.72104 8.89058 8.25704 9.46308 8.25704H15.7721C15.9141 8.25704 16.0491 8.22654 16.1716 8.17304C16.5246 8.01854 16.7721 7.66704 16.7721 7.25704V6.75354C16.7721 5.64904 15.8766 4.75354 14.7721 4.75354H7.32008Z" fill="#EBEBEB"/></svg> Quỹ bia</div>
-                  <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Liên hoan, bia...</div>
-                </div>
-              </div>
-              <input type="hidden" id="ci-fund" value="thang">
-            </div>
-            <!-- Ngày + Hạng mục -->
-            <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px">
-              <div class="form-group" style="margin:0">
-                <label class="form-label">Ngày chi</label>
-                <input class="form-control chi-field" id="ci-date" type="date">
-              </div>
-              <div class="form-group" style="margin:0">
-                <label class="form-label">Hạng mục</label>
-                <select class="form-control chi-field" id="ci-cat">
-                  <option>Sân bóng</option>
-                  <option>Thiết bị</option>
-                  <option>Tiệc / Liên hoan</option>
-                  <option>Y tế</option>
-                  <option>Phần thưởng</option>
-                  <option>Khác</option>
-                  <option disabled>──────────</option>
-                  <option value="Tiền đầu kỳ">💰 Tiền đầu kỳ (cộng vào quỹ)</option>
-                  <option value="Ủng hộ thêm">🎁 Ủng hộ thêm (cộng vào quỹ)</option>
-                </select>
-              </div>
-            </div>
-            <!-- Số tiền -->
-            <div class="form-group">
-              <label class="form-label">Số tiền (đ) *</label>
-              <input class="form-control chi-field" id="ci-amt" type="number" step="1" placeholder="500000" inputmode="decimal">
-              <div style="font-size:11px;color:var(--gray-400);margin-top:4px">Nhập số <b>âm</b> (−) cho tiền đầu kỳ / ủng hộ thêm → sẽ được <b>cộng</b> vào quỹ</div>
-            </div>
-            <!-- Ghi chú -->
-            <div class="form-group">
-              <label class="form-label">Ghi chú</label>
-              <input class="form-control chi-field" id="ci-note" placeholder="Mô tả khoản chi…">
-            </div>
-            <button class="btn btn-p btn-full" style="height:44px;font-size:15px" onclick="addChi()">+ Thêm khoản chi</button>
-          </div>
-          <!-- Chart — ẩn trên mobile, hiện trên desktop -->
-          <div class="card chi-chart-card">
-            <div style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:12px">Chi tiêu theo hạng mục</div>
-            <div class="chart-wrap"><canvas id="cCC"></canvas></div>
-          </div>
-        </div>
+      <!-- Tab bar -->
+      <div class="chi-tabs">
+        <button class="chi-tab-btn active" id="tab-btn-add" onclick="switchChiTab('add')">+ Thêm khoản chi</button>
+        <button class="chi-tab-btn" id="tab-btn-history" onclick="switchChiTab('history')">📋 Lịch sử chi tiêu</button>
+      </div>
 
-        <!-- RIGHT: Lịch sử chi tiêu -->
-        <div class="chi-right">
-          <div class="tbl-outer" style="margin-bottom:0">
-            <div class="tbl-title">
-              <span class="tbl-title-text">Lịch sử chi tiêu</span>
-              <span class="chip chip-r" id="chi-total-chip">—</span>
+      <!-- Tab 1: Thêm khoản chi -->
+      <div class="chi-tab-panel active" id="tab-add">
+        <div class="card">
+          <div class="form-group">
+            <label class="form-label">Trừ vào quỹ *</label>
+            <div class="fund-picker">
+              <div id="fopt-thang" onclick="selectFund('thang')" style="border:1px solid var(--p-600);border-radius:10px;padding:10px 12px;cursor:pointer;background:var(--p-50);transition:all .15s;min-width:0">
+                <div style="font-size:13px;font-weight:700;color:var(--p-700)"><svg width="20" height="20" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 1.408C22.359 1.408 22.314 2.272 23.903 2.356C25.492 2.441 26.323 1.941 27.396 2.099C28.142 2.209 28.703 2.542 29.091 2.869C29.515 3.227 29.585 3.85 29.247 4.29L25.551 9.092C25.222 9.483 25.262 10.062 25.648 10.396C31.4 15.379 38.5 21.372 38.5 26.753C38.5 35.795 31.078 38.593 20 38.593C8.922 38.593 1.5 35.795 1.5 26.753C1.5 21.373 8.6 15.379 14.352 10.396C14.738 10.062 14.778 9.482 14.449 9.092L10.753 4.29C10.415 3.85 10.485 3.227 10.909 2.869C11.297 2.542 11.858 2.209 12.604 2.099C13.677 1.941 14.509 2.441 16.097 2.356C17.686 2.271 17.641 1.408 20 1.408Z" fill="#FFC522"/><path d="M20.24 31.925C17.672 31.925 15.717 30.405 14.899 29.362C14.422 28.753 14.529 27.873 15.138 27.396C15.744 26.922 16.618 27.025 17.097 27.627C17.291 27.866 19.047 29.908 21.8 28.808C22.469 28.541 22.774 28.057 22.729 27.716C22.661 27.195 21.793 26.572 20.009 26.358C15.609 25.83 14.946 23.336 14.847 22.583C14.625 20.883 15.697 19.253 17.515 18.527C21.193 17.061 23.877 19.031 24.86 19.946C25.426 20.472 25.457 21.359 24.93 21.925C24.402 22.49 23.518 22.522 22.951 21.995C22.052 21.157 20.558 20.328 18.552 21.129C17.883 21.396 17.578 21.88 17.623 22.221C17.691 22.742 18.558 23.365 20.342 23.579C24.742 24.107 25.405 26.601 25.504 27.353C25.727 29.053 24.654 30.683 22.837 31.409C21.921 31.774 21.049 31.926 20.239 31.926L20.24 31.925Z" fill="#FFF3CC"/></svg> Quỹ hàng tháng</div>
+                <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Sân bóng, thiết bị...</div>
+              </div>
+              <div id="fopt-bia" onclick="selectFund('bia')"
+                style="border:1px solid var(--gray-200);border-radius:10px;padding:10px 12px;cursor:pointer;background:#fff;transition:all .15s;min-width:0">
+                <div style="font-size:13px;font-weight:700;color:var(--gray-600)"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.32 9.20505C5.32 9.66005 5.505 10.08 5.8 10.385C5.84 10.425 5.88 10.46 5.92 10.495V15.245H4.675C3.54 15.245 2.625 14.33 2.625 13.195V4.67505C2.745 4.72505 2.88 4.75505 3.025 4.75505H7.285C6.26 4.77505 5.43 5.56505 5.34 6.57005C5.335 6.63505 5.32 6.69005 5.32 6.75505V9.20505Z" fill="#F77F00"/><path d="M7.28343 4.75753H13.4764V3.25403C13.4764 2.14953 12.5809 1.25403 11.4764 1.25403H4.02393C2.91943 1.25403 2.02393 2.14953 2.02393 3.25403V3.75753C2.02393 4.16753 2.27143 4.51903 2.62443 4.67353C2.74693 4.72703 2.88143 4.75753 3.02393 4.75753H7.28343Z" fill="#D0D5DA"/><path d="M16.7599 9.67505H16.1699V8.17505C16.0499 8.22505 15.9149 8.25505 15.7699 8.25505H9.46492C8.88992 8.25505 8.42492 8.72005 8.42492 9.29505C8.42492 10.18 7.68492 10.89 6.78992 10.845C6.45492 10.83 6.15992 10.695 5.91992 10.495V16.695C5.91992 17.83 6.83992 18.745 7.96992 18.745H14.1199C15.2549 18.745 16.1699 17.83 16.1699 16.695V16.425H16.7599C17.7699 16.425 18.5899 15.605 18.5899 14.595V11.505C18.5899 10.495 17.7699 9.67505 16.7599 9.67505Z" fill="#FFAA00"/><path d="M7.32008 4.75354C6.25808 4.77604 5.43008 5.56604 5.33808 6.57204C5.33258 6.63254 5.31958 6.69154 5.31958 6.75354V9.20654C5.31958 9.65754 5.50458 10.079 5.80208 10.384C5.84008 10.423 5.87858 10.4615 5.92058 10.496C6.16108 10.6965 6.45758 10.828 6.78958 10.845C7.68508 10.892 8.42608 10.1795 8.42608 9.29404C8.42608 8.72104 8.89058 8.25704 9.46308 8.25704H15.7721C15.9141 8.25704 16.0491 8.22654 16.1716 8.17304C16.5246 8.01854 16.7721 7.66704 16.7721 7.25704V6.75354C16.7721 5.64904 15.8766 4.75354 14.7721 4.75354H7.32008Z" fill="#EBEBEB"/></svg> Quỹ bia</div>
+                <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Liên hoan, bia...</div>
+              </div>
             </div>
-            <div class="tbl-scroll chi-list">
-              <table>
-                <thead><tr><th>Ngày</th><th class="tr">Số tiền</th><th>Ghi chú</th><th>Quỹ</th><th>Hạng mục</th><th class="tc"></th></tr></thead>
-                <tbody id="tb-chi"></tbody>
-              </table>
+            <input type="hidden" id="ci-fund" value="thang">
+          </div>
+          <!-- Ngày + Hạng mục -->
+          <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Ngày chi</label>
+              <input class="form-control chi-field" id="ci-date" type="date">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Hạng mục</label>
+              <select class="form-control chi-field" id="ci-cat">
+                <option>Sân bóng</option>
+                <option>Thiết bị</option>
+                <option>Tiệc / Liên hoan</option>
+                <option>Y tế</option>
+                <option>Phần thưởng</option>
+                <option>Khác</option>
+                <option disabled>──────────</option>
+                <option value="Tiền đầu kỳ">💰 Tiền đầu kỳ (cộng vào quỹ)</option>
+                <option value="Ủng hộ thêm">🎁 Ủng hộ thêm (cộng vào quỹ)</option>
+              </select>
             </div>
           </div>
+          <!-- Số tiền -->
+          <div class="form-group">
+            <label class="form-label">Số tiền (đ) *</label>
+            <input class="form-control chi-field" id="ci-amt" type="number" step="1" placeholder="500000" inputmode="decimal">
+            <div style="font-size:11px;color:var(--gray-400);margin-top:4px">Nhập số <b>âm</b> (−) cho tiền đầu kỳ / ủng hộ thêm → sẽ được <b>cộng</b> vào quỹ</div>
+          </div>
+          <!-- Ghi chú -->
+          <div class="form-group">
+            <label class="form-label">Ghi chú</label>
+            <input class="form-control chi-field" id="ci-note" placeholder="Mô tả khoản chi…">
+          </div>
+          <button class="btn btn-p btn-full" style="height:44px;font-size:15px" onclick="addChi()">+ Thêm khoản chi</button>
         </div>
       </div>
 
-      <!-- Chart trên mobile (riêng biệt, bên dưới bảng) -->
-      <div class="card chi-chart-mobile" style="margin-top:16px">
-        <div style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:12px">Chi tiêu theo hạng mục</div>
-        <div class="chart-wrap"><canvas id="cCC2"></canvas></div>
+      <!-- Tab 2: Lịch sử chi tiêu -->
+      <div class="chi-tab-panel" id="tab-history">
+        <!-- Chart -->
+        <div class="card" style="margin-bottom:16px">
+          <div style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:12px">Chi tiêu theo hạng mục</div>
+          <div class="chart-wrap"><canvas id="cCC2"></canvas></div>
+        </div>
+        <!-- Bảng lịch sử -->
+        <div class="tbl-outer" style="margin-bottom:0">
+          <div class="tbl-title">
+            <span class="tbl-title-text">Lịch sử chi tiêu</span>
+            <span class="chip chip-r" id="chi-total-chip">—</span>
+          </div>
+          <div class="tbl-scroll chi-list">
+            <table>
+              <thead><tr><th>Ngày</th><th class="tr">Số tiền</th><th>Ghi chú</th><th>Quỹ</th><th>Hạng mục</th><th class="tc"></th></tr></thead>
+              <tbody id="tb-chi"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -265,6 +325,7 @@ function addChi() {
   const label = amt < 0 ? '✓ Đã thêm khoản thu vào quỹ' : `✓ Đã thêm vào ${FUND_LABEL[fund]}`;
   showToast(label, 'green');
   renderAll();
+  switchChiTab('history');
 }
 
 function delChi(idx) {
@@ -341,18 +402,20 @@ function renderCharts() {
     plugins:{ legend:{display:true,position:'right',labels:{font:{size:12,family:'Pretendard'},boxWidth:12,padding:8}}, tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.raw)}} }
   };
 
-  // Desktop chart (trong chi-left)
-  if (_cCC) _cCC.destroy();
-  const el1 = $el('cCC');
-  if (el1) {
-    _cCC = new Chart(el1, { type:'doughnut', data:{ labels, datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#fff'}] }, options: chartOpts });
-  }
-  // Mobile chart (bên dưới bảng)
   if (_cCC2) _cCC2.destroy();
   const el2 = $el('cCC2');
   if (el2) {
-    _cCC2 = new Chart(el2, { type:'doughnut', data:{ labels, datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#fff'}] }, options: chartOpts });
+    _cCC2 = new Chart(el2, { type:'doughnut', data:{ labels, datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#fff',borderRadius:4}] }, options: chartOpts });
   }
+}
+
+function switchChiTab(tab) {
+  document.querySelectorAll('.chi-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.chi-tab-panel').forEach(p => p.classList.remove('active'));
+  $el('tab-btn-' + tab).classList.add('active');
+  $el('tab-' + tab).classList.add('active');
+  // Render chart khi chuyển sang tab lịch sử (canvas có thể chưa visible lúc init)
+  if (tab === 'history') renderCharts();
 }
 // Set today default
 window.addEventListener('DOMContentLoaded', () => {
