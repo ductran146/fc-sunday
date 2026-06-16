@@ -474,5 +474,16 @@ function renderCharts() {
 
 wireLoginModal();
 initApp();
+
+// Auto re-render sau khi login — theo dõi btn-login-on hiện ra
+(function() {
+  const btnOn = document.getElementById('btn-login-on');
+  if (!btnOn) return;
+  new MutationObserver(() => {
+    if (btnOn.style.display !== 'none' && btnOn.style.display !== '') {
+      renderAll();
+    }
+  }).observe(btnOn, { attributes: true, attributeFilter: ['style'] });
+})();
 </script>
 </body></html>
