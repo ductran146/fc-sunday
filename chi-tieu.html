@@ -12,6 +12,42 @@
 <meta name="apple-mobile-web-app-title" content="FC Sunday">
 <meta name="theme-color" content="#00332d">
 <link rel="stylesheet" href="style.css">
+<style>
+/* ── Fix bảng chi tiêu: sticky cột Ngày, scroll ngang bình thường ── */
+
+/* Wrapper: chỉ scroll ngang, không giới hạn chiều cao */
+.chi-list.tbl-scroll {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  max-width: 100%;
+  max-height: none !important;
+  height: auto !important;
+}
+
+/* Cột Ngày: sticky bên trái */
+.chi-list.tbl-scroll table thead tr th:first-child,
+.chi-list.tbl-scroll table tbody tr td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  white-space: nowrap;
+  /* shadow nhẹ để phân biệt khi scroll ngang */
+  box-shadow: 2px 0 4px -2px rgba(0,0,0,.08);
+}
+.chi-list.tbl-scroll table thead tr th:first-child {
+  background: var(--gray-50, #f9fafb);
+  z-index: 3;
+}
+.chi-list.tbl-scroll table tbody tr td:first-child {
+  background: #fff;
+}
+/* Row hover giữ background sticky cell */
+.chi-list.tbl-scroll table tbody tr:hover td:first-child {
+  background: var(--gray-50, #f9fafb);
+}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -152,7 +188,7 @@
             </div>
             <div class="tbl-scroll chi-list">
               <table>
-                <thead><tr><th>Ngày</th><th>Quỹ</th><th>Hạng mục</th><th class="tr">Số tiền</th><th>Ghi chú</th><th class="tc"></th></tr></thead>
+                <thead><tr><th>Ngày</th><th class="tr">Số tiền</th><th>Ghi chú</th><th>Quỹ</th><th>Hạng mục</th><th class="tc"></th></tr></thead>
                 <tbody id="tb-chi"></tbody>
               </table>
             </div>
@@ -261,10 +297,10 @@ function renderChiTable() {
     const amtLabel = isIncome ? '+' + fmt(Math.abs(c.amount)) : fmt(c.amount);
     return `<tr>
       <td style="white-space:nowrap">${fmtDate(c.date)}</td>
+      <td class="tr bold" style="color:${amtColor}">${amtLabel}</td>
+      <td style="color:var(--gray-400);font-size:13px">${esc(c.note||'')}</td>
       <td><span class="chip ${fundChip}" style="font-size:10px;white-space:nowrap">${fundLabel}</span></td>
       <td><span class="chip ${catChip}" style="font-size:11px">${esc(c.cat)}</span></td>
-      <td class="tr bold" style="color:${amtColor}">${amtLabel}</td>
-      <td style="color:var(--gray-400);font-size:13px;max-width:120px;overflow:hidden;text-overflow:ellipsis">${esc(c.note||'')}</td>
       <td class="tc">${_auth?`<button class="btn btn-d btn-ic btn-sm del-btn" onclick="delChi(${realIdx})">×</button>`:''}</td>
     </tr>`;
   }).join('');
@@ -274,10 +310,9 @@ function renderChiTable() {
   const chiBia    = chiByFund('bia');
   const totIncome = S.chiTieu.filter(c=>c.amount<0).reduce((s,c)=>s+Math.abs(c.amount),0);
   html += `<tr class="tbl-foot">
-    <td colspan="2" class="bold">TỔNG CHI</td>
-    <td></td>
+    <td class="bold">TỔNG CHI</td>
     <td class="tr bold" style="color:var(--c-danger)">${fmt(chiThang + chiBia)}</td>
-    <td colspan="2" style="font-size:11px;color:var(--gray-600)">
+    <td colspan="4" style="font-size:11px;color:var(--gray-600)">
       <span style="color:var(--p-700)"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 0.703979C11.1795 0.703979 11.157 1.13598 11.9515 1.17798C12.746 1.22048 13.1615 0.970479 13.698 1.04948C14.071 1.10448 14.3515 1.27098 14.5455 1.43448C14.7575 1.61348 14.7925 1.92498 14.6235 2.14498L12.7755 4.54598C12.611 4.74148 12.631 5.03098 12.824 5.19798C15.7 7.68948 19.25 10.686 19.25 13.3765C19.25 17.8975 15.539 19.2965 10 19.2965C4.461 19.2965 0.75 17.8975 0.75 13.3765C0.75 10.6865 4.3 7.68948 7.176 5.19798C7.369 5.03098 7.389 4.74098 7.2245 4.54598L5.3765 2.14498C5.2075 1.92498 5.2425 1.61348 5.4545 1.43448C5.6485 1.27098 5.929 1.10448 6.302 1.04948C6.8385 0.970479 7.2545 1.22048 8.0485 1.17798C8.843 1.13548 8.8205 0.703979 10 0.703979Z" fill="#FFC522"/><path d="M10.1201 15.9626C8.83606 15.9626 7.85856 15.2026 7.44956 14.6811C7.21106 14.3766 7.26456 13.9366 7.56906 13.6981C7.87206 13.4611 8.30906 13.5126 8.54856 13.8136C8.64556 13.9331 9.52356 14.9541 10.9001 14.4041C11.2346 14.2706 11.3871 14.0286 11.3646 13.8581C11.3306 13.5976 10.8966 13.2861 10.0046 13.1791C7.80456 12.9151 7.47306 11.6681 7.42356 11.2916C7.31256 10.4416 7.84856 9.62658 8.75756 9.26358C10.5966 8.53058 11.9386 9.51558 12.4301 9.97308C12.7131 10.2361 12.7286 10.6796 12.4651 10.9626C12.2011 11.2451 11.7591 11.2611 11.4756 10.9976C11.0261 10.5786 10.2791 10.1641 9.27606 10.5646C8.94156 10.6981 8.78906 10.9401 8.81156 11.1106C8.84556 11.3711 9.27906 11.6826 10.1711 11.7896C12.3711 12.0536 12.7026 13.3006 12.7521 13.6766C12.8636 14.5266 12.3271 15.3416 11.4186 15.7046C10.9606 15.8871 10.5246 15.9631 10.1196 15.9631L10.1201 15.9626Z" fill="#FFF3CC"/><path d="M10.0887 10.402C9.70217 10.402 9.38867 10.089 9.38867 9.70251V8.7045C9.38867 8.318 9.70217 8.005 10.0887 8.005C10.4752 8.005 10.7887 8.318 10.7887 8.7045V9.70251C10.7887 10.089 10.4752 10.402 10.0887 10.402Z" fill="#FFF3CC"/><path d="M10.0887 16.9635C9.70217 16.9635 9.38867 16.6505 9.38867 16.264V15.266C9.38867 14.8795 9.70217 14.5665 10.0887 14.5665C10.4752 14.5665 10.7887 14.8795 10.7887 15.266V16.264C10.7887 16.6505 10.4752 16.9635 10.0887 16.9635Z" fill="#FFF3CC"/></svg> ${fmt(chiThang)}</span>
       &nbsp;·&nbsp;
       <span style="color:var(--c-warning)"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.32 9.20505C5.32 9.66005 5.505 10.08 5.8 10.385C5.84 10.425 5.88 10.46 5.92 10.495V15.245H4.675C3.54 15.245 2.625 14.33 2.625 13.195V4.67505C2.745 4.72505 2.88 4.75505 3.025 4.75505H7.285C6.26 4.77505 5.43 5.56505 5.34 6.57005C5.335 6.63505 5.32 6.69005 5.32 6.75505V9.20505Z" fill="#F77F00"/><path d="M7.28343 4.75753H13.4764V3.25403C13.4764 2.14953 12.5809 1.25403 11.4764 1.25403H4.02393C2.91943 1.25403 2.02393 2.14953 2.02393 3.25403V3.75753C2.02393 4.16753 2.27143 4.51903 2.62443 4.67353C2.74693 4.72703 2.88143 4.75753 3.02393 4.75753H7.28343Z" fill="#D0D5DA"/><path d="M16.7599 9.67505H16.1699V8.17505C16.0499 8.22505 15.9149 8.25505 15.7699 8.25505H9.46492C8.88992 8.25505 8.42492 8.72005 8.42492 9.29505C8.42492 10.18 7.68492 10.89 6.78992 10.845C6.45492 10.83 6.15992 10.695 5.91992 10.495V16.695C5.91992 17.83 6.83992 18.745 7.96992 18.745H14.1199C15.2549 18.745 16.1699 17.83 16.1699 16.695V16.425H16.7599C17.7699 16.425 18.5899 15.605 18.5899 14.595V11.505C18.5899 10.495 17.7699 9.67505 16.7599 9.67505Z" fill="#FFAA00"/><path d="M7.32008 4.75354C6.25808 4.77604 5.43008 5.56604 5.33808 6.57204C5.33258 6.63254 5.31958 6.69154 5.31958 6.75354V9.20654C5.31958 9.65754 5.50458 10.079 5.80208 10.384C5.84008 10.423 5.87858 10.4615 5.92058 10.496C6.16108 10.6965 6.45758 10.828 6.78958 10.845C7.68508 10.892 8.42608 10.1795 8.42608 9.29404C8.42608 8.72104 8.89058 8.25704 9.46308 8.25704H15.7721C15.9141 8.25704 16.0491 8.22654 16.1716 8.17304C16.5246 8.01854 16.7721 7.66704 16.7721 7.25704V6.75354C16.7721 5.64904 15.8766 4.75354 14.7721 4.75354H7.32008Z" fill="#EBEBEB"/></svg> ${fmt(chiBia)}</span>
