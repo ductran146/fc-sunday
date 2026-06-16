@@ -230,7 +230,7 @@ function renderPhatAccordion() {
           
       <div class="acc-body" id="acc-body-${i}">
         ${matches.length ? renderMatchCards(matches, i) : `<div class="acc-empty">Chưa có trận nào trong Tháng ${i+1}</div>`}
-        <div class="acc-add-row">${_auth?`<button class="btn btn-po btn-sm" onclick="openMatchModal(${i})">+ Thêm trận Tháng ${i+1}</button>`:''}</div>
+        ${_auth?`<div class="acc-add-row"><button class="btn btn-po btn-sm" onclick="openMatchModal(${i})">+ Thêm trận Tháng ${i+1}</button></div>`:''}
       </div>
     </div>`;
   }
