@@ -228,7 +228,7 @@ body, button, input, select, textarea, .chip, .sb-label, .tb-title, .tbl-title-t
           <!-- Số tiền -->
           <div class="form-group">
             <label class="form-label">Số tiền (đ) *</label>
-            <input class="form-control chi-field" id="ci-amt" type="number" step="1" placeholder="500000" inputmode="decimal">
+            <input class="form-control chi-field" id="ci-amt" type="text" inputmode="text" pattern="-?[0-9]*" placeholder="500000" autocomplete="off">
             <div style="font-size:11px;color:var(--gray-400);margin-top:4px">Nhập số <b>âm</b> (−) cho tiền đầu kỳ / ủng hộ thêm → sẽ được <b>cộng</b> vào quỹ</div>
           </div>
           <!-- Ghi chú -->
@@ -309,9 +309,11 @@ function addChi() {
   const fund = $el('ci-fund')?.value || 'thang';
   const date = $el('ci-date')?.value;
   const cat  = $el('ci-cat')?.value;
-  const amt  = parseFloat($el('ci-amt')?.value);
+  // Parse từ text: giữ dấu âm, bỏ mọi ký tự không phải số và dấu -
+  const rawAmt = ($el('ci-amt')?.value || '').replace(/[^\d\-]/g, '').replace(/(?<!^)-/g, '');
+  const amt  = parseInt(rawAmt, 10);
   const note = $el('ci-note')?.value?.trim() || '';
-  if (!amt || isNaN(amt)) {
+  if (!rawAmt || isNaN(amt) || amt === 0) {
     $el('ci-amt')?.classList.add('error');
     $el('ci-amt')?.focus();
     showToast('Vui lòng nhập số tiền hợp lệ', 'red');
