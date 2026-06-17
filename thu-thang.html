@@ -93,10 +93,6 @@
         <select class="year-select" id="year-tabs-tt" onchange="_setYear(parseInt(this.value),'year-tabs-tt','onYearChangeTT')"></select>
       </div>
       <div class="filter-bar">
-        <div class="filter-tabs" id="status-tabs">
-          <button class="fbtn active" onclick="setFilter('all',this)">Tất cả</button>
-          <button class="fbtn" onclick="setFilter('full',this)">Đủ tháng</button>
-        </div>
         <input class="search-box" id="s-tt" placeholder="Tìm tên…" oninput="renderTT()">
         <div style="display:flex; align-items:center;gap:16px;font-size:11px; color:var(--gray-500);margin-left:auto;flex-shrink:0">
           <div style="display:flex; align-items:center; gap:10px; font-size:11px; color:var(--gray-500); margin-left:auto; flex-shrink:0;">
@@ -129,10 +125,6 @@
       </div>
       <!-- CHARTS -->
       <div class="charts-grid">
-        <div class="chart-card">
-          <div class="chart-title">Tỷ lệ thu phí từng tháng <span class="chip chip-n" style="font-size:11px">COUNTIF/N×100%</span></div>
-          <div class="chart-wrap"><canvas id="cRate"></canvas></div>
-        </div>
         <div class="chart-card">
           <div class="chart-title">Số tháng đóng / thành viên</div>
           <div class="chart-wrap"><canvas id="cMP"></canvas></div>
@@ -184,14 +176,8 @@
 </style>
 <script src="app.js"></script>
 <script>
-let _ttFilter = 'all', _cRate, _cMP;
+let _cMP;
 
-function setFilter(v, btn) {
-  _ttFilter = v;
-  document.querySelectorAll('#status-tabs .fbtn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderTT();
-}
 
 function renderAll() {
   updateSidebarBadges();
@@ -245,10 +231,6 @@ function renderTT() {
 
   let filtered = am.filter(m => {
     if (search && !m.name.toLowerCase().includes(search)) return false;
-    const paid = memberPaidCount(m.id, _year);
-    const req  = memberRequiredMonths(m.id, _year);
-    if (_ttFilter==='full')    return paid >= req;
-    if (_ttFilter==='partial') return paid < req;
     return true;
   });
 
@@ -357,20 +339,6 @@ document.addEventListener('click', e => {
 
 function renderCharts() {
   const am  = S.members.filter(m => m.status !== 'left');
-  const rateData   = Array.from({length:12}, (_,i) => {
-    if (!am.length) return 0;
-    return Math.round(am.reduce((s,m)=>s+getTT(m.id,i,_year),0)/am.length*100);
-  });
-  const rateColors = rateData.map(v => v>=80?'#00a887':v>=50?'#d97706':'#dc2626');
-
-  if (_cRate) _cRate.destroy();
-  _cRate = new Chart($el('cRate'), {
-    type:'bar',
-    data:{ labels:MONTHS, datasets:[{ data:rateData, backgroundColor:rateColors, borderRadius:4 }] },
-    options:{ ...chartDefaults(), plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.raw+'%'}} },
-      scales:{ x:{grid:{display:false},ticks:{font:{size:11,family:'Pretendard'}}},
-               y:{max:100,grid:{color:'rgba(17,24,39,.05)'},ticks:{font:{size:11,family:'Pretendard'},callback:v=>v+'%'}} } }
-  });
 
   const memLabels = am.map(m => m.name.split(' ').pop());
   const memData   = am.map(m => memberPaidMonths(m.id, _year));
