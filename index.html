@@ -56,52 +56,34 @@
     #kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
   }
 
-  /* TossFace */
-  @font-face {
-    font-family: 'TossFace';
-    src: url('TossFaceFontWeb.otf') format('opentype');
-    unicode-range: U+1F4A3, U+1F3C5, U+1F947, U+1F948, U+1F949, U+1F945, U+1F396;
+  /* Sticky cột Tháng (trái) và cột Tồn lũy kế (phải) */
+  .tbl-scroll { overflow-x: auto; }
+  .sticky-left {
+    position: sticky !important;
+    left: 0;
+    z-index: 2;
+    background: #fff;
+    white-space: nowrap;
+    box-shadow: 1px 0 0 var(--border, #e5e7eb);
   }
+  thead .sticky-left {
+    background: var(--gray-50, #f9fafb);
+    z-index: 3;
+  }
+  tr:hover .sticky-left { background: var(--gray-50, #f9fafb); }
 
-  /* Top quả tạ podium */
-  .qua-ta-card { margin-top: 16px; background: #fff; border: 0.5px solid #eee; border-radius: 20px; padding: 20px 16px 24px; }
-  .qua-ta-title { font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 36px; font-family: 'TossFace', var(--font-sans); }
-  .podium-stage { display: flex; align-items: flex-end; justify-content: center; gap: 10px; height: 190px; position: relative; z-index: 0; }
-  .pod { flex: 1; border-radius: 16px 16px 0 0; padding-bottom: 14px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; position: relative; transition: transform .2s; overflow: visible; z-index: 1; }
-  .pod:hover { transform: translateY(-5px); z-index: 10; }
-  .pod::before { content: ''; position: absolute; inset: 0; border-radius: 16px 16px 0 0; padding: 1.5px; -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask-composite: exclude; pointer-events: none; }
-  .pod-inner { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 0 4px; }
-  .pod-medal { position: absolute; top: -28px; left: 50%; transform: translateX(-50%); font-size: 40px; line-height: 1; font-family: 'TossFace', var(--font-sans); z-index: 2; }
-  .pod-1 { z-index: 1; }
-  .pod-2 { z-index: 3; }
-  .pod-3 { z-index: 3; }
-  .pod-avatar { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; margin-top: 4px; }
-  .pod-name { font-size: 12px; font-weight: 500; text-align: center; line-height: 1.3; white-space: nowrap; }
-  .pod-count { font-size: 11px; font-weight: 500; margin-top: 1px; }
-  /* Hạng 1 — vàng */
-  .pod-1 { height: 158px; background: linear-gradient(170deg, #FFFEF5 0%, #FFF9CC 55%, #FFE87A 100%); }
-  .pod-1::before { background: linear-gradient(170deg, transparent 0%, #FFE060 40%, #E8A800 100%); }
-  .pod-1 .pod-avatar { background: linear-gradient(135deg, #FFF9CC, #FFE566); color: #5C3D00; box-shadow: 0 0 0 1.5px #E8C040; }
-  .pod-1 .pod-name { color: #3D2800; }
-  .pod-1 .pod-count { color: #997A00; }
-  /* Hạng 2 — xanh */
-  .pod-2 { height: 124px; background: linear-gradient(170deg, #F8FBFF 0%, #E8F2FF 55%, #A8CEFF 100%); }
-  .pod-2::before { background: linear-gradient(170deg, transparent 0%, #A8CEFF 40%, #3B82F6 100%); }
-  .pod-2 .pod-avatar { background: linear-gradient(135deg, #E8F2FF, #BFDBFE); color: #1E3A5F; box-shadow: 0 0 0 1.5px #80B4F8; }
-  .pod-2 .pod-name { color: #1E3A5F; }
-  .pod-2 .pod-count { color: #2563EB; }
-  /* Hạng 3 — cam */
-  .pod-3 { height: 96px; background: linear-gradient(170deg, #FFFAF6 0%, #FFE8CC 55%, #FFBC80 100%); }
-  .pod-3::before { background: linear-gradient(170deg, transparent 0%, #FFBC80 40%, #EA580C 100%); }
-  .pod-3 .pod-avatar { background: linear-gradient(135deg, #FFE8CC, #FED7AA); color: #6B2400; box-shadow: 0 0 0 1.5px #F59250; }
-  .pod-3 .pod-name { color: #6B2400; }
-  .pod-3 .pod-count { color: #C2410C; }
-  .podium-rest { border-top: 0.5px solid #f0f0f0; padding-top: 8px; margin-top: 16px; }
-  .podium-rest-row { display: flex; align-items: center; padding: 7px 4px; border-bottom: 0.5px solid #f5f5f5; }
-  .podium-rest-row:last-child { border-bottom: none; }
-  .podium-rest-row .pr-rank { font-size: 12px; color: #bbb; width: 20px; flex-shrink: 0; }
-  .podium-rest-row .pr-name { font-size: 13px; color: #333; flex: 1; margin-left: 8px; }
-  .podium-rest-row .pr-chip { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; background: #f3f4f6; color: #555; border: 0.5px solid #e5e7eb; }
+  .sticky-right {
+    position: sticky !important;
+    right: 0;
+    z-index: 2;
+    background: #fff;
+    box-shadow: -1px 0 0 var(--border, #e5e7eb);
+  }
+  thead .sticky-right {
+    background: var(--gray-50, #f9fafb);
+    z-index: 3;
+  }
+  tr:hover .sticky-right { background: var(--gray-50, #f9fafb); }
 </style>
 </head>
 <body>
@@ -241,14 +223,6 @@
         <div class="kpi-card"><div class="kpi-accent" style="background:var(--c-info)"></div><div class="kpi-label">Thành viên hoạt động</div><div class="kpi-value" id="kd-tv">—</div><div class="kpi-hint">Đang thi đấu</div></div>
         <div class="kpi-card"><div class="kpi-accent" style="background:var(--c-warning)"></div><div class="kpi-label">Tháng có thu phí</div><div class="kpi-value" id="kd-thang">—</div><div class="kpi-hint">/ 12 tháng</div></div>
       </div>
-
-      <!-- TOP QUẢ TẠ -->
-      <div class="qua-ta-card" id="qua-ta-box">
-        <div class="qua-ta-title">💣 Top quả tạ</div>
-        <div class="podium-stage" id="qua-ta-podium"></div>
-        <div class="podium-rest" id="qua-ta-rest"></div>
-      </div>
-
       <!-- CHARTS -->
       <div class="charts-grid">
         <div class="chart-card">
@@ -269,7 +243,7 @@
         <div class="tbl-scroll">
           <table>
             <thead><tr>
-              <th>Tháng</th>
+              <th class="sticky-left">Tháng</th>
               <th class="tr">Thu phí</th>
               <th class="tr">Quỹ bia</th>
               <th class="tr">Tổng thu</th>
@@ -321,73 +295,6 @@ function renderAll() {
   renderKPIs();
   renderMonthlyTable();
   renderCharts();
-  renderTopQuaTa();
-}
-
-function renderTopQuaTa() {
-  // Đếm số trận thua của mỗi thành viên trong năm _year
-  const countMap = {};
-  matchesInYear(_year).forEach(match => {
-    (match.losers || []).forEach(l => {
-      const id = String(l.memberId ?? l.id ?? l.mid ?? '');
-      if (!id) return;
-      countMap[id] = (countMap[id] || 0) + 1;
-    });
-  });
-
-  const members = S.members || [];
-  const lossData = members
-    .map(m => ({ name: m.name, count: countMap[String(m.id)] || 0 }))
-    .filter(x => x.count > 0)
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 5);
-
-  const podiumEl = document.getElementById('qua-ta-podium');
-  const restEl   = document.getElementById('qua-ta-rest');
-  const box      = document.getElementById('qua-ta-box');
-  if (!podiumEl || !restEl) return;
-
-  if (lossData.length === 0) {
-    if (box) box.style.display = 'none';
-    return;
-  }
-  if (box) box.style.display = '';
-
-  const medals  = ['🥇','🥈','🥉'];
-  const podCls  = ['pod-1','pod-2','pod-3'];
-  const order   = [1, 0, 2];
-
-  function initials(name) {
-    const parts = name.trim().split(' ');
-    return parts.length >= 2
-      ? (parts[0][0] + parts[parts.length-1][0]).toUpperCase()
-      : name.slice(0,2).toUpperCase();
-  }
-
-  podiumEl.style.height = '190px';
-  podiumEl.innerHTML = order.map(i => {
-    const d = lossData[i];
-    if (!d) return `<div style="flex:1"></div>`;
-    const ht = [158, 124, 96];
-    return `<div class="pod ${podCls[i]}" style="height:${ht[i]}px">
-      <span class="pod-medal">${medals[i]}</span>
-      <div class="pod-inner">
-        <div class="pod-avatar">${initials(d.name)}</div>
-        <div class="pod-name">${d.name}</div>
-        <div class="pod-count">${d.count} trận</div>
-      </div>
-    </div>`;
-  }).join('');
-
-  restEl.innerHTML = lossData.slice(3).map((d, i) => `
-    <div class="podium-rest-row">
-      <span class="pr-rank">${i + 4}</span>
-      <span class="pr-name">${d.name}</span>
-      <span class="pr-chip">${d.count} trận</span>
-    </div>
-  `).join('');
-  if (!restEl.innerHTML.trim()) restEl.style.display = 'none';
-  else restEl.style.display = '';
 }
 function renderKPIs() {
   const ton = totalTon();
@@ -449,7 +356,7 @@ function renderMonthlyTable() {
     const tran = matchesInMonth(i).length;
     const tonColor = ton >= 0 ? 'var(--p-700)' : 'var(--c-danger)';
     rows += `<tr>
-      <td class="bold">Tháng ${i+1}</td>
+      <td class="bold sticky-left">Tháng ${i+1}</td>
       <td class="tr">${phi ? fmt(phi) : '<span style="color:var(--gray-300)">—</span>'}</td>
       <td class="tr" style="color:var(--gray-800)">${phat ? fmt(phat) : '<span style="color:var(--gray-300)">—</span>'}</td>
       <td class="tr bold">${total ? fmt(total) : '<span style="color:var(--gray-300)">—</span>'}</td>
@@ -461,7 +368,7 @@ function renderMonthlyTable() {
   // Footer
   const totPhi = thuThangGrand(_year), totPhat = thuPhatTotalGrand(_year), totTotal = totPhi+totPhat, totChi = chiTotal(_year), totTon = totalTon(_year), totTran = matchesInYear(_year).length;
   rows += `<tr class="tbl-foot">
-    <td class="bold">Tổng</td>
+    <td class="bold sticky-left">Tổng</td>
     <td class="tr">${fmt(totPhi)}</td>
     <td class="tr">${fmt(totPhat)}</td>
     <td class="tr bold">${fmt(totTotal)}</td>
