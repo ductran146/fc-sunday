@@ -502,10 +502,20 @@ function openQuaTaModal() {
   const body = document.getElementById('qua-ta-modal-body');
   if (!bd || !body) return;
 
+  const lastLossMap = {};
+  (S.matches || []).filter(m => !_year || String(m.date || '').startsWith(String(_year))).forEach(match => {
+    const matchDate = match.date || '';
+    (match.losers || []).forEach(l => {
+      const id = String(l.memberId ?? l.id ?? l.mid ?? '');
+      if (!id) return;
+      if (!lastLossMap[id] || matchDate > lastLossMap[id]) lastLossMap[id] = matchDate;
+    });
+  });
+
   const allData = activeMembers()
-    .map(m => ({ name: m.name, count: memberTotalLoss(m.id) }))
+    .map(m => ({ name: m.name, count: memberTotalLoss(m.id), lastLoss: lastLossMap[String(m.id)] || '' }))
     .filter(x => x.count > 0)
-    .sort((a, b) => b.count - a.count);
+    .sort((a, b) => b.count - a.count || b.lastLoss.localeCompare(a.lastLoss));
 
   if (sub) sub.textContent = `Năm ${_year}`;
 
