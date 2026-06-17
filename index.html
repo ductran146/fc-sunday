@@ -354,18 +354,23 @@ function renderTopQuaTa() {
   if (!box || !podiumEl || !restEl) return;
 
   const countMap = {};
+  const lastLossMap = {};
   matchesInYear(_year).forEach(match => {
+    const matchDate = match.date || '';
     (match.losers || []).forEach(l => {
       const id = String(l.memberId ?? l.id ?? l.mid ?? '');
       if (!id) return;
       countMap[id] = (countMap[id] || 0) + 1;
+      if (!lastLossMap[id] || matchDate > lastLossMap[id]) {
+        lastLossMap[id] = matchDate;
+      }
     });
   });
 
   const lossData = (S.members || [])
-    .map(m => ({ name: m.name, count: countMap[String(m.id)] || 0 }))
+    .map(m => ({ name: m.name, count: countMap[String(m.id)] || 0, lastLoss: lastLossMap[String(m.id)] || '' }))
     .filter(x => x.count > 0)
-    .sort((a, b) => b.count - a.count)
+    .sort((a, b) => b.count - a.count || b.lastLoss.localeCompare(a.lastLoss))
     .slice(0, 5);
 
   if (!lossData.length) { box.style.display = 'none'; return; }
