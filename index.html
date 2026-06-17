@@ -84,6 +84,47 @@
     z-index: 3;
   }
   tr:hover .sticky-right { background: var(--gray-50, #f9fafb); }
+  /* TossFace emoji font */
+  @font-face {
+    font-family: 'TossFace';
+    src: url('TossFaceFontWeb.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    unicode-range:
+      U+1F4A3,  /* 💣 */
+      U+1F947,  /* 🥇 */
+      U+1F948,  /* 🥈 */
+      U+1F949;  /* 🥉 */
+  }
+  .tf { font-family: 'TossFace', sans-serif; }
+  /* Top quả tạ — override layout */
+  .qua-ta-card { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .qua-ta-card .chart-title { justify-content: flex-start; gap: 6px; }
+  .qua-ta-top3 { display: flex; flex-direction: row; align-items: center; gap: 8px; }
+  .qt-pod { display: flex; flex-direction: column; align-items: center; padding: 10px; gap: 5px; border-radius: 16px; flex: 1; position: relative; }
+  .qt-pod::before { content: ''; position: absolute; inset: 0; border-radius: 16px; padding: 1px; -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask-composite: exclude; pointer-events: none; }
+  .qt-pod-1 { background: linear-gradient(180deg, #FFFFFF 0%, #FEF2DB 100%); }
+  .qt-pod-1::before { background: linear-gradient(180deg, #FFFFFF 0%, rgba(255,196,80,0.2) 100%); }
+  .qt-pod-2 { background: linear-gradient(180deg, #FFFFFF 0%, #F9FAFC 100%); }
+  .qt-pod-2::before { background: linear-gradient(180deg, #FFFFFF 0%, rgba(222,221,221,0.2) 100%); }
+  .qt-pod-3 { background: linear-gradient(180deg, #FFFFFF 0%, #F5E2D4 100%); }
+  .qt-pod-3::before { background: linear-gradient(180deg, #FFFFFF 0%, rgba(207,113,45,0.2) 100%); }
+  .qt-icon { width: 64px; height: 64px; border-radius: 999px; display: flex; align-items: center; justify-content: center; }
+  .qt-pod-1 .qt-icon { background: rgba(255,196,80,0.2); }
+  .qt-pod-2 .qt-icon { background: rgba(171,183,199,0.2); }
+  .qt-pod-3 .qt-icon { background: rgba(207,113,45,0.2); }
+  .qt-medal { width: 40px; height: 40px; font-size: 32px; line-height: 1; display: flex; align-items: center; justify-content: center; font-family: 'TossFace', var(--font-sans); }
+  .qt-name { font-size: 12px; font-weight: 600; color: #111827; text-align: center; line-height: 14px; width: 100%; }
+  .qt-count-1 { font-size: 12px; text-align: center; color: #FFAD00; width: 100%; }
+  .qt-count-2 { font-size: 12px; text-align: center; color: #8595AA; width: 100%; }
+  .qt-count-3 { font-size: 12px; text-align: center; color: #9C5522; width: 100%; }
+  .qua-ta-rest { display: flex; flex-direction: column; gap: 10px; }
+  .qt-rest-row { display: flex; flex-direction: row; justify-content: flex-end; align-items: center; gap: 10px; }
+  .qt-rest-left { display: flex; flex-direction: row; align-items: center; gap: 10px; flex: 1; }
+  .qt-rest-rank { font-size: 12px; font-weight: 600; color: #9CA3AF; width: 8px; }
+  .qt-rest-name { font-size: 12px; font-weight: 600; color: #000; }
+  .qt-chip { display: flex; align-items: center; justify-content: center; padding: 4px 8px; background: #F2F5F9; border-radius: 12px; font-size: 12px; color: #8595AA; white-space: nowrap; }
+  .qt-divider { height: 1px; background: rgba(17,24,39,0.08); width: 100%; }
 </style>
 </head>
 <body>
@@ -223,6 +264,14 @@
         <div class="kpi-card"><div class="kpi-accent" style="background:var(--c-info)"></div><div class="kpi-label">Thành viên hoạt động</div><div class="kpi-value" id="kd-tv">—</div><div class="kpi-hint">Đang thi đấu</div></div>
         <div class="kpi-card"><div class="kpi-accent" style="background:var(--c-warning)"></div><div class="kpi-label">Tháng có thu phí</div><div class="kpi-value" id="kd-thang">—</div><div class="kpi-hint">/ 12 tháng</div></div>
       </div>
+
+      <!-- TOP QUẢ TẠ -->
+      <div class="chart-card qua-ta-card" id="qua-ta-box" style="display:none">
+        <div class="chart-title qua-ta-title"><span class="tf">💣</span> Top quả tạ</div>
+        <div class="qua-ta-top3" id="qua-ta-podium"></div>
+        <div class="qua-ta-rest" id="qua-ta-rest"></div>
+      </div>
+
       <!-- CHARTS -->
       <div class="charts-grid">
         <div class="chart-card">
@@ -295,6 +344,62 @@ function renderAll() {
   renderKPIs();
   renderMonthlyTable();
   renderCharts();
+  renderTopQuaTa();
+}
+
+function renderTopQuaTa() {
+  const box      = document.getElementById('qua-ta-box');
+  const podiumEl = document.getElementById('qua-ta-podium');
+  const restEl   = document.getElementById('qua-ta-rest');
+  if (!box || !podiumEl || !restEl) return;
+
+  const countMap = {};
+  matchesInYear(_year).forEach(match => {
+    (match.losers || []).forEach(l => {
+      const id = String(l.memberId ?? l.id ?? l.mid ?? '');
+      if (!id) return;
+      countMap[id] = (countMap[id] || 0) + 1;
+    });
+  });
+
+  const lossData = (S.members || [])
+    .map(m => ({ name: m.name, count: countMap[String(m.id)] || 0 }))
+    .filter(x => x.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  if (!lossData.length) { box.style.display = 'none'; return; }
+  box.style.display = '';
+
+  const medals   = ['<span class="tf">🥇</span>','<span class="tf">🥈</span>','<span class="tf">🥉</span>'];
+  const podCls   = ['qt-pod-1','qt-pod-2','qt-pod-3'];
+  const countCls = ['qt-count-1','qt-count-2','qt-count-3'];
+  const iconBg   = ['rgba(255,196,80,0.2)','rgba(171,183,199,0.2)','rgba(207,113,45,0.2)'];
+  const order    = [1, 0, 2];
+
+  podiumEl.innerHTML = order.map(i => {
+    const d = lossData[i];
+    if (!d) return `<div style="flex:1"></div>`;
+    return `<div class="qt-pod ${podCls[i]}">
+      <div class="qt-icon"><div class="qt-medal">${medals[i]}</div></div>
+      <div class="qt-name">${d.name}</div>
+      <div class="${countCls[i]}">${d.count} trận</div>
+    </div>`;
+  }).join('');
+
+  const restRows = lossData.slice(3);
+  if (!restRows.length) { restEl.style.display = 'none'; return; }
+  restEl.style.display = '';
+  restEl.innerHTML = restRows.map((d, i) => `
+    ${i > 0 ? '<div class="qt-divider"></div>' : ''}
+    <div class="qt-rest-row">
+      <div class="qt-rest-left">
+        <span class="qt-rest-rank">${i + 4}</span>
+        <span class="qt-rest-name">${d.name}</span>
+      </div>
+      <div class="qt-chip">${d.count} trận</div>
+    </div>
+  `).join('');
 }
 function renderKPIs() {
   const ton = totalTon();
