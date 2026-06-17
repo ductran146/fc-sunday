@@ -25,6 +25,7 @@
 body, button, input, select, textarea, .chip, .chart-title {
   font-family: 'TossFace', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
 }
+.qt-chip { display:inline-flex; align-items:center; justify-content:center; padding:4px 12px; background:#F2F5F9; border-radius:12px; font-size:12px; color:#8595AA; white-space:nowrap; width:auto; }
 </style>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#00332d">
@@ -111,7 +112,12 @@ body, button, input, select, textarea, .chip, .chart-title {
           <div class="chart-wrap"><canvas id="cPM"></canvas></div>
         </div>
         <div class="chart-card">
-          <div class="chart-title">💣 Top quả tạ</div>
+          <div class="chart-title" style="justify-content:flex-start;gap:6px">
+            <span class="tf">💣</span> Top quả tạ
+            <button type="button" onclick="openQuaTaModal()" title="Xem tất cả" style="margin-left:auto;display:flex;align-items:center;background:transparent;border:0;padding:4px;cursor:pointer;color:var(--gray-400);border-radius:8px" onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background='transparent'">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
           <div class="chart-wrap"><canvas id="cTL"></canvas></div>
         </div>
       </div>
@@ -128,6 +134,20 @@ body, button, input, select, textarea, .chip, .chart-title {
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- MODAL TOP QUẢ TẠ -->
+<div class="ov" id="qua-ta-modal-backdrop" onclick="closeQuaTaModal()" style="display:none">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:480px;width:min(480px,calc(100vw - 32px));max-height:calc(100dvh - 48px);overflow:hidden;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px">
+      <div>
+        <div style="font-size:18px;font-weight:800;color:var(--gray-900)"><span class="tf">💣</span> Top quả tạ</div>
+        <div id="qua-ta-modal-sub" style="font-size:13px;color:var(--gray-500);margin-top:2px">—</div>
+      </div>
+      <button class="modal-close" onclick="closeQuaTaModal()" style="position:static;flex-shrink:0">×</button>
+    </div>
+    <div id="qua-ta-modal-body" style="overflow:auto;border:1px solid var(--border);border-radius:12px"></div>
   </div>
 </div>
 
@@ -470,6 +490,42 @@ function renderCharts() {
       options:{ ...opts, plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+' trận'}}}, scales:{x:{grid:{display:false},ticks:{font:{size:10,family:'Pretendard'}}},y:{grid:{color:'rgba(17,24,39,.05)'},ticks:{font:{size:11,family:'Pretendard'},stepSize:1}}} }
     });
   }
+}
+
+function closeQuaTaModal() {
+  const bd = document.getElementById('qua-ta-modal-backdrop');
+  if (bd) bd.style.display = 'none';
+}
+function openQuaTaModal() {
+  const bd   = document.getElementById('qua-ta-modal-backdrop');
+  const sub  = document.getElementById('qua-ta-modal-sub');
+  const body = document.getElementById('qua-ta-modal-body');
+  if (!bd || !body) return;
+
+  const allData = activeMembers()
+    .map(m => ({ name: m.name, count: memberTotalLoss(m.id) }))
+    .filter(x => x.count > 0)
+    .sort((a, b) => b.count - a.count);
+
+  if (sub) sub.textContent = `Năm ${_year}`;
+
+  const medals = ['🥇','🥈','🥉'];
+  body.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px">
+    <thead><tr style="background:var(--gray-50)">
+      <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--gray-600);border-bottom:1px solid var(--border);width:48px">#</th>
+      <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--gray-600);border-bottom:1px solid var(--border)">Tên</th>
+      <th style="padding:10px 12px;text-align:right;font-weight:600;color:var(--gray-600);border-bottom:1px solid var(--border)">Số trận thua</th>
+    </tr></thead>
+    <tbody>
+      ${allData.map((d, i) => `<tr style="border-bottom:0.5px solid var(--border)">
+        <td style="padding:10px 12px;color:var(--gray-400);font-weight:600;width:48px;text-align:center">${i < 3 ? `<span class="tf" style="font-size:18px;line-height:1;display:inline-block;vertical-align:middle">${medals[i]}</span>` : `<span style="display:inline-block;line-height:1;vertical-align:middle">${i+1}</span>`}</td>
+        <td style="padding:10px 12px;font-weight:600;color:var(--gray-900)">${d.name}</td>
+        <td style="padding:10px 12px;text-align:right"><span class="qt-chip">${d.count} trận</span></td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+
+  bd.style.display = 'flex';
 }
 
 wireLoginModal();

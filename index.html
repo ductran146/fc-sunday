@@ -638,15 +638,15 @@ function openQuaTaModal() {
 
   body.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px">
     <thead><tr style="background:var(--gray-50)">
-      <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--gray-600);border-bottom:1px solid var(--border)">#</th>
+      <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--gray-600);border-bottom:1px solid var(--border);width:48px">#</th>
       <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--gray-600);border-bottom:1px solid var(--border)">Tên</th>
       <th style="padding:10px 12px;text-align:right;font-weight:600;color:var(--gray-600);border-bottom:1px solid var(--border)">Số trận thua</th>
     </tr></thead>
     <tbody>
       ${allData.map((d, i) => `<tr style="border-bottom:0.5px solid var(--border)">
-        <td style="padding:10px 12px;color:var(--gray-400);font-weight:600">${i+1}</td>
+        <td style="padding:10px 12px;color:var(--gray-400);font-weight:600;width:48px;text-align:center">${i < 3 ? `<span class="tf" style="font-size:18px;line-height:1;display:inline-block;vertical-align:middle">${['🥇','🥈','🥉'][i]}</span>` : `<span style="display:inline-block;line-height:1;vertical-align:middle">${i+1}</span>`}</td>
         <td style="padding:10px 12px;font-weight:600;color:var(--gray-900)">${d.name}</td>
-        <td style="padding:10px 12px;text-align:right"><span class="qt-chip">${d.count} trận</span></td>
+        <td style="padding:10px 12px;text-align:right"><span class="qt-chip" style="padding:4px 12px;display:inline-flex;justify-content:center;width:auto">${d.count} trận</span></td>
       </tr>`).join('')}
     </tbody>
   </table>`;
