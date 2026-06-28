@@ -145,7 +145,12 @@ img { max-width: 100%; display: block; }
 /* ── App Shell Layout ── */
 /* Ẩn toàn bộ app trước khi components ready để tránh flash */
 body:not(.components-ready) .app-shell {
-  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+body.components-ready .app-shell {
+  opacity: 1;
+  transition: opacity .15s ease;
 }
 
 .app-shell {
