@@ -89,55 +89,77 @@
     return Object.values(val).filter(Boolean);
   }
 
+  function isOpeningBalanceEntry(c) {
+    return c.cat === '__opening__' || c.note === '__opening__';
+  }
+
+  function getOpeningBalance(S, fund) {
+    const explicit = S?.settings?.openingBalances?.[fund];
+    const hasExplicit = explicit !== undefined && explicit !== null && explicit !== '';
+    const explicitValue = Number(explicit) || 0;
+    if (hasExplicit && explicitValue !== 0) return explicitValue;
+    return explicitValue;
+  }
+
   function renderShare(S) {
     const now = new Date();
     const curMonthIdx = now.getMonth();
     const YEAR = BASE_YEAR;
 
-    const members = toArr(S.members).filter(m => m && m.status !== 'left');
-    const matches  = toArr(S.matches).filter(m => m && (!m.year || m.year === YEAR));
-    const chiTieu  = toArr(S.chiTieu).filter(c => c && c.date?.startsWith(String(YEAR)));
+    const allMembers = toArr(S.members);
+    const members    = allMembers.filter(m => m && m.status !== 'left');
+    const matches    = toArr(S.matches).filter(m => m && (!m.year || m.year === YEAR));
+    const chiTieuAll = toArr(S.chiTieu).filter(c => c && c.date?.startsWith(String(YEAR)));
+    const chiTieu    = chiTieuAll.filter(c => !isOpeningBalanceEntry(c));
 
-    // Thu tháng
-    let thuThang = 0;
-    members.forEach(m => {
+    const openingThang = getOpeningBalance(S, 'thang');
+    const openingBia   = getOpeningBalance(S, 'bia');
+
+    // Thu tháng — dùng allMembers (kể cả đã nghỉ vẫn tính tiền đã đóng)
+    let thuThangTotal = 0, noThang = 0;
+    allMembers.forEach(m => {
       const arr = S.thuThang?.[String(m.id)] || Array(12).fill(0);
       const a = Array.isArray(arr) ? arr : Object.values(arr);
-      a.forEach(v => { if (v === 1) thuThang += FEE; });
+      a.forEach((v, mi) => {
+        if (v === 1) thuThangTotal += FEE;
+        if (v === 0 && mi <= curMonthIdx && m.status !== 'left') noThang += FEE;
+      });
     });
 
     // Thu bia
-    let thuBia = 0;
+    let thuBiaThu = 0, thuBiaThuThem = 0, noBia = 0;
     matches.forEach(match => {
-      toArr(match.losers).forEach(l => { if (l.paid) thuBia += FINE; });
-      thuBia += (match.thuThem || 0);
+      toArr(match.losers).forEach(l => {
+        if (l.paid) thuBiaThu += FINE;
+        else noBia += FINE;
+      });
+      thuBiaThuThem += (match.thuThem || 0);
     });
 
-    // Chi
-    const chiThang = chiTieu.filter(c => !c.fund || c.fund === 'thang').reduce((s,c) => s + (c.amount||0), 0);
-    const chiBia   = chiTieu.filter(c => c.fund === 'bia').reduce((s,c) => s + (c.amount||0), 0);
+    // Thu/chi từ expenses
+    const incomeThang = chiTieu
+      .filter(c => (!c.fund || c.fund === 'thang') && Number(c.amount||0) < 0)
+      .reduce((s,c) => s + Math.abs(Number(c.amount||0)), 0);
+    const incomeBia = chiTieu
+      .filter(c => c.fund === 'bia' && Number(c.amount||0) < 0)
+      .reduce((s,c) => s + Math.abs(Number(c.amount||0)), 0);
 
-    const tonThang = thuThang - chiThang;
-    const tonBia   = thuBia   - chiBia;
+    const chiThang = chiTieu
+      .filter(c => (!c.fund || c.fund === 'thang') && Number(c.amount||0) > 0)
+      .reduce((s,c) => s + Number(c.amount||0), 0);
+    const chiBia = chiTieu
+      .filter(c => c.fund === 'bia' && Number(c.amount||0) > 0)
+      .reduce((s,c) => s + Number(c.amount||0), 0);
+
+    const thuThangDisplay = openingThang + thuThangTotal + incomeThang;
+    const thuBiaDisplay   = openingBia + thuBiaThu + thuBiaThuThem + incomeBia;
+
+    const tonThang = thuThangDisplay - chiThang;
+    const tonBia   = thuBiaDisplay   - chiBia;
 
     document.getElementById('share-total').textContent = fmt(tonThang + tonBia);
-
-    // Tính nợ quỹ tháng
-    let noThang = 0;
-    members.forEach(m => {
-      const arr = S.thuThang?.[String(m.id)] || Array(12).fill(0);
-      const a = Array.isArray(arr) ? arr : Object.values(arr);
-      a.forEach((v, mi) => { if (v === 0 && mi <= curMonthIdx) noThang += FEE; });
-    });
-
-    // Tính nợ quỹ bia
-    let noBia = 0;
-    matches.forEach(match => {
-      toArr(match.losers).forEach(l => { if (!l.paid) noBia += FINE; });
-    });
-
-    document.getElementById('share-thang').textContent = noThang > 0 ? fmt(noThang) : '0';
-    document.getElementById('share-bia').textContent   = noBia   > 0 ? fmt(noBia)   : '0';
+    document.getElementById('share-thang').textContent = fmt(noThang);
+    document.getElementById('share-bia').textContent   = fmt(noBia);
 
     document.getElementById('share-date').textContent =
       'Cập nhật ' + now.toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -151,7 +173,7 @@
       let debt = 0;
       const arr = S.thuThang?.[String(m.id)] || Array(12).fill(0);
       const a = Array.isArray(arr) ? arr : Object.values(arr);
-      a.forEach((v, mi) => { if (v === 0 && mi <= curMonthIdx) debt += FEE; });
+      a.forEach((v, mi) => { if (v === 0 && mi <= curMonthIdx && m.status !== 'left') debt += FEE; });
       matches.forEach(match => {
         toArr(match.losers).forEach(l => { if (l.memberId == m.id && !l.paid) debt += FINE; });
       });
