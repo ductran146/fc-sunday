@@ -391,7 +391,7 @@ if ('serviceWorker' in navigator) {
 
   document.addEventListener('touchstart', e => {
     // Chỉ kéo khi đang ở top của trang, không có modal đang mở
-    const scrollTop = page().scrollTop || window.scrollY;
+    const scrollTop = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
     if (scrollTop > 2) return;
     if (document.querySelector('.modal-backdrop[style*="flex"], .sheet-backdrop[style*="flex"]')) return;
     startY = e.touches[0].clientY;
