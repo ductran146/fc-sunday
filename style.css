@@ -143,6 +143,11 @@ img { max-width: 100%; display: block; }
 ::selection { background: var(--color-accent); color: #fff; }
 
 /* ── App Shell Layout ── */
+/* Ẩn toàn bộ app trước khi components ready để tránh flash */
+body:not(.components-ready) .app-shell {
+  visibility: hidden;
+}
+
 .app-shell {
   display: flex;
   min-height: 100vh;

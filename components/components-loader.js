@@ -329,6 +329,7 @@
     }
 
     // Notify page that components are ready
+    document.body.classList.add('components-ready');
     window.onComponentsReady?.();
   }
 
