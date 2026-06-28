@@ -310,6 +310,8 @@
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('message', e => {
     if (e.data?.type === 'SW_UPDATED') {
+      // Lưu flag để popup không hiện lại sau reload
+      localStorage.setItem('fc-sunday-sw-reloading', '1');
       // Hiện toast nhỏ rồi reload
       const toast = document.createElement('div');
       toast.style.cssText = [
@@ -590,14 +592,14 @@ if ('serviceWorker' in navigator) {
         <div style="font-size:17px;font-weight:800;color:var(--text-primary);margin-bottom:8px">${title}</div>
         <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:24px">${desc}</div>
         <div style="display:flex;flex-direction:column;gap:10px">
-          <a href="thu-thang.html" onclick="dismiss()" style="
+          <a href="share.html" onclick="dismiss()" style="
             display:flex;align-items:center;justify-content:center;gap:8px;
             height:44px;border-radius:var(--radius-lg);
             background:linear-gradient(135deg,#FFC02E,#F5891F);
             color:#1A1206;font-weight:700;font-size:14px;
             text-decoration:none;font-family:var(--font-sans);
           ">
-            Xem thu tháng
+            Xem công nợ
           </a>
           <button onclick="dismiss()" style="
             height:40px;border-radius:var(--radius-lg);
@@ -626,8 +628,13 @@ if ('serviceWorker' in navigator) {
   function init() {
     if (!shouldShow()) return;
     if (localStorage.getItem(getStorageKey())) return; // đã hiện hôm nay rồi
+    // Vừa reload do SW update → không hiện popup
+    if (localStorage.getItem('fc-sunday-sw-reloading')) {
+      localStorage.removeItem('fc-sunday-sw-reloading');
+      return;
+    }
     if (window._isLoggedIn?.()) return; // đã login → không hiện
-    // Nếu chưa có auth state, chờ một chút để auth resolve trước
+    // Chờ auth resolve trước
     setTimeout(() => {
       if (window._isLoggedIn?.()) return;
       show();
