@@ -1,0 +1,39 @@
+<!-- ========================
+  FC Sunday V2 — Header Component
+======================== -->
+<div class="topbar">
+  <!-- Logo: chỉ hiện mobile/PWA -->
+  <img src="icon-192.png" alt="FC Sunday" class="topbar-logo">
+
+  <!-- Title: bold -->
+  <span class="topbar-title" id="topbar-title">FC Sunday</span>
+
+  <!-- Spacer đẩy actions sang phải -->
+  <div style="flex:1"></div>
+
+  <!-- Actions: chart - setting - login/avatar -->
+  <div class="topbar-actions">
+    <!-- Dashboard / chart -->
+    <a href="share.html" class="btn btn-icon btn-ghost" title="Xem tổng quỹ nhanh">
+      <iconify-icon icon="solar:chart-2-linear" style="font-size:22px"></iconify-icon>
+    </a>
+
+    <!-- Setting: luôn hiện -->
+    <a href="settings.html" class="btn btn-icon btn-ghost" id="btn-setting" title="Cài đặt">
+      <iconify-icon icon="solar:settings-linear" style="font-size:22px"></iconify-icon>
+    </a>
+
+    <!-- PWA Install (chỉ hiện mobile web, ẩn khi đã cài) -->
+    <button class="btn btn-icon btn-ghost" id="btn-pwa-install" title="Cài đặt ứng dụng" style="display:none">
+      <iconify-icon icon="solar:download-minimalistic-linear" style="font-size:22px"></iconify-icon>
+    </button>
+
+    <!-- Chưa login: icon login -->
+    <button class="btn btn-icon btn-ghost" id="btn-login" title="Đăng nhập">
+      <iconify-icon icon="solar:login-2-linear" style="font-size:22px"></iconify-icon>
+    </button>
+
+    <!-- Đã login: Avatar -->
+    <button class="topbar-avatar auth-only" id="btn-avatar" title="Đăng xuất" style="display:none">Đ</button>
+  </div>
+</div>

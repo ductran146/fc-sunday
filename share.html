@@ -1,985 +1,196 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>FC Sunday — Tổng quỹ</title>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
-<link rel="apple-touch-icon" href="icon-180.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="FC Sunday Quỹ">
-<meta name="theme-color" content="#00332d">
-<style>
-  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --green:  #00332d;
-    --green2: #005244;
-    --accent: #00A887;
-    --gold:   #FFC522;
-    --red:    #dc2626;
-    --amber:  #d97706;
-    --text:   rgba(255,255,255,.9);
-    --sub:    rgba(255,255,255,.45);
-    --border: rgba(255,255,255,.1);
-    --card-bg: rgba(255,255,255,.07);
-    --gap: 20px;
-    --px: 20px;
-    --r: 16px;
-  }
-
-  html, body {
-    height: 100%; min-height: 100dvh;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--green);
-    color: var(--text);
-    overflow-x: hidden;
-  }
-
-  /* ── Sticky header ── */
-  .sticky-hdr {
-    position: sticky; top: 0; z-index: 100;
-    background: var(--green);
-    padding: env(safe-area-inset-top, 0) var(--px) 0;
-    /* subtle shadow to separate from scrolling content */
-    box-shadow: 0 1px 0 rgba(255,255,255,.06);
-  }
-  .sticky-hdr.scrolled {
-    box-shadow: 0 2px 16px rgba(0,0,0,.4);
-  }
-
-  /* top bar: logo + title + back button */
-  .hdr-top {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 0 14px;
-  }
-  .hdr-brand { display: flex; align-items: center; gap: 10px; }
-  .hdr-logo { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
-  .hdr-name { font-size: 15px; font-weight: 800; line-height: 1.2; }
-  .hdr-sub  { font-size: 11px; color: var(--sub); font-weight: 500; margin-top: 1px; }
-
-  .hdr-actions { display: flex; align-items: center; gap: 8px; }
-  .btn-back {
-    display: flex; align-items: center; gap: 6px;
-    background: rgba(255,255,255,.08); border: 1px solid var(--border);
-    border-radius: 8px; padding: 7px 12px;
-    color: var(--text); font-size: 12px; font-weight: 700;
-    font-family: inherit; cursor: pointer; text-decoration: none;
-    -webkit-appearance: none; flex-shrink: 0;
-  }
-  .btn-back:active { background: rgba(255,255,255,.15); }
-  .btn-refresh-hdr {
-    background: rgba(255,255,255,.08); border: 1px solid var(--border);
-    border-radius: 8px; padding: 7px 12px;
-    color: var(--text); font-size: 12px; font-weight: 700;
-    font-family: inherit; cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
-    -webkit-appearance: none; flex-shrink: 0;
-  }
-  .btn-refresh-hdr:active { background: rgba(255,255,255,.15); }
-  .spin { animation: spin .8s linear infinite; display: inline-block; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  @keyframes ptr-spin { to { transform: rotate(360deg); } }
-  .ptr-spinning { animation: ptr-spin .7s linear infinite; }
-
-  /* hero total inside sticky header */
-  .hdr-hero {
-    padding: 4px 0 18px;
-  }
-  .hdr-hero-label {
-    font-size: 11px; font-weight: 700; color: var(--sub);
-    text-transform: uppercase; letter-spacing: .08em;
-    margin-bottom: 4px;
-  }
-  .hdr-hero-amount-row {
-    display: flex; align-items: center; gap: 24px;
-    margin-bottom: 4px;
-  }
-  .hdr-hero-amount {
-    font-size: 38px; font-weight: 900; color: #fff;
-    letter-spacing: -.5px; line-height: 1;
-  }
-  .hdr-hero-amount.negative { color: #fca5a5; }
-  .btn-refresh-inline {
-    background: rgba(255,255,255,.1); border: 1px solid var(--border);
-    border-radius: 8px; padding: 6px 10px;
-    color: var(--text); font-size: 16px;
-    font-family: inherit; cursor: pointer;
-    display: flex; align-items: center;
-    -webkit-appearance: none; flex-shrink: 0; align-self: center;
-  }
-  .btn-refresh-inline:active { background: rgba(255,255,255,.2); }
-
-  /* Pull-to-refresh indicator */
-  #ptr-indicator {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
-    display: flex; align-items: center; justify-content: center;
-    height: 0; overflow: hidden;
-    background: var(--green2);
-    transition: height .15s ease;
-    border-bottom: 1px solid var(--border);
-  }
-  .hdr-hero-sub { font-size: 12px; color: var(--sub); }
-
-  /* ── Scrollable content ── */
-  .scroll-content {
-    padding: var(--gap) var(--px);
-    display: flex; flex-direction: column;
-    gap: var(--gap);
-    padding-bottom: max(40px, env(safe-area-inset-bottom));
-  }
-
-  /* ── Module card (shared) ── */
-  .module {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    overflow: hidden;
-  }
-  .module-header {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .module-title {
-    font-size: 12px; font-weight: 700; color: var(--sub);
-    text-transform: uppercase; letter-spacing: .06em;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .module-badge {
-    font-size: 11px; font-weight: 700;
-    padding: 3px 8px; border-radius: 20px;
-    background: rgba(255,255,255,.08); color: var(--text);
-  }
-
-  /* ── 2 Fund cards ── */
-  .fund-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 0;
-  }
-  .fund-card {
-    padding: 16px;
-  }
-  .fund-card:first-child { border-right: 1px solid var(--border); }
-  .fund-label {
-    font-size: 10px; font-weight: 700; color: var(--sub);
-    text-transform: uppercase; letter-spacing: .06em;
-    margin-bottom: 10px; display: flex; align-items: center; gap: 5px;
-  }
-  .fund-amount {
-    font-size: 22px; font-weight: 800; color: #fff; line-height: 1;
-    margin-bottom: 10px;
-  }
-  .fund-amount.negative { color: #fca5a5; }
-  .fund-detail { font-size: 11px; color: var(--sub); line-height: 1.8; }
-
-  /* ── Stats grid ── */
-  .stats-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-  }
-  .stat-item {
-    padding: 14px 16px;
-  }
-  .stat-item:nth-child(odd) { border-right: 1px solid var(--border); }
-  .stat-item:nth-child(1),
-  .stat-item:nth-child(2) { border-bottom: 1px solid var(--border); }
-  .stat-label { font-size: 11px; color: var(--sub); margin-bottom: 4px; }
-  .stat-val   { font-size: 17px; font-weight: 800; color: #fff; }
-  .stat-val.green { color: var(--accent); }
-  .stat-val.amber { color: var(--amber); }
-
-  /* ── Members grid ── */
-  .members-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-  }
-  .member-chip {
-    padding: 10px 8px;
-    border-right: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    text-align: center;
-  }
-  .member-chip:nth-child(4n) { border-right: none; }
-  .member-name { font-size: 10px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .member-status { font-size: 9px; color: var(--sub); margin-top: 3px; }
-  .member-status.ok  { color: var(--accent); }
-  .member-status.bad { color: var(--amber); }
-
-  /* ── Status badge ── */
-  .status-row { padding: 0 0 4px; }
-  .status-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 10px; border-radius: 20px;
-    font-size: 11px; font-weight: 700;
-  }
-  .status-badge.ok  { background: rgba(0,168,135,.2); color: #5eead4; }
-  .status-badge.err { background: rgba(220,38,38,.2);  color: #fca5a5; }
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-
-  /* ── Footer ── */
-  .footer {
-    display: flex; flex-direction: column; gap: 12px;
-    align-items: center;
-  }
-  .footer-time { font-size: 11px; color: var(--sub); }
-  .btn-open-app {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    width: 100%; padding: 14px;
-    background: var(--accent); border: none; border-radius: var(--r);
-    color: #fff; font-size: 15px; font-weight: 700;
-    font-family: inherit; cursor: pointer; text-decoration: none;
-    -webkit-appearance: none;
-  }
-  .btn-open-app:active { background: #058069; }
-
-  /* ── Loading ── */
-  .loading {
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    min-height: 60dvh; gap: 16px;
-  }
-  .loading-logo { width: 64px; height: 64px; border-radius: 16px; object-fit: cover; }
-  .loading-text { font-size: 14px; color: var(--sub); }
-
-  /* ── Debt detail button + dialog ── */
-  .debt-link {
-    display: flex; align-items: baseline; gap: 6px;
-    width: 100%; margin-top: 2px; padding: 0;
-    background: transparent; border: 0; cursor: pointer;
-    color: inherit; font-family: inherit; text-align: left;
-  }
-  .debt-link-label {
-    font-size: 11px; color: var(--sub);
-    text-decoration: none; text-underline-offset: 3px;
-  }
-  .debt-link-amount { font-size: 11px; font-weight: 800; color: var(--gold); }
-  .debt-backdrop {
-    position: fixed; inset: 0; z-index: 10000;
-    display: none; align-items: center; justify-content: center;
-    padding: 18px; background: rgba(0,0,0,.58);
-    backdrop-filter: blur(8px);
-  }
-  .debt-modal {
-    width: min(720px, 100%); max-height: calc(100dvh - 42px);
-    overflow: hidden; display: flex; flex-direction: column;
-    background: #fff; color: #111827; border-radius: 18px;
-    box-shadow: 0 24px 60px rgba(0,0,0,.35);
-  }
-  .debt-modal-head {
-    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
-    padding: 18px 18px 12px; border-bottom: 1px solid #eef0f3;
-  }
-  .debt-modal-title { font-size: 18px; font-weight: 900; color: #111827; }
-  .debt-modal-sub { font-size: 13px; color: #6b7280; margin-top: 2px; }
-  .debt-modal-close {
-    width: 32px; height: 32px; border-radius: 12px; border: 0;
-    background: #f3f4f6; color: #374151; font-size: 16px; line-height: 0;
-    cursor: pointer; flex-shrink: 0;
-  }
-  .debt-modal-content { padding: 14px 18px 18px; overflow: auto; }
-  .debt-total-box {
-    background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px;
-    padding: 12px 14px; margin-bottom: 12px;
-    font-size: 13px; color: #4b5563;
-  }
-  .debt-total-box b { color: #111827; }
-  .debt-table-wrap { overflow: auto; border: 1px solid #e5e7eb; border-radius: 12px; }
-  .debt-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 500px; table-layout: fixed; }
-  .debt-table th, .debt-table td { padding: 10px 12px; border-bottom: 1px solid #eef0f3; text-align: left; vertical-align: middle; }
-  .debt-table th { background: #f9fafb; color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
-  .debt-table tr:last-child td { border-bottom: 0; }
-  .debt-table .tr { text-align: right; }
-  .debt-empty { padding: 20px; text-align: center; color: #6b7280; font-size: 13px; }
-
-
-  .debt-table.month-debt-table {
-    width: 100%;
-    min-width: 0;
-    table-layout: fixed;
-  }
-  .debt-table.month-debt-table th,
-  .debt-table.month-debt-table td {
-    padding: 10px 10px;
-    white-space: normal;
-    vertical-align: middle;
-  }
-  .debt-table.month-debt-table th:first-child,
-  .debt-table.month-debt-table td:first-child {
-    position: sticky;
-    left: 0;
-    z-index: 2;
-    background: #fff;
-    box-shadow: 1px 0 0 #e5e7eb;
-  }
-  .debt-table.month-debt-table th:first-child {
-    z-index: 3;
-    background: #f9fafb;
-  }
-  .debt-table.month-debt-table th:nth-child(1),
-  .debt-table.month-debt-table td:nth-child(1) { width: 38%; }
-  .debt-table.month-debt-table th:nth-child(2),
-  .debt-table.month-debt-table td:nth-child(2) { width: 34%; }
-  .debt-table.month-debt-table th:nth-child(3),
-  .debt-table.month-debt-table td:nth-child(3) { width: 28%; }
-  .debt-month-list { color:#374151; line-height:1.45; }
-  .debt-table.month-debt-table .tr { text-align:right; }
-  @media (max-width: 420px) {
-    .debt-modal-content { padding-left: 12px; padding-right: 12px; }
-    .debt-table.month-debt-table { font-size: 12px; }
-    .debt-table.month-debt-table th,
-    .debt-table.month-debt-table td { padding: 9px 8px; }
-    .debt-table.month-debt-table th:nth-child(1),
-    .debt-table.month-debt-table td:nth-child(1) { width: 37%; }
-    .debt-table.month-debt-table th:nth-child(2),
-    .debt-table.month-debt-table td:nth-child(2) { width: 33%; }
-    .debt-table.month-debt-table th:nth-child(3),
-    .debt-table.month-debt-table td:nth-child(3) { width: 30%; }
-  }
-
-  .debt-table.beer-debt-table {
-    width:max-content;
-    min-width:100%;
-    table-layout:auto;
-  }
-  .debt-table.beer-debt-table th,
-  .debt-table.beer-debt-table td {
-    padding:10px 12px;
-    white-space:nowrap;
-    width:auto;
-  }
-  .debt-table.beer-debt-table th:first-child,
-  .debt-table.beer-debt-table td:first-child {
-    position: sticky;
-    left: 0;
-    z-index: 2;
-    background: #fff;
-    box-shadow: 1px 0 0 #e5e7eb;
-    width:1%;
-  }
-  .debt-table.beer-debt-table th:first-child { z-index: 3; background: #f9fafb; }
-  .debt-member-cell { display:flex; align-items:center; gap:6px; min-width:max-content; }
-  .debt-member-name { overflow:visible; text-overflow:clip; white-space:nowrap; }
-  .debt-loss-badge { flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; min-width:22px; padding:2px 6px; border-radius:999px; background:#fff7ed; color:#d97706; font-size:10px; font-weight:900; white-space:nowrap; }
-  .debt-date-list { white-space:nowrap; line-height:1.55; }
-  .debt-date-list span { display:block; }
-  .debt-table.beer-debt-table th:nth-child(2),
-  .debt-table.beer-debt-table td:nth-child(2) { width:1%; max-width:max-content; }
-  .debt-table.beer-debt-table th:nth-child(3),
-  .debt-table.beer-debt-table td:nth-child(3) { width:1%; }
-  .debt-money-total { color:#d97706; font-weight:900; font-variant-numeric:tabular-nums; white-space:nowrap; }
-  @media (min-width: 641px) {
-    .debt-loss-badge { font-size:11px; padding:2px 7px; }
-  }
-
-</style>
+  <meta charset="UTF-8">
+  <script>
+    (function(){
+      var t = localStorage.getItem('fc-sunday-theme');
+      if (t === 'light') document.documentElement.setAttribute('data-theme','light');
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0C0C0F">
+  <title>FC Sunday — Tổng quỹ</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js" defer></script>
 </head>
-<body>
-<div id="wrap">
-  <div class="loading" id="loading-state">
-    <img src="logo.jpg" class="loading-logo" alt="FC Sunday">
-    <div class="loading-text">Đang tải dữ liệu...</div>
-  </div>
-</div>
+<body data-active="share">
+<div class="app-shell">
+  <div data-component="sidebar"></div>
+  <div class="main-content">
+    <div data-component="header" data-title="Tổng quỹ"></div>
+    <main class="page" id="page-content" style="opacity:0;transition:opacity .2s">
 
-<div class="debt-backdrop" id="debt-modal-backdrop" onclick="closeDebtDialog()">
-  <div class="debt-modal" onclick="event.stopPropagation()">
-    <div class="debt-modal-head">
-      <div>
-        <div class="debt-modal-title" id="debt-modal-title">Chi tiết còn nợ</div>
-        <div class="debt-modal-sub" id="debt-modal-sub">—</div>
-      </div>
-      <button class="debt-modal-close" type="button" onclick="closeDebtDialog()">×</button>
-    </div>
-    <div class="debt-modal-content">
-      <div class="debt-total-box" id="debt-modal-total">—</div>
-      <div id="debt-modal-body"></div>
-    </div>
-  </div>
-</div>
-
-<script>
-const FEE = 200000, FINE = 50000, BASE_YEAR = 2026;
-// Đồng bộ nguồn dữ liệu với index.html: ưu tiên Firebase realtime, fallback data.json
-const FB_DB_URL = 'https://fc-sunday-8f932-default-rtdb.asia-southeast1.firebasedatabase.app/.json';
-let S = null, _year = new Date().getFullYear();
-
-function normalizeRemoteData(d) {
-  if (!d || typeof d !== 'object') return null;
-  const toArray = (v) => {
-    if (Array.isArray(v)) return v;
-    if (v && typeof v === 'object') {
-      return Object.keys(v)
-        .sort((a,b) => (Number(a) || 0) - (Number(b) || 0))
-        .map(k => v[k])
-        .filter(Boolean);
-    }
-    return [];
-  };
-  return {
-    ...d,
-    members: toArray(d.members),
-    matches: toArray(d.matches),
-    chiTieu: toArray(d.chiTieu),
-    thuThang: d.thuThang || {}
-  };
-}
-
-/* ── Helpers ── */
-function moneyValue(v) { return Number(v) || 0; }
-function fmt(n) {
-  n = moneyValue(n);
-  if (!n && n !== 0) return '0đ';
-  const sign = n < 0 ? '-' : '';
-  return sign + Math.abs(n).toLocaleString('vi-VN') + 'đ';
-}
-function fmtDate(d) {
-  return d.toLocaleString('vi-VN', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit' });
-}
-function _ttKey(mid, year) { return year === BASE_YEAR ? String(mid) : `${mid}_${year}`; }
-function getTT(mid, mi, year) {
-  year = year || _year;
-  const arr = S.thuThang[_ttKey(mid,year)] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
-  return arr[mi] || 0;
-}
-function memberPaidCount(mid, year) {
-  year = year || _year;
-  const arr = S.thuThang[_ttKey(mid,year)] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
-  return arr.filter(v=>v===1).length;
-}
-function memberExemptCount(mid, year) {
-  year = year || _year;
-  const arr = S.thuThang[_ttKey(mid,year)] || (year===BASE_YEAR ? S.thuThang[String(mid)] : null) || [];
-  return arr.filter(v=>v===2).length;
-}
-// activeMembers: dùng cho tính tổng thu quỹ tháng — bao gồm cả tạm nghỉ
-// Chỉ loại trừ "đã nghỉ" (left)
-function activeMembers() { return (S.members||[]).filter(m => m.status !== 'left'); }
-function N() { return (S.members||[]).filter(m => m.status === 'active').length; }
-
-// Thu tháng: chỉ tính ô = 1 (đã đóng), ô = 2 (miễn) không thu tiền
-function thuThangMonthTotal(mi, year) {
-  year = year || _year;
-  return activeMembers().reduce((s,m) => s + (getTT(m.id,mi,year)===1 ? 1 : 0), 0) * FEE;
-}
-function thuThangGrand(year) {
-  year = year || _year;
-  let t = 0;
-  for (let i = 0; i < 12; i++) t += thuThangMonthTotal(i, year);
-  return t;
-}
-
-function matchesInMonth(mi, year) {
-  year = year || _year;
-  return (S.matches||[]).filter(m => {
-    if (m.monthIdx !== mi) return false;
-    // Nếu không có date → coi là BASE_YEAR (tương thích data cũ)
-    if (!m.date) return year === BASE_YEAR;
-    const y = parseInt(String(m.date).split('-')[0]);
-    // Nếu năm trong date không hợp lệ → fallback BASE_YEAR
-    if (isNaN(y)) return year === BASE_YEAR;
-    return y === year;
-  });
-}
-function matchesInYear(year) {
-  year = year || _year;
-  return (S.matches||[]).filter(m => {
-    if (!m.date) return year === BASE_YEAR;
-    const y = parseInt(String(m.date).split('-')[0]);
-    if (isNaN(y)) return year === BASE_YEAR;
-    return y === year;
-  });
-}
-// Quỹ bia thu thực tế = chỉ tính người đã nộp (paid: true)
-function thuPhatMonth(mi, year) {
-  return matchesInMonth(mi, year||_year)
-    .reduce((s,m) => s + (m.losers||[]).filter(l=>l.paid).length * FINE, 0);
-}
-function thuPhatGrand(year) {
-  year = year || _year;
-  let t = 0;
-  for (let i = 0; i < 12; i++) t += thuPhatMonth(i, year);
-  return t;
-}
-// Tổng phải thu (cả chưa nộp) — dùng cho báo cáo nợ
-function thuPhatTotalMonth(mi, year) {
-  return matchesInMonth(mi, year||_year)
-    .reduce((s,m) => s + (m.losers||[]).length * FINE, 0);
-}
-function thuPhatTotalGrand(year) {
-  year = year || _year;
-  let t = 0;
-  for (let i = 0; i < 12; i++) t += thuPhatTotalMonth(i, year);
-  return t;
-}
-function thuThemMonth(mi, year) {
-  return matchesInMonth(mi, year||_year).reduce((s,m)=>s+moneyValue(m.thuThem),0);
-}
-function thuThemGrand(year) {
-  year = year || _year;
-  let t = 0;
-  for (let i = 0; i < 12; i++) t += thuThemMonth(i, year);
-  return t;
-}
-
-function chiTieuInYear(year) {
-  year = year || _year;
-  return (S.chiTieu||[]).filter(c => c.date && parseInt(String(c.date).split('-')[0]) === year);
-}
-// Tất cả chi (tổng)
-function chiTotal(year) {
-  return chiTieuInYear(year||_year).reduce((s,c)=>s+moneyValue(c.amount),0);
-}
-// Chi theo quỹ: 'thang' | 'bia' | undefined (tất cả)
-function chiByFund(fund, year) {
-  return chiTieuInYear(year||_year)
-    .filter(c => fund ? (c.fund||'thang') === fund : true)
-    .reduce((s,c)=>s+moneyValue(c.amount),0);
-}
-function chiMonth(mi, year) {
-  year = year || _year;
-  return chiTieuInYear(year).filter(c=>parseInt(String(c.date).split('-')[1])-1===mi).reduce((s,c)=>s+moneyValue(c.amount),0);
-}
-function chiMonthByFund(mi, fund, year) {
-  year = year || _year;
-  return chiTieuInYear(year)
-    .filter(c => parseInt(String(c.date).split('-')[1])-1===mi && (c.fund||'thang')===fund)
-    .reduce((s,c)=>s+moneyValue(c.amount),0);
-}
-
-// Tổng quỹ tháng = Thu phí − Chi quỹ tháng
-function tonQuyThang(year) {
-  year = year || _year;
-  return thuThangGrand(year) - chiByFund('thang', year);
-}
-// Tổng quỹ bia = Thu quỹ bia + Thu thêm − Chi quỹ bia
-function tonQuyBia(year) {
-  year = year || _year;
-  return thuPhatGrand(year) + thuThemGrand(year) - chiByFund('bia', year);
-}
-function totalTon(year) {
-  year = year || _year;
-  return tonQuyThang(year) + tonQuyBia(year);
-}
-function monthsRequired(year) {
-  const now = new Date();
-  year = year||_year;
-  if (year < now.getFullYear()) return 12;
-  if (year > now.getFullYear()) return 0;
-  return now.getMonth() + 1;
-}
-function memberUnpaid(mid) {
-  return (S.matches||[]).reduce((s,m)=>s+(m.losers||[]).filter(l=>l.memberId===mid && !l.paid).length,0);
-}
-function memberDebt(mid, year) {
-  // Đồng bộ app.js: trạng thái không ảnh hưởng đến nợ; chỉ ô miễn (2) mới trừ nghĩa vụ.
-  year = year || _year;
-  const req      = Math.max(0, Math.min(monthsRequired(year), 12) - memberExemptCount(mid, year));
-  const paid     = memberPaidCount(mid, year);
-  const debtFee  = Math.max(0, req - paid) * FEE;
-  const debtFine = memberUnpaid(mid) * FINE; // app.js đang tính nợ phạt chưa nộp trên toàn bộ dữ liệu
-  return debtFee + debtFine;
-}
-function esc(str) {
-  return String(str ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[ch] || ch));
-}
-function getMonthDebtDetails(year) {
-  year = year || _year;
-  const due = Math.max(0, Math.min(monthsRequired(year), 12));
-  return activeMembers().map(m => {
-    const months = [];
-    for (let i = 0; i < due; i++) {
-      if (getTT(m.id, i, year) === 0) months.push(i + 1);
-    }
-    return { member: m, months, amount: months.length * FEE };
-  }).filter(x => x.amount > 0).sort((a,b) => b.amount - a.amount || a.member.name.localeCompare(b.member.name, 'vi'));
-}
-function getBeerDebtDetails(year) {
-  year = year || _year;
-
-  // Gom nợ quỹ bia theo từng thành viên.
-  // Lưu ý: dữ liệu cũ có thể lưu memberId dạng number hoặc string,
-  // nên phải normalize id trước khi group. Nếu không normalize,
-  // cùng 1 người có thể bị tách thành nhiều dòng.
-  const members = S.members || [];
-  const byId = new Map();
-  members.forEach(m => {
-    byId.set(String(m.id), m);
-    byId.set(Number(m.id), m);
-  });
-
-  const normalizeName = name => String(name || 'Không rõ').trim().replace(/\s+/g, ' ');
-  const grouped = new Map();
-
-  matchesInYear(year).forEach(match => {
-    (match.losers || []).filter(l => !l.paid).forEach(l => {
-      const rawId = l.memberId ?? l.id ?? l.mid ?? null;
-      const member = byId.get(String(rawId)) || byId.get(Number(rawId)) || null;
-      const displayName = normalizeName(member?.name || l.memberName || l.name || l.member?.name || 'Không rõ');
-
-      // Ưu tiên group theo id đã normalize; nếu không có id thì group theo tên.
-      const key = member ? `id:${member.id}` : `name:${displayName.toLowerCase()}`;
-
-      if (!grouped.has(key)) {
-        grouped.set(key, {
-          member: member || { id: rawId || displayName, name: displayName },
-          dates: [],
-          count: 0,
-          amount: 0
-        });
-      }
-
-      const item = grouped.get(key);
-      item.dates.push(match.date || '');
-      item.count += 1;
-      item.amount += FINE;
-    });
-  });
-
-  return [...grouped.values()]
-    .map(x => ({
-      ...x,
-      dates: x.dates.sort((a,b) => String(a).localeCompare(String(b)))
-    }))
-    .sort((a,b) => b.amount - a.amount || (a.member.name || '').localeCompare(b.member.name || '', 'vi'));
-}
-function fmtShortDate(dateStr) {
-  if (!dateStr) return 'Chưa có ngày';
-  const parts = String(dateStr).split('-');
-  if (parts.length >= 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
-  return String(dateStr);
-}
-function openDebtDialog(type) {
-  const bd = document.getElementById('debt-modal-backdrop');
-  if (!bd) return;
-  const title = document.getElementById('debt-modal-title');
-  const sub = document.getElementById('debt-modal-sub');
-  const totalBox = document.getElementById('debt-modal-total');
-  const body = document.getElementById('debt-modal-body');
-  if (type === 'month') {
-    const data = getMonthDebtDetails(_year);
-    const total = data.reduce((s,x)=>s+x.amount,0);
-    title.textContent = 'Chi tiết còn nợ quỹ tháng';
-    sub.textContent = `Năm ${_year} · Tính đến tháng ${Math.min(monthsRequired(_year),12)}`;
-    totalBox.innerHTML = `<b>Tổng còn nợ:</b> <span style="color:#d97706;font-weight:900">${fmt(total)}</span> · <b>${data.length}</b> người`;
-    body.innerHTML = data.length
-      ? `<div class="debt-table-wrap"><table class="debt-table month-debt-table"><thead><tr><th>Thành viên</th><th>Tháng còn nợ</th><th class="tr">Số tiền</th></tr></thead><tbody>${data.map(x=>`<tr><td><b>${esc(x.member.name)}</b></td><td class="debt-month-list">${x.months.map(m=>'T'+m).join(', ')}</td><td class="tr"><b style="color:#d97706">${fmt(x.amount)}</b></td></tr>`).join('')}</tbody></table></div>`
-      : `<div class="debt-empty">Không có ai còn nợ quỹ tháng.</div>`;
-  } else {
-    const rows = getBeerDebtDetails(_year);
-    const total = rows.reduce((s,x)=>s+x.amount,0);
-    title.textContent = 'Chi tiết còn nợ quỹ bia';
-    sub.textContent = `Năm ${_year} · Các trận thua chưa nộp`;
-    const totalTurns = rows.reduce((s,x)=>s+x.count,0);
-    totalBox.innerHTML = `<b>Tổng còn nợ:</b> <span style="color:#d97706;font-weight:900">${fmt(total)}</span> · <b>${rows.length}</b> người · <b>${totalTurns}</b> trận thua`;
-    body.innerHTML = rows.length
-      ? `<div class="debt-table-wrap"><table class="debt-table beer-debt-table"><thead><tr><th>Thành viên</th><th>Ngày</th><th class="tr">Số tiền</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b class="debt-member-cell"><span class="debt-member-name">${esc(x.member.name)}</span><span class="debt-loss-badge">${x.count}</span></b></td><td class="debt-date-list">${x.dates.map(d=>`<span>${fmtShortDate(d)}</span>`).join('')}</td><td class="tr"><span class="debt-money-total">${fmt(x.amount)}</span></td></tr>`).join('')}</tbody></table></div>`
-      : `<div class="debt-empty">Không có ai còn nợ quỹ bia.</div>`;
-  }
-  bd.style.display = 'flex';
-}
-function closeDebtDialog() {
-  const bd = document.getElementById('debt-modal-backdrop');
-  if (bd) bd.style.display = 'none';
-}
-
-/* ── Load data ── */
-async function loadData() {
-  // GIỐNG index.html/app.js: ưu tiên lấy dữ liệu mới nhất từ Firebase Realtime Database.
-  // Không đọc data.json trước, vì data.json có thể là bản cũ nên số quỹ sẽ lệch.
-  const trySource = async (url) => {
-    const r = await fetch(url, { cache: 'no-store' });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const raw = await r.json();
-    const d = normalizeRemoteData(raw);
-    if (!d || !Array.isArray(d.members) || d.members.length === 0) throw new Error('Dữ liệu không hợp lệ');
-    return d;
-  };
-
-  try {
-    const d = await trySource(`${FB_DB_URL}?t=${Date.now()}`);
-    try { localStorage.setItem('fc2026', JSON.stringify(d)); } catch(e) {}
-    window.__fcDataSource = 'firebase';
-    return d;
-  } catch(e) {
-    console.warn('[share.html] Không lấy được Firebase, fallback data.json:', e);
-  }
-
-  try {
-    const d = await trySource(`./data.json?t=${Date.now()}`);
-    try { localStorage.setItem('fc2026', JSON.stringify(d)); } catch(e) {}
-    window.__fcDataSource = 'data.json';
-    return d;
-  } catch(e) {
-    console.warn('[share.html] Không lấy được data.json, fallback localStorage:', e);
-  }
-
-  const raw = localStorage.getItem('fc2026');
-  if (raw) {
-    const d = normalizeRemoteData(JSON.parse(raw));
-    if (d && Array.isArray(d.members) && d.members.length > 0) {
-      window.__fcDataSource = 'localStorage';
-      return d;
-    }
-  }
-  throw new Error('Không tải được dữ liệu');
-}
-
-/* ── Render ── */
-function render() {
-  const ton       = totalTon(_year);
-  const tThang    = tonQuyThang(_year);
-  const tBia      = tonQuyBia(_year);
-  const thuPhi    = thuThangGrand(_year);
-  const chiThang  = chiByFund('thang', _year);
-  const thuBia    = thuPhatGrand(_year) + thuThemGrand(_year);
-  const chiBia    = chiByFund('bia', _year);
-  const noThang   = getMonthDebtDetails(_year).reduce((s,x)=>s+x.amount,0);
-  const noBia     = getBeerDebtDetails(_year).reduce((s,x)=>s+x.amount,0);
-  const am        = activeMembers();
-  const req       = monthsRequired(_year);
-  const matches   = matchesInYear(_year);
-
-  const membersData = am.map(m => ({
-    ...m,
-    paid: memberPaidCount(m.id, _year),
-    debt: memberDebt(m.id, _year),
-    req:  Math.max(0, Math.min(req,12) - memberExemptCount(m.id,_year))
-  })).sort((a,b) => b.debt - a.debt);
-
-  const debtCount = membersData.filter(m=>m.debt>0).length;
-  const paidFull  = membersData.filter(m=>m.debt===0).length;
-
-  document.getElementById('wrap').innerHTML = `
-    <!-- Sticky header -->
-    <div class="sticky-hdr" id="sticky-hdr">
-      <div class="hdr-top">
-        <div class="hdr-brand">
-          <a href="index.html">
-          <img src="logo.jpg" class="hdr-logo" alt="FC Sunday">
-            </a>
+      <!-- Header -->
+      <div style="margin-bottom:24px;display:flex;justify-content:center">
+        <div style="display:flex;align-items:center;gap:10px">
+          <img src="icon-192.png" alt="FC Sunday" style="width:52px;height:52px;object-fit:contain;border-radius:10px;flex-shrink:0">
           <div>
-            <div class="hdr-name">FC Sunday</div>
-            <div class="hdr-sub">Tổng hợp thu chi quỹ đội bóng</div>
-          </div>
-        </div>
-        <div class="hdr-actions">
-          <a href="index.html" class="btn-back">← Home</a>
-        </div>
-      </div>
-      <div class="hdr-hero">
-        <div class="hdr-hero-label">Tổng quỹ hiện tại · Năm ${_year}</div>
-        <div class="hdr-hero-amount-row">
-          <div class="hdr-hero-amount ${ton<0?'negative':''}">${fmt(ton)}</div>
-          <button class="btn-refresh-inline" onclick="refresh()">
-            <span id="refresh-icon">↻</span>
-          </button>
-        </div>
-        <div class="hdr-hero-sub">Quỹ tháng ${fmt(tThang)} · Quỹ bia ${fmt(tBia)}</div>
-      </div>
-    </div>
-
-    <!-- Scrollable content -->
-    <div class="scroll-content">
-
-      <!-- 2 quỹ module -->
-      <div class="module">
-        <div class="module-header">
-          <div class="module-title">
-            <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M3.33 17.5H5.61C6.07 17.5 6.45 17.13 6.45 16.67L6.45 7.28C6.45 6.82 6.07 6.45 5.61 6.45H3.33C2.87 6.45 2.5 6.82 2.5 7.28L2.5 16.67C2.5 17.13 2.87 17.5 3.33 17.5Z" fill="#00BC79"/><path d="M8.86 17.5H11.14C11.6 17.5 11.97 17.13 11.97 16.67V11.23C11.97 10.77 11.6 10.39 11.14 10.39H8.86C8.4 10.39 8.03 10.77 8.03 11.23V16.67C8.03 17.13 8.4 17.5 8.86 17.5Z" fill="#007FF3"/><path d="M14.39 17.5H16.67C17.13 17.5 17.5 17.13 17.5 16.67V3.33C17.5 2.87 17.13 2.5 16.67 2.5H14.39C13.93 2.5 13.55 2.87 13.55 3.33L13.55 16.67C13.55 17.13 13.93 17.5 14.39 17.5Z" fill="#FC2D4C"/></svg>
-            Chi tiết 2 quỹ
-          </div>
-        </div>
-        <div class="fund-grid">
-          <div class="fund-card">
-            <div class="fund-label">
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 0.703979C11.1795 0.703979 11.157 1.13598 11.9515 1.17798C12.746 1.22048 13.1615 0.970479 13.698 1.04948C14.071 1.10448 14.3515 1.27098 14.5455 1.43448C14.7575 1.61348 14.7925 1.92498 14.6235 2.14498L12.7755 4.54598C12.611 4.74148 12.631 5.03098 12.824 5.19798C15.7 7.68948 19.25 10.686 19.25 13.3765C19.25 17.8975 15.539 19.2965 10 19.2965C4.461 19.2965 0.75 17.8975 0.75 13.3765C0.75 10.6865 4.3 7.68948 7.176 5.19798C7.369 5.03098 7.389 4.74098 7.2245 4.54598L5.3765 2.14498C5.2075 1.92498 5.2425 1.61348 5.4545 1.43448C5.6485 1.27098 5.929 1.10448 6.302 1.04948C6.8385 0.970479 7.2545 1.22048 8.0485 1.17798C8.843 1.13548 8.8205 0.703979 10 0.703979Z" fill="#FFC522"/><path d="M10.0415 5.69254C9.07097 5.69254 8.09846 5.60154 7.14946 5.42054C6.84696 5.36254 6.64897 5.07054 6.70647 4.76804C6.76447 4.46554 7.05697 4.26604 7.35897 4.32454C9.11847 4.66004 10.968 4.66154 12.7075 4.32454C13.0095 4.26404 13.3025 4.46354 13.361 4.76604C13.4195 5.06854 13.2215 5.36104 12.919 5.41954C11.9805 5.60104 11.0125 5.69204 10.0415 5.69204V5.69254Z" fill="#99452E"/><path d="M10.1201 15.9626C8.83606 15.9626 7.85856 15.2026 7.44956 14.6811C7.21106 14.3766 7.26456 13.9366 7.56906 13.6981C7.87206 13.4611 8.30906 13.5126 8.54856 13.8136C8.64556 13.9331 9.52356 14.9541 10.9001 14.4041C11.2346 14.2706 11.3871 14.0286 11.3646 13.8581C11.3306 13.5976 10.8966 13.2861 10.0046 13.1791C7.80456 12.9151 7.47306 11.6681 7.42356 11.2916C7.31256 10.4416 7.84856 9.62658 8.75756 9.26358C10.5966 8.53058 11.9386 9.51558 12.4301 9.97308C12.7131 10.2361 12.7286 10.6796 12.4651 10.9626C12.2011 11.2451 11.7591 11.2611 11.4756 10.9976C11.0261 10.5786 10.2791 10.1641 9.27606 10.5646C8.94156 10.6981 8.78906 10.9401 8.81156 11.1106C8.84556 11.3711 9.27906 11.6826 10.1711 11.7896C12.3711 12.0536 12.7026 13.3006 12.7521 13.6766C12.8636 14.5266 12.3271 15.3416 11.4186 15.7046C10.9606 15.8871 10.5246 15.9631 10.1196 15.9631L10.1201 15.9626Z" fill="#FFF3CC"/><path d="M10.0887 10.402C9.70217 10.402 9.38867 10.089 9.38867 9.70251V8.7045C9.38867 8.318 9.70217 8.005 10.0887 8.005C10.4752 8.005 10.7887 8.318 10.7887 8.7045V9.70251C10.7887 10.089 10.4752 10.402 10.0887 10.402Z" fill="#FFF3CC"/><path d="M10.0887 16.9635C9.70217 16.9635 9.38867 16.6505 9.38867 16.264V15.266C9.38867 14.8795 9.70217 14.5665 10.0887 14.5665C10.4752 14.5665 10.7887 14.8795 10.7887 15.266V16.264C10.7887 16.6505 10.4752 16.9635 10.0887 16.9635Z" fill="#FFF3CC"/></svg>
-              Quỹ hàng tháng
-            </div>
-            <div class="fund-amount ${tThang<0?'negative':''}">${fmt(tThang)}</div>
-            <div class="fund-detail">
-              Thu phí: ${fmt(thuPhi)}<br>
-              Chi tiêu: ${fmt(chiThang)}<br>
-              <button type="button" class="debt-link" onclick="openDebtDialog('month')">
-                <span class="debt-link-label">Còn nợ: </span>
-                <span class="debt-link-amount">${fmt(noThang)}</span>
-                <span class="debt-link-label"></span>
-              </button>
-            </div>
-          </div>
-          <div class="fund-card">
-            <div class="fund-label">
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.32 9.20505C5.32 9.66005 5.505 10.08 5.8 10.385C5.84 10.425 5.88 10.46 5.92 10.495V15.245H4.675C3.54 15.245 2.625 14.33 2.625 13.195V4.67505C2.745 4.72505 2.88 4.75505 3.025 4.75505H7.285C6.26 4.77505 5.43 5.56505 5.34 6.57005C5.335 6.63505 5.32 6.69005 5.32 6.75505V9.20505Z" fill="#F77F00"/><path d="M7.28343 4.75753C7.29593 4.75753 7.30743 4.75403 7.31993 4.75403H13.4764V3.54353V3.25403C13.4764 2.14953 12.5809 1.25403 11.4764 1.25403H4.02393C2.91943 1.25403 2.02393 2.14953 2.02393 3.25403V3.75753C2.02393 4.16753 2.27143 4.51903 2.62443 4.67353C2.74693 4.72703 2.88143 4.75753 3.02393 4.75753H7.28343Z" fill="#D0D5DA"/><path d="M16.7599 9.67505H16.1699V8.17505C16.0499 8.22505 15.9149 8.25505 15.7699 8.25505H9.46492C8.88992 8.25505 8.42492 8.72005 8.42492 9.29505C8.42492 10.18 7.68492 10.89 6.78992 10.845C6.45492 10.83 6.15992 10.695 5.91992 10.495V16.695C5.91992 17.83 6.83992 18.745 7.96992 18.745H14.1199C15.2549 18.745 16.1699 17.83 16.1699 16.695V16.425H16.7599C17.7699 16.425 18.5899 15.605 18.5899 14.595V11.505C18.5899 10.495 17.7699 9.67505 16.7599 9.67505Z" fill="#FFAA00"/><path d="M11.5584 10.575C11.5584 10.292 11.3289 10.0625 11.0459 10.0625C10.7629 10.0625 10.5334 10.292 10.5334 10.575V15.5775C10.5334 15.8605 10.7629 16.09 11.0459 16.09C11.3289 16.09 11.5584 15.8605 11.5584 15.5775V10.575Z" fill="#F77F00"/><path d="M13.5066 10.0625C13.2236 10.0625 12.9941 10.292 12.9941 10.575V15.5775C12.9941 15.8605 13.2236 16.09 13.5066 16.09C13.7896 16.09 14.0191 15.8605 14.0191 15.5775V10.575C14.0191 10.292 13.7896 10.0625 13.5066 10.0625Z" fill="#F77F00"/><path d="M9.09849 12.6446C9.09849 12.3616 8.86899 12.1321 8.58599 12.1321C8.30299 12.1321 8.07349 12.3616 8.07349 12.6446V15.5776C8.07349 15.8606 8.30299 16.0901 8.58599 16.0901C8.86899 16.0901 9.09849 15.8606 9.09849 15.5776V12.6446Z" fill="#F77F00"/><path d="M7.32008 4.75354C7.30758 4.75354 7.29608 4.75704 7.28358 4.75704C6.25808 4.77604 5.43008 5.56604 5.33808 6.57204C5.33258 6.63254 5.31958 6.69154 5.31958 6.75354V9.20654C5.31958 9.65754 5.50458 10.079 5.80208 10.384C5.84008 10.423 5.87858 10.4615 5.92058 10.496C6.16108 10.6965 6.45758 10.828 6.78958 10.845C7.68508 10.892 8.42608 10.1795 8.42608 9.29404C8.42608 8.72104 8.89058 8.25704 9.46308 8.25704H15.7721C15.9141 8.25704 16.0491 8.22654 16.1716 8.17304C16.5246 8.01854 16.7721 7.66704 16.7721 7.25704V6.75354C16.7721 5.64904 15.8766 4.75354 14.7721 4.75354H7.31958H7.32008Z" fill="#EBEBEB"/></svg>
-              Quỹ bia
-            </div>
-            <div class="fund-amount ${tBia<0?'negative':''}">${fmt(tBia)}</div>
-            <div class="fund-detail">
-              Thu bia: ${fmt(thuBia)}<br>
-              Chi tiêu: ${fmt(chiBia)}<br>
-              <button type="button" class="debt-link" onclick="openDebtDialog('beer')">
-                <span class="debt-link-label">Còn nợ: </span>
-                <span class="debt-link-amount">${fmt(noBia)}</span>
-                <span class="debt-link-label"></span>
-              </button>
-            </div>
+            <h1 class="text-h1" style="text-transform:uppercase;letter-spacing:-.02em;margin:0;line-height:1.1">FC Sunday</h1>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:3px" id="share-date">Đang tải…</div>
           </div>
         </div>
       </div>
 
-      <!-- Stats module -->
-      <div class="module">
-        <div class="module-header">
-          <div class="module-title"><svg width="16" height="16" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect x="3.5" y="3.5" width="33" height="33" rx="8" ry="8" fill="#3182f6"/><rect x="10.854" y="19.752" width="4.545" height="8.395" rx="1" ry="1" fill="#fff"/><rect x="17.519" y="15.616" width="4.545" height="12.53" rx="1" ry="1" fill="#fff"/><rect x="24.183" y="11.853" width="4.545" height="16.293" rx="1" ry="1" fill="#fff"/></svg> Thống kê chung</div>
-          <span class="module-badge">${_year}</span>
+      <!-- Hero fund -->
+      <div class="hero-fund" style="margin-bottom:16px;text-align:center">
+        <div class="hero-fund__label" style="text-align:center">Tổng quỹ hiện tại</div>
+        <div class="hero-fund__total" style="text-align:center;font-size:40px" id="share-total">—</div>
+      </div>
+
+      <!-- KPI nợ -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+        <div class="kpi-card kpi-card--red">
+          <div class="kpi-card__label">Nợ quỹ tháng</div>
+          <div class="kpi-card__value" id="share-thang">—</div>
         </div>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <div class="stat-label">Thành viên</div>
-            <div class="stat-val">${am.length} người</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-label">Số trận đã đá</div>
-            <div class="stat-val">${matches.length} trận</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-label">Đóng đủ</div>
-            <div class="stat-val green">${paidFull} người</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-label">Còn nợ quỹ</div>
-            <div class="stat-val ${debtCount>0?'amber':'green'}">${debtCount} người</div>
-          </div>
+        <div class="kpi-card kpi-card--red">
+          <div class="kpi-card__label">Nợ quỹ bia</div>
+          <div class="kpi-card__value" id="share-bia">—</div>
         </div>
       </div>
 
-      <!-- Members module -->
-      <div class="module">
-        <div class="module-header">
-          <div class="module-title"><svg width="16" height="16" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="m34.391,4.777c-.127-.767-.582-1.489-1.378-1.939-.809-.458-1.846-.45-2.648.02-1.249.732-1.654,2.156-1.214,3.336.277.743.019,1.584-.542,2.145L8.383,28.564c-.561.561-1.401.819-2.145.542-1.18-.44-2.604-.035-3.336,1.215-.47.802-.478,1.839-.02,2.648.45.795,1.172,1.25,1.939,1.378.451.075.801.425.876.876.128.768.583,1.491,1.381,1.941.807.456,1.841.448,2.641-.019,1.238-.723,1.646-2.119,1.231-3.289-.261-.738.001-1.563.555-2.117L31.782,11.461c.554-.554,1.379-.817,2.117-.555,1.171.415,2.566.007,3.289-1.231.468-.801.475-1.834.019-2.641-.45-.797-1.173-1.253-1.941-1.38-.451-.075-.801-.425-.875-.876Z" fill="#a1a4a4"/><path d="m5.698,4.777c.127-.767.582-1.489,1.378-1.939.809-.458,1.846-.45,2.648.02,1.249.732,1.654,2.156,1.214,3.336-.277.743-.019,1.584.542,2.145l20.225,20.225c.561.561,1.401.819,2.145.542,1.18-.44,2.604-.035,3.336,1.215.47.802.478,1.839.02,2.648-.45.795-1.172,1.25-1.939,1.378-.451.075-.801.425-.876.876-.128.768-.583,1.491-1.381,1.941-.807.456-1.841.448-2.641-.019-1.238-.723-1.646-2.119-1.231-3.289.261-.738-.001-1.563-.555-2.117L8.307,11.461c-.554-.554-1.379-.817-2.117-.555-1.171.415-2.566.007-3.289-1.231-.468-.801-.475-1.834-.019-2.641.45-.797,1.173-1.253,1.941-1.38.451-.075.801-.425.875-.876Z" fill="#a1a4a4"/><path d="m20.045,30.146c-7.18,0-13-.589-13-10.085,0-7.18,5.82-13,13-13,7.18,0,13,5.82,13,13,0,9.496-5.82,10.085-13,10.085" fill="#cacbcb"/><path d="m26.496,24.187v6.069c0,1.482-1.201,2.683-2.683,2.683h-7.535c-1.482,0-2.683-1.201-2.683-2.683v-6.069h12.902Z" fill="#cacbcb"/><rect x="21.296" y="16.562" width="5.258" height="6.158" rx="2.629" ry="2.629"/><rect x="13.535" y="16.562" width="5.258" height="6.158" rx="2.629" ry="2.629"/><path d="m18.722,24.078l.645-.917c.34-.484,1.06-.477,1.39.013l.619.917c.378.561-.023,1.316-.7,1.316h-1.264c-.684,0-1.084-.771-.691-1.33Z"/></svg> Trạng thái thành viên</div>
-          <span class="module-badge">${req} tháng</span>
+      <!-- Bảng trạng thái thành viên -->
+      <div class="card" style="padding:0;overflow:hidden;margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 12px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:18px">💀</span>
+            <span class="section-overline" style="color:var(--color-accent)">Trạng thái thành viên</span>
+          </div>
+          <span class="section-overline" id="debt-month-label" style="color:var(--text-muted)"></span>
         </div>
-        <div class="members-grid">
-          ${membersData.map(m => {
-            const statusTxt = m.debt===0 ? 'Đủ ✓' : '-' + fmt(m.debt);
-            const statusCls = m.debt===0 ? 'ok' : 'bad';
-            const shortName = m.name.split(' ').slice(-2).join(' ');
-            return `<div class="member-chip">
-              <div class="member-name" title="${m.name}">${shortName}</div>
-              <div class="member-status ${statusCls}">${statusTxt}</div>
-            </div>`;
-          }).join('')}
+        <div id="debt-grid" style="display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--bg-border)">
+          <div style="grid-column:1/-1;padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Đang tải…</div>
         </div>
       </div>
-            <div class="hdr-hero-sub">Đóng quỹ là trách nhiệm của từng thành viên. Anh em cố gắng đóng quỹ đầy đủ, không để nợ quỹ quá nhiều. Cảm ơn!</div>
-    </div>
-  `;
 
-  // Sticky header scroll shadow
-  window.addEventListener('scroll', () => {
-    const hdr = document.getElementById('sticky-hdr');
-    if (hdr) hdr.classList.toggle('scrolled', window.scrollY > 10);
-  }, { passive: true });
-}
+    </main>
+  </div>
+  <div data-component="bottom-nav"></div>
+</div>
+<div data-component="login-modal"></div>
+<script src="app.js" defer></script>
+<script src="components/components-loader.js" defer></script>
+<script>
+  const FEE = 200000, FINE = 50000, BASE_YEAR = 2026;
 
-async function refresh() {
-  const icon = document.getElementById('refresh-icon');
-  if (icon) { icon.className = 'spin'; icon.textContent = '↻'; }
-  try {
-    S = await loadData();
-    render();
-    if (icon) {
-      icon.className = '';
-      icon.textContent = '✓';
-      setTimeout(() => { icon.textContent = '↻'; }, 900);
-    }
-  } catch(e) {
-    alert('Không tải được dữ liệu. Kiểm tra kết nối mạng.');
-    if (icon) { icon.className = ''; icon.textContent = '↻'; }
+  function fmt(n) {
+    if (!n && n !== 0) return '—';
+    return new Intl.NumberFormat('vi-VN').format(Math.round(n));
   }
-}
 
-/* ── Pull-to-refresh ── */
-function initPullToRefresh(onRefresh) {
-  const CIRC = 69.1; // 2π × r=11
-
-  const indicator = document.createElement('div');
-  indicator.id = 'ptr-indicator';
-  indicator.innerHTML = `
-    <div style="position:relative;width:28px;height:28px;display:flex;align-items:center;justify-content:center;">
-      <div id="ptr-spinner" style="width:28px;height:28px;">
-        <svg width="28" height="28" viewBox="0 0 28 28" style="transform:rotate(-90deg)">
-          <circle cx="14" cy="14" r="11" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="2.5"/>
-          <circle id="ptr-arc" cx="14" cy="14" r="11" fill="none" stroke="rgba(255,255,255,.85)"
-            stroke-width="2.5" stroke-dasharray="${CIRC}" stroke-dashoffset="${CIRC}"
-            stroke-linecap="round"/>
-        </svg>
-      </div>
-      <span id="ptr-check" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:rgba(255,255,255,.9);">✓</span>
-    </div>`;
-  document.body.prepend(indicator);
-
-  let startY = 0, pulling = false;
-  const THRESHOLD = 75;
-
-  document.addEventListener('touchstart', e => {
-    if (window.scrollY === 0) { startY = e.touches[0].clientY; pulling = true; }
-  }, { passive: true });
-
-  document.addEventListener('touchmove', e => {
-    if (!pulling) return;
-    const dy = e.touches[0].clientY - startY;
-    if (dy <= 0) { pulling = false; indicator.style.height = '0'; return; }
-    indicator.style.height = Math.min(dy * 0.45, 52) + 'px';
-    const pct = Math.min(dy / THRESHOLD, 1);
-    const arc = document.getElementById('ptr-arc');
-    if (arc) arc.style.strokeDashoffset = CIRC * (1 - pct);
-  }, { passive: true });
-
-  document.addEventListener('touchend', async e => {
-    if (!pulling) return;
-    pulling = false;
-    const dy = e.changedTouches[0].clientY - startY;
-    if (dy >= THRESHOLD) {
-      const spinner = document.getElementById('ptr-spinner');
-      const arc = document.getElementById('ptr-arc');
-      const check = document.getElementById('ptr-check');
-      if (arc) arc.style.strokeDashoffset = CIRC * 0.25; // ~75% arc so gap is visible while spinning
-      if (spinner) spinner.classList.add('ptr-spinning');
-      await onRefresh();
-      if (spinner) spinner.classList.remove('ptr-spinning');
-      if (spinner) spinner.style.display = 'none';
-      if (check) { check.style.display = 'flex'; }
-      await new Promise(r => setTimeout(r, 700));
-      if (check) check.style.display = 'none';
-      if (spinner) { spinner.style.display = ''; }
-      if (arc) arc.style.strokeDashoffset = CIRC;
-    }
-    indicator.style.height = '0';
-  }, { passive: true });
-}
-
-/* ── Init ── */
-(async () => {
-  try {
-    S = await loadData();
-    render();
-  } catch(e) {
-    // Fallback localStorage
-    try {
-      const raw = localStorage.getItem('fc2026');
-      if (raw) { S = JSON.parse(raw); render(); return; }
-    } catch(e2) {}
-    document.getElementById('wrap').innerHTML = `
-      <div class="loading">
-        <img src="logo.jpg" class="loading-logo" alt="FC Sunday">
-        <div class="loading-text">Không tải được dữ liệu</div>
-        <button class="btn-open-app" style="margin-top:16px;max-width:240px" onclick="location.reload()">Thử lại</button>
-      </div>`;
+  function toArr(val) {
+    if (!val) return [];
+    if (Array.isArray(val)) return val.filter(Boolean);
+    return Object.values(val).filter(Boolean);
   }
-  initPullToRefresh(refresh);
-})();
+
+  function renderShare(S) {
+    const now = new Date();
+    const curMonthIdx = now.getMonth();
+    const YEAR = BASE_YEAR;
+
+    const members = toArr(S.members).filter(m => m && m.status !== 'left');
+    const matches  = toArr(S.matches).filter(m => m && (!m.year || m.year === YEAR));
+    const chiTieu  = toArr(S.chiTieu).filter(c => c && c.date?.startsWith(String(YEAR)));
+
+    // Thu tháng
+    let thuThang = 0;
+    members.forEach(m => {
+      const arr = S.thuThang?.[String(m.id)] || Array(12).fill(0);
+      const a = Array.isArray(arr) ? arr : Object.values(arr);
+      a.forEach(v => { if (v === 1) thuThang += FEE; });
+    });
+
+    // Thu bia
+    let thuBia = 0;
+    matches.forEach(match => {
+      toArr(match.losers).forEach(l => { if (l.paid) thuBia += FINE; });
+      thuBia += (match.thuThem || 0);
+    });
+
+    // Chi
+    const chiThang = chiTieu.filter(c => !c.fund || c.fund === 'thang').reduce((s,c) => s + (c.amount||0), 0);
+    const chiBia   = chiTieu.filter(c => c.fund === 'bia').reduce((s,c) => s + (c.amount||0), 0);
+
+    const tonThang = thuThang - chiThang;
+    const tonBia   = thuBia   - chiBia;
+
+    document.getElementById('share-total').textContent = fmt(tonThang + tonBia);
+
+    // Tính nợ quỹ tháng
+    let noThang = 0;
+    members.forEach(m => {
+      const arr = S.thuThang?.[String(m.id)] || Array(12).fill(0);
+      const a = Array.isArray(arr) ? arr : Object.values(arr);
+      a.forEach((v, mi) => { if (v === 0 && mi <= curMonthIdx) noThang += FEE; });
+    });
+
+    // Tính nợ quỹ bia
+    let noBia = 0;
+    matches.forEach(match => {
+      toArr(match.losers).forEach(l => { if (!l.paid) noBia += FINE; });
+    });
+
+    document.getElementById('share-thang').textContent = noThang > 0 ? fmt(noThang) : '0';
+    document.getElementById('share-bia').textContent   = noBia   > 0 ? fmt(noBia)   : '0';
+
+    document.getElementById('share-date').textContent =
+      'Cập nhật ' + now.toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+
+    // Debt grid
+    const monthNames = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
+    document.getElementById('debt-month-label').textContent = monthNames[curMonthIdx] + ' tháng';
+
+    const debtMap = {};
+    members.forEach(m => {
+      let debt = 0;
+      const arr = S.thuThang?.[String(m.id)] || Array(12).fill(0);
+      const a = Array.isArray(arr) ? arr : Object.values(arr);
+      a.forEach((v, mi) => { if (v === 0 && mi <= curMonthIdx) debt += FEE; });
+      matches.forEach(match => {
+        toArr(match.losers).forEach(l => { if (l.memberId == m.id && !l.paid) debt += FINE; });
+      });
+      debtMap[m.id] = debt;
+    });
+
+    const sorted = [...members].sort((a,b) => (debtMap[b.id]||0) - (debtMap[a.id]||0));
+
+    document.getElementById('debt-grid').innerHTML = sorted.length === 0
+      ? '<div style="grid-column:1/-1;padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Chưa có dữ liệu</div>'
+      : sorted.map((m, i) => {
+          const debt = debtMap[m.id] || 0;
+          const br = (i % 4 !== 3) ? '1px solid var(--bg-border)' : 'none';
+          return `<div style="padding:6px 6px;text-align:center;border-right:${br};border-bottom:1px solid var(--bg-border)">
+            <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.name}</div>
+            ${debt === 0
+              ? '<div style="font-size:11px;font-weight:600;color:var(--color-success)">Đủ ✓</div>'
+              : `<div style="font-size:11px;font-weight:700;color:var(--color-accent-light)">-${fmt(debt)}đ</div>`
+            }
+          </div>`;
+        }).join('');
+  }
+
+  window.onComponentsReady = function() {
+    document.getElementById('page-content').style.opacity = '1';
+  };
+
+  // Nhận data từ app.js khi Firebase load xong
+  window._onDataReady = function(S) {
+    renderShare(S);
+  };
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .catch(err => console.warn('SW register failed:', err));
+    });
+  }
 </script>
 </body>
 </html>

@@ -1,0 +1,66 @@
+<!-- ========================
+  FC Sunday V2 — Sidebar Component (Desktop only)
+  Usage: <div data-component="sidebar" data-active="index"></div>
+======================== -->
+<aside class="sidebar">
+  <!-- Brand -->
+  <div class="sidebar-brand">
+    <div class="sidebar-brand__logo">
+      <img src="icon-192.png" alt="FC Sunday" style="width:40px;height:40px;border-radius:var(--radius-md);object-fit:contain">
+      <div>
+        <div class="sidebar-brand__name">FC Sunday</div>
+        <div class="sidebar-brand__year" id="sidebar-year">2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav">
+    <a href="index.html" class="sidebar-nav-item" data-nav="index">
+      <iconify-icon class="nav-icon" icon="solar:home-2-linear"></iconify-icon>
+      <span>Tổng quan</span>
+    </a>
+    <a href="thu-thang.html" class="sidebar-nav-item" data-nav="thu-thang">
+      <iconify-icon class="nav-icon" icon="solar:wallet-linear"></iconify-icon>
+      <span>Thu hàng tháng</span>
+      <span class="nav-badge" id="badge-thu-thang">—</span>
+    </a>
+    <a href="thu-phat.html" class="sidebar-nav-item" data-nav="thu-phat">
+      <iconify-icon class="nav-icon" icon="solar:cup-star-linear"></iconify-icon>
+      <span>Quỹ bia</span>
+      <span class="nav-badge" id="badge-thu-phat">—</span>
+    </a>
+    <a href="chi-tieu.html" class="sidebar-nav-item" data-nav="chi-tieu">
+      <iconify-icon class="nav-icon" icon="solar:bill-list-linear"></iconify-icon>
+      <span>Chi tiêu</span>
+      <span class="nav-badge" id="badge-chi-tieu">—</span>
+    </a>
+    <a href="thanh-vien.html" class="sidebar-nav-item" data-nav="thanh-vien">
+      <iconify-icon class="nav-icon" icon="solar:users-group-rounded-linear"></iconify-icon>
+      <span>Thành viên</span>
+      <span class="nav-badge" id="badge-thanh-vien">—</span>
+    </a>
+  </nav>
+
+  <!-- Footer -->
+  <div class="sidebar-footer" style="display:flex;flex-direction:column;gap:8px">
+    <!-- Quick view -->
+    <a href="share.html" class="sidebar-nav-item" style="color:var(--text-secondary)">
+      <iconify-icon class="nav-icon" icon="solar:eye-linear"></iconify-icon>
+      <span>Xem tổng quỹ nhanh</span>
+    </a>
+
+    <!-- Install section (hidden in PWA mode) -->
+    <div class="install-section" id="sidebar-install" style="display:none">
+      <hr class="divider" style="margin:4px 0 8px">
+      <button class="btn btn-surface w-full" id="btn-install-android" style="justify-content:flex-start;gap:10px;font-size:13px;display:none">
+        <iconify-icon icon="solar:smartphone-linear" style="font-size:18px"></iconify-icon>
+        Thêm vào Android
+      </button>
+      <div id="ios-install-hint" style="display:none;font-size:12px;color:var(--text-muted);padding:8px;line-height:1.5">
+        <iconify-icon icon="solar:share-linear" style="vertical-align:middle;margin-right:4px"></iconify-icon>
+        Safari → <b>Share</b> → <b>Add to Home Screen</b>
+      </div>
+    </div>
+  </div>
+</aside>

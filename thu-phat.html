@@ -1,555 +1,645 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Quỹ bia đội thua — FC Sunday</title>
-<link rel="stylesheet" href="style.css">
-<style>
-@font-face {
-  font-family: 'TossFace';
-  src: url('TossFaceFontWeb.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
-  unicode-range:
-    U+2630,   /* ☰ */
-    U+26A0,   /* ⚠ */
-    U+2713,   /* ✓ */
-    U+2715,   /* ✕ */
-    U+1F381,  /* 🎁 */
-    U+1F441,  /* 👁 */
-    U+1F504,  /* 🔄 */
-    U+1F608,  /* 😈 */
-    U+1F4A3;  /* 💣 */
-}
-body, button, input, select, textarea, .chip, .chart-title {
-  font-family: 'TossFace', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-.qt-chip { display:inline-flex; align-items:center; justify-content:center; padding:4px 12px; background:#F2F5F9; border-radius:12px; font-size:12px; color:#8595AA; white-space:nowrap; width:auto; }
-</style>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#00332d">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-</head>
-<body>
-<div class="sb-overlay" onclick="closeSidebar()"></div>
-<div class="layout">
-  <aside class="sidebar">
-    <div class="sb-brand">
-      <img src="logo.jpg" alt="FC Sunday" style="width:40px;height:40px;border-radius:10px;object-fit:cover;flex-shrink:0">
-      <div class="sb-brand-text">
-        <div class="sb-brand-name">FC Sunday</div>
-        <div class="sb-brand-sub" id="lbl-year-sb">Tổng hợp thu chi quỹ đội bóng</div>
-      </div>
-    </div>
-    <nav class="sb-nav">
-      <div class="sb-section-label">Menu</div>
-      <a class="sb-item" href="index.html"><span class="sb-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.85963 17.5H11.1401C11.6005 17.5 11.9736 17.1268 11.9736 16.6665V11.228C11.9736 10.7677 11.6005 10.3945 11.1401 10.3945H8.85963C8.3993 10.3945 8.02613 10.7677 8.02613 11.228V16.6665C8.02613 17.1268 8.3993 17.5 8.85963 17.5Z" fill="#007FF3"/><path d="M3.33351 17.5H5.61401C6.07434 17.5 6.44751 17.1268 6.44751 16.6665L6.44751 7.281C6.44751 6.82067 6.07434 6.4475 5.61401 6.4475H3.33351C2.87318 6.4475 2.50001 6.82067 2.50001 7.281L2.50001 16.6665C2.50001 17.1268 2.87318 17.5 3.33351 17.5Z" fill="#00BC79"/><path d="M14.386 17.5H16.6665C17.1268 17.5 17.5 17.1268 17.5 16.6665V3.3335C17.5 2.87317 17.1268 2.5 16.6665 2.5H14.386C13.9257 2.5 13.5525 2.87317 13.5525 3.3335L13.5525 16.6665C13.5525 17.1268 13.9257 17.5 14.386 17.5Z" fill="#FC2D4C"/></svg></span><span class="sb-label">Tổng quan</span><span class="sb-badge" id="sbg-da">—</span></a>
-      <a class="sb-item" href="thu-thang.html"><span class="sb-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 0.703979C11.1795 0.703979 11.157 1.13598 11.9515 1.17798C12.746 1.22048 13.1615 0.970479 13.698 1.04948C14.071 1.10448 14.3515 1.27098 14.5455 1.43448C14.7575 1.61348 14.7925 1.92498 14.6235 2.14498L12.7755 4.54598C12.611 4.74148 12.631 5.03098 12.824 5.19798C15.7 7.68948 19.25 10.686 19.25 13.3765C19.25 17.8975 15.539 19.2965 10 19.2965C4.461 19.2965 0.75 17.8975 0.75 13.3765C0.75 10.6865 4.3 7.68948 7.176 5.19798C7.369 5.03098 7.389 4.74098 7.2245 4.54598L5.3765 2.14498C5.2075 1.92498 5.2425 1.61348 5.4545 1.43448C5.6485 1.27098 5.929 1.10448 6.302 1.04948C6.8385 0.970479 7.2545 1.22048 8.0485 1.17798C8.843 1.13548 8.8205 0.703979 10 0.703979Z" fill="#FFC522"/><path d="M10.0415 5.69254C9.07097 5.69254 8.09846 5.60154 7.14946 5.42054C6.84696 5.36254 6.64897 5.07054 6.70647 4.76804C6.76447 4.46554 7.05697 4.26604 7.35897 4.32454C9.11847 4.66004 10.968 4.66154 12.7075 4.32454C13.0095 4.26404 13.3025 4.46354 13.361 4.76604C13.4195 5.06854 13.2215 5.36104 12.919 5.41954C11.9805 5.60104 11.0125 5.69204 10.0415 5.69204V5.69254Z" fill="#99452E"/><path d="M10.1201 15.9626C8.83606 15.9626 7.85856 15.2026 7.44956 14.6811C7.21106 14.3766 7.26456 13.9366 7.56906 13.6981C7.87206 13.4611 8.30906 13.5126 8.54856 13.8136C8.64556 13.9331 9.52356 14.9541 10.9001 14.4041C11.2346 14.2706 11.3871 14.0286 11.3646 13.8581C11.3306 13.5976 10.8966 13.2861 10.0046 13.1791C7.80456 12.9151 7.47306 11.6681 7.42356 11.2916C7.31256 10.4416 7.84856 9.62658 8.75756 9.26358C10.5966 8.53058 11.9386 9.51558 12.4301 9.97308C12.7131 10.2361 12.7286 10.6796 12.4651 10.9626C12.2011 11.2451 11.7591 11.2611 11.4756 10.9976C11.0261 10.5786 10.2791 10.1641 9.27606 10.5646C8.94156 10.6981 8.78906 10.9401 8.81156 11.1106C8.84556 11.3711 9.27906 11.6826 10.1711 11.7896C12.3711 12.0536 12.7026 13.3006 12.7521 13.6766C12.8636 14.5266 12.3271 15.3416 11.4186 15.7046C10.9606 15.8871 10.5246 15.9631 10.1196 15.9631L10.1201 15.9626Z" fill="#FFF3CC"/><path d="M10.0887 10.402C9.70217 10.402 9.38867 10.089 9.38867 9.70251V8.7045C9.38867 8.318 9.70217 8.005 10.0887 8.005C10.4752 8.005 10.7887 8.318 10.7887 8.7045V9.70251C10.7887 10.089 10.4752 10.402 10.0887 10.402Z" fill="#FFF3CC"/><path d="M10.0887 16.9635C9.70217 16.9635 9.38867 16.6505 9.38867 16.264V15.266C9.38867 14.8795 9.70217 14.5665 10.0887 14.5665C10.4752 14.5665 10.7887 14.8795 10.7887 15.266V16.264C10.7887 16.6505 10.4752 16.9635 10.0887 16.9635Z" fill="#FFF3CC"/></svg></span><span class="sb-label">Thu hàng tháng</span><span class="sb-badge" id="sbg-tt">—</span></a>
-      <a class="sb-item active" href="thu-phat.html"><span class="sb-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.32 9.20505C5.32 9.66005 5.505 10.08 5.8 10.385C5.84 10.425 5.88 10.46 5.92 10.495V15.245H4.675C3.54 15.245 2.625 14.33 2.625 13.195V4.67505C2.745 4.72505 2.88 4.75505 3.025 4.75505H7.285C6.26 4.77505 5.43 5.56505 5.34 6.57005C5.335 6.63505 5.32 6.69005 5.32 6.75505V9.20505Z" fill="#F77F00"/><path d="M7.28343 4.75753C7.29593 4.75753 7.30743 4.75403 7.31993 4.75403H13.4764V3.54353V3.25403C13.4764 2.14953 12.5809 1.25403 11.4764 1.25403H4.02393C2.91943 1.25403 2.02393 2.14953 2.02393 3.25403V3.75753C2.02393 4.16753 2.27143 4.51903 2.62443 4.67353C2.74693 4.72703 2.88143 4.75753 3.02393 4.75753H7.28343Z" fill="#D0D5DA"/><path d="M16.7599 9.67505H16.1699V8.17505C16.0499 8.22505 15.9149 8.25505 15.7699 8.25505H9.46492C8.88992 8.25505 8.42492 8.72005 8.42492 9.29505C8.42492 10.18 7.68492 10.89 6.78992 10.845C6.45492 10.83 6.15992 10.695 5.91992 10.495V16.695C5.91992 17.83 6.83992 18.745 7.96992 18.745H14.1199C15.2549 18.745 16.1699 17.83 16.1699 16.695V16.425H16.7599C17.7699 16.425 18.5899 15.605 18.5899 14.595V11.505C18.5899 10.495 17.7699 9.67505 16.7599 9.67505Z" fill="#FFAA00"/><path d="M11.5584 10.575C11.5584 10.292 11.3289 10.0625 11.0459 10.0625C10.7629 10.0625 10.5334 10.292 10.5334 10.575V15.5775C10.5334 15.8605 10.7629 16.09 11.0459 16.09C11.3289 16.09 11.5584 15.8605 11.5584 15.5775V10.575Z" fill="#F77F00"/><path d="M13.5066 10.0625C13.2236 10.0625 12.9941 10.292 12.9941 10.575V15.5775C12.9941 15.8605 13.2236 16.09 13.5066 16.09C13.7896 16.09 14.0191 15.8605 14.0191 15.5775V10.575C14.0191 10.292 13.7896 10.0625 13.5066 10.0625Z" fill="#F77F00"/><path d="M9.09849 12.6446C9.09849 12.3616 8.86899 12.1321 8.58599 12.1321C8.30299 12.1321 8.07349 12.3616 8.07349 12.6446V15.5776C8.07349 15.8606 8.30299 16.0901 8.58599 16.0901C8.86899 16.0901 9.09849 15.8606 9.09849 15.5776V12.6446Z" fill="#F77F00"/><path d="M7.32008 4.75354C7.30758 4.75354 7.29608 4.75704 7.28358 4.75704C6.25808 4.77604 5.43008 5.56604 5.33808 6.57204C5.33258 6.63254 5.31958 6.69154 5.31958 6.75354V9.20654C5.31958 9.65754 5.50458 10.079 5.80208 10.384C5.84008 10.423 5.87858 10.4615 5.92058 10.496C6.16108 10.6965 6.45758 10.828 6.78958 10.845C7.68508 10.892 8.42608 10.1795 8.42608 9.29404C8.42608 8.72104 8.89058 8.25704 9.46308 8.25704H15.7721C15.9141 8.25704 16.0491 8.22654 16.1716 8.17304C16.5246 8.01854 16.7721 7.66704 16.7721 7.25704V6.75354C16.7721 5.64904 15.8766 4.75354 14.7721 4.75354H7.31958H7.32008Z" fill="#EBEBEB"/></svg></span><span class="sb-label">Quỹ bia</span><span class="sb-badge" id="sbg-tp">—</span></a>
-      <a class="sb-item" href="chi-tieu.html"><span class="sb-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19.25 13.3154C19.25 16.2744 15.1085 18.6734 10 18.6734C4.8915 18.6734 0.75 16.2744 0.75 13.3154C0.75 10.3564 4.8915 11.8904 10 11.8904C15.1085 11.8904 19.25 10.3564 19.25 13.3154Z" fill="#AFB7C0"/><path d="M19.25 6.68445H0.75V13.3154H19.25V6.68445Z" fill="#AFB7C0"/><path d="M10 12.0424C15.1086 12.0424 19.25 9.64356 19.25 6.68442C19.25 3.72527 15.1086 1.32642 10 1.32642C4.89137 1.32642 0.75 3.72527 0.75 6.68442C0.75 9.64356 4.89137 12.0424 10 12.0424Z" fill="#6B7683"/><path d="M9.99986 14.488C8.97936 14.488 8.15186 15.3155 8.15186 16.336V18.5515C8.74736 18.629 9.36386 18.6735 9.99986 18.6735C10.6359 18.6735 11.2524 18.629 11.8479 18.5515V16.336C11.8479 15.3155 11.0204 14.488 9.99986 14.488Z" fill="#6B7683"/><path d="M14.0215 10.2211H5.97845C5.82445 10.2211 5.69995 10.0966 5.69995 9.94256C5.69995 9.78856 5.82445 9.66406 5.97845 9.66406H14.0215C14.1755 9.66406 14.3 9.78856 14.3 9.94256C14.3 10.0966 14.1755 10.2211 14.0215 10.2211Z" fill="white"/><path d="M10 1.32642C4.8915 1.32642 0.75 3.72542 0.75 6.68442C0.75 9.64342 4.8915 12.0424 10 12.0424C15.1085 12.0424 19.25 9.64342 19.25 6.68442C19.25 3.72542 15.1085 1.32642 10 1.32642ZM10 9.13492C6.6835 9.13492 3.9945 7.57742 3.9945 5.65642C3.9945 3.73542 6.683 2.17792 10 2.17792C13.317 2.17792 16.0055 3.73542 16.0055 5.65642C16.0055 7.57742 13.317 9.13492 10 9.13492Z" fill="#D0D5DA"/><path d="M7.68591 7.11694L7.21191 8.73594C7.98941 8.97244 8.86741 9.11094 9.79941 9.12894V7.11694H7.68591Z" fill="#23B169"/><path d="M10.2005 7.11694V9.12894C11.1325 9.11094 12.0105 8.97244 12.788 8.73594L12.314 7.11694H10.2005Z" fill="#23B169"/><path d="M4.27344 6.70496C4.70844 7.50296 5.62944 8.17346 6.83194 8.60746L7.34344 6.85996C7.36844 6.77446 7.44694 6.71546 7.53594 6.71546H12.4644C12.5534 6.71546 12.6319 6.77446 12.6569 6.85996L13.1684 8.60746C14.3709 8.17346 15.2919 7.50246 15.7269 6.70496C14.4379 5.68046 12.3564 5.01196 10.0004 5.01196C7.64444 5.01196 5.56294 5.68046 4.27394 6.70496H4.27344Z" fill="#23B169"/><path d="M9.79954 7.11694V6.91644C9.79954 6.80544 9.88904 6.71594 10 6.71594H7.53554C7.44654 6.71594 7.36804 6.77494 7.34304 6.86044L6.83154 8.60794C6.95604 8.65294 7.08154 8.69644 7.21154 8.73644L7.68554 7.11744L9.79954 7.11694Z" fill="white"/><path d="M12.4645 6.71595H10C10.111 6.71595 10.2005 6.80595 10.2005 6.91645V7.11695H12.3145L12.7885 8.73595C12.919 8.69645 13.044 8.65245 13.1685 8.60745L12.657 6.85995C12.632 6.77445 12.5535 6.71545 12.4645 6.71545V6.71595Z" fill="white"/><path d="M9.79956 7.11694V9.12894C9.86656 9.13044 9.93256 9.13494 10.0001 9.13494C10.0676 9.13494 10.1336 9.13044 10.2006 9.12894V7.11694H9.79956Z" fill="white"/><path d="M9.79956 6.91644V7.11694H10.2006V6.91644C10.2006 6.80544 10.1111 6.71594 10.0001 6.71594C9.88906 6.71594 9.79956 6.80594 9.79956 6.91644Z" fill="white"/></svg></span><span class="sb-label">Chi tiêu</span><span class="sb-badge" id="sbg-ct">—</span></a>
-      <a class="sb-item" href="thanh-vien.html"><span class="sb-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.1955 2.38854C17.132 2.00504 16.9045 1.64404 16.5065 1.41904C16.102 1.19004 15.5835 1.19404 15.1825 1.42904C14.558 1.79504 14.3555 2.50704 14.5755 3.09704C14.714 3.46854 14.585 3.88904 14.3045 4.16954L4.19151 14.282C3.91101 14.5625 3.49101 14.6915 3.11901 14.553C2.52901 14.333 1.81701 14.5355 1.45101 15.1605C1.21601 15.5615 1.21201 16.08 1.44101 16.4845C1.66601 16.882 2.02701 17.1095 2.41051 17.1735C2.63601 17.211 2.81101 17.386 2.84851 17.6115C2.91251 17.9955 3.14001 18.357 3.53901 18.582C3.94251 18.81 4.45951 18.806 4.85951 18.5725C5.47851 18.211 5.68251 17.513 5.47501 16.928C5.34451 16.559 5.47551 16.1465 5.75251 15.8695L15.891 5.73054C16.168 5.45354 16.5805 5.32204 16.9495 5.45304C17.535 5.66054 18.2325 5.45654 18.594 4.83754C18.828 4.43704 18.8315 3.92054 18.6035 3.51704C18.3785 3.11854 18.017 2.89054 17.633 2.82704C17.4075 2.78954 17.2325 2.61404 17.1955 2.38854Z" fill="#A1A4A4"/><path d="M2.849 2.38854C2.9125 2.00504 3.14 1.64404 3.538 1.41904C3.9425 1.19004 4.461 1.19404 4.862 1.42904C5.4865 1.79504 5.689 2.50704 5.469 3.09704C5.3305 3.46854 5.4595 3.88904 5.74 4.16954L15.8525 14.282C16.133 14.5625 16.553 14.6915 16.925 14.553C17.515 14.333 18.227 14.5355 18.593 15.1605C18.828 15.5615 18.832 16.08 18.603 16.4845C18.378 16.882 18.017 17.1095 17.6335 17.1735C17.408 17.211 17.233 17.386 17.1955 17.6115C17.1315 17.9955 16.904 18.357 16.505 18.582C16.1015 18.81 15.5845 18.806 15.1845 18.5725C14.5655 18.211 14.3615 17.513 14.569 16.928C14.6995 16.559 14.5685 16.1465 14.2915 15.8695L4.1535 5.73054C3.8765 5.45354 3.464 5.32204 3.095 5.45304C2.5095 5.66054 1.812 5.45654 1.4505 4.83754C1.2165 4.43704 1.213 3.92054 1.441 3.51704C1.666 3.11854 2.0275 2.89054 2.4115 2.82704C2.637 2.78954 2.812 2.61404 2.849 2.38854Z" fill="#A1A4A4"/><path d="M10.0225 15.073C6.43246 15.073 3.52246 14.7785 3.52246 10.0305C3.52246 6.44052 6.43246 3.53052 10.0225 3.53052C13.6125 3.53052 16.5225 6.44052 16.5225 10.0305C16.5225 14.7785 13.6125 15.073 10.0225 15.073Z" fill="#CACBCB"/><path d="M13.2479 12.0935V15.128C13.2479 15.869 12.6474 16.4695 11.9064 16.4695H8.13886C7.39786 16.4695 6.79736 15.869 6.79736 15.128V12.0935H13.2479Z" fill="#CACBCB"/><path d="M13.2769 9.59551C13.2769 8.86953 12.6884 8.28101 11.9624 8.28101C11.2365 8.28101 10.6479 8.86953 10.6479 9.59551V10.0455C10.6479 10.7715 11.2365 11.36 11.9624 11.36C12.6884 11.36 13.2769 10.7715 13.2769 10.0455V9.59551Z" fill="black"/><path d="M9.39658 9.59551C9.39658 8.86953 8.80806 8.28101 8.08208 8.28101C7.3561 8.28101 6.76758 8.86953 6.76758 9.59551V10.0455C6.76758 10.7715 7.3561 11.36 8.08208 11.36C8.80806 11.36 9.39658 10.7715 9.39658 10.0455V9.59551Z" fill="black"/><path d="M8.90804 16.4696V15.1496C8.90804 14.9441 8.74204 14.7781 8.53654 14.7781C8.33104 14.7781 8.16504 14.9441 8.16504 15.1496V16.4696H8.90804Z" fill="#A1A4A4"/><path d="M10.3934 16.4696V15.1496C10.3934 14.9441 10.2274 14.7781 10.0219 14.7781C9.81639 14.7781 9.65039 14.9441 9.65039 15.1496V16.4696H10.3934Z" fill="#A1A4A4"/><path d="M11.8795 16.4696V15.1496C11.8795 14.9441 11.7135 14.7781 11.508 14.7781C11.3025 14.7781 11.1365 14.9441 11.1365 15.1496V16.4696H11.8795Z" fill="#A1A4A4"/><path d="M9.36116 12.039L9.68366 11.5805C9.85366 11.3385 10.2137 11.342 10.3787 11.587L10.6882 12.0455C10.8772 12.326 10.6767 12.7035 10.3382 12.7035H9.70616C9.36416 12.7035 9.16416 12.318 9.36066 12.0385L9.36116 12.039Z" fill="black"/></svg></span><span class="sb-label">Thành viên</span><span class="sb-badge" id="sbg-tv">—</span></a>
-    </nav>
-    <div class="sb-footer">
-      <a href="share.html" style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.85);font-size:12px;font-weight:700;text-decoration:none;margin-bottom:8px" onclick="closeSidebar()">
-        <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M3.33 17.5H5.61C6.07 17.5 6.45 17.13 6.45 16.67L6.45 7.28C6.45 6.82 6.07 6.45 5.61 6.45H3.33C2.87 6.45 2.5 6.82 2.5 7.28L2.5 16.67C2.5 17.13 2.87 17.5 3.33 17.5Z" fill="#00BC79"/><path d="M8.86 17.5H11.14C11.6 17.5 11.97 17.13 11.97 16.67V11.23C11.97 10.77 11.6 10.39 11.14 10.39H8.86C8.4 10.39 8.03 10.77 8.03 11.23V16.67C8.03 17.13 8.4 17.5 8.86 17.5Z" fill="#007FF3"/><path d="M14.39 17.5H16.67C17.13 17.5 17.5 17.13 17.5 16.67V3.33C17.5 2.87 17.13 2.5 16.67 2.5H14.39C13.93 2.5 13.55 2.87 13.55 3.33L13.55 16.67C13.55 17.13 13.93 17.5 14.39 17.5Z" fill="#FC2D4C"/></svg>
-        Xem tổng quỹ nhanh
-      </a>
-      <div class="sb-pwa-btns">
-        <div style="font-size:10px;color:rgba(255,255,255,.35);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Cài app lên màn hình</div>
-        <button class="sb-pwa-btn" id="btn-install-android" onclick="pwaInstall()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17.6 9.48L19.72 5.9a.43.43 0 00-.74-.44l-2.13 3.6A12.47 12.47 0 0012 8c-1.74 0-3.39.37-4.85 1.06L5.02 5.46a.43.43 0 00-.74.44l2.12 3.58A11.86 11.86 0 000 20h24c0-4.17-2.52-7.75-6.4-10.52zM7 17a1 1 0 110-2 1 1 0 010 2zm10 0a1 1 0 110-2 1 1 0 010 2z" fill="#3DDC84"/></svg>
-          Thêm vào Android
-        </button>
-        <button class="sb-pwa-btn" id="btn-install-ios" onclick="pwaIOSGuide()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" fill="white"/></svg>
-          Thêm vào iPhone
-        </button>
-      </div>
-    </div>
-  </aside>
-  <div class="content">
-    <div class="topbar">
-      <button class="tb-menu-btn" onclick="toggleSidebar()">☰</button>
-      <span class="tb-title">FC Sunday</span>
-      <span class="chip chip-meta">50k/thua</span>
-      <div class="tb-chips">
-        <span class="chip chip-meta" id="data-badge"></span>
-      </div>
-      <div class="tb-actions">
-        <div class="tb-desktop-only" id="data-toolbar" style="display:none;gap:8px;align-items:center">
-          <button class="btn btn-po btn-sm" onclick="importJSON()">↑ Nhập</button>
-          <button class="btn btn-p btn-sm" onclick="exportJSON()">↓ Xuất</button>
-          <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
-        </div>
-        <button id="btn-refresh" onclick="refreshData()"
-          style="display:flex;align-items:center;gap:0px;padding:0px 0px;border-radius:8px;background:rgba(0,168,135,100);border:0px solid var(--p-600);color:var(--p-700);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0">
-          <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="2" y="2" width="36" height="36" rx="10" fill="#00A887"/>
-<path d="M19.9922 29C15.293 29 11.5078 25.2031 11.5078 20.5156C11.5195 15.9922 15.0352 12.3008 19.5 12.043V8.09375L24.7031 13.25L19.5 18.4297V14.2109C16.2305 14.457 13.6758 17.1758 13.6641 20.5156C13.6641 24.0078 16.4883 26.8438 19.9922 26.8438C23.4844 26.8438 26.3203 24.0078 26.3203 20.5156H28.4766C28.4883 25.2031 24.6797 29 19.9922 29Z" fill="white"/>
-</svg>
-        </button>
-        <div class="tb-more-wrap">
-          <button class="tb-more-btn tb-more-hidden" onclick="toggleMoreMenu()">···</button>
-          <div class="tb-more-menu" id="more-menu">
-            <button class="tb-more-item" onclick="refreshData();closeMoreMenu()">🔄 Tải lại dữ liệu</button>
-            <button class="tb-more-item" id="mm-import" style="display:none" onclick="importJSON();closeMoreMenu()">↑ Nhập</button>
-            <button class="tb-more-item" id="mm-export" style="display:none" onclick="exportJSON();closeMoreMenu()">↓ Xuất</button>
-          </div>
-        </div>
-        <button class="btn-login-off" id="btn-login-off" onclick="openLoginModal()"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.1955 2.38854C17.132 2.00504 16.9045 1.64404 16.5065 1.41904C16.102 1.19004 15.5835 1.19404 15.1825 1.42904C14.558 1.79504 14.3555 2.50704 14.5755 3.09704C14.714 3.46854 14.585 3.88904 14.3045 4.16954L4.19151 14.282C3.91101 14.5625 3.49101 14.6915 3.11901 14.553C2.52901 14.333 1.81701 14.5355 1.45101 15.1605C1.21601 15.5615 1.21201 16.08 1.44101 16.4845C1.66601 16.882 2.02701 17.1095 2.41051 17.1735C2.63601 17.211 2.81101 17.386 2.84851 17.6115C2.91251 17.9955 3.14001 18.357 3.53901 18.582C3.94251 18.81 4.45951 18.806 4.85951 18.5725C5.47851 18.211 5.68251 17.513 5.47501 16.928C5.34451 16.559 5.47551 16.1465 5.75251 15.8695L15.891 5.73054C16.168 5.45354 16.5805 5.32204 16.9495 5.45304C17.535 5.66054 18.2325 5.45654 18.594 4.83754C18.828 4.43704 18.8315 3.92054 18.6035 3.51704C18.3785 3.11854 18.017 2.89054 17.633 2.82704C17.4075 2.78954 17.2325 2.61404 17.1955 2.38854Z" fill="#A1A4A4"/><path d="M2.849 2.38854C2.9125 2.00504 3.14 1.64404 3.538 1.41904C3.9425 1.19004 4.461 1.19404 4.862 1.42904C5.4865 1.79504 5.689 2.50704 5.469 3.09704C5.3305 3.46854 5.4595 3.88904 5.74 4.16954L15.8525 14.282C16.133 14.5625 16.553 14.6915 16.925 14.553C17.515 14.333 18.227 14.5355 18.593 15.1605C18.828 15.5615 18.832 16.08 18.603 16.4845C18.378 16.882 18.017 17.1095 17.6335 17.1735C17.408 17.211 17.233 17.386 17.1955 17.6115C17.1315 17.9955 16.904 18.357 16.505 18.582C16.1015 18.81 15.5845 18.806 15.1845 18.5725C14.5655 18.211 14.3615 17.513 14.569 16.928C14.6995 16.559 14.5685 16.1465 14.2915 15.8695L4.1535 5.73054C3.8765 5.45354 3.464 5.32204 3.095 5.45304C2.5095 5.66054 1.812 5.45654 1.4505 4.83754C1.2165 4.43704 1.213 3.92054 1.441 3.51704C1.666 3.11854 2.0275 2.89054 2.4115 2.82704C2.637 2.78954 2.812 2.61404 2.849 2.38854Z" fill="#A1A4A4"/><path d="M10.0225 15.073C6.43246 15.073 3.52246 14.7785 3.52246 10.0305C3.52246 6.44052 6.43246 3.53052 10.0225 3.53052C13.6125 3.53052 16.5225 6.44052 16.5225 10.0305C16.5225 14.7785 13.6125 15.073 10.0225 15.073Z" fill="#CACBCB"/><path d="M13.2479 12.0935V15.128C13.2479 15.869 12.6474 16.4695 11.9064 16.4695H8.13886C7.39786 16.4695 6.79736 15.869 6.79736 15.128V12.0935H13.2479Z" fill="#CACBCB"/><path d="M13.2769 9.59551C13.2769 8.86953 12.6884 8.28101 11.9624 8.28101C11.2365 8.28101 10.6479 8.86953 10.6479 9.59551V10.0455C10.6479 10.7715 11.2365 11.36 11.9624 11.36C12.6884 11.36 13.2769 10.7715 13.2769 10.0455V9.59551Z" fill="black"/><path d="M9.39658 9.59551C9.39658 8.86953 8.80806 8.28101 8.08208 8.28101C7.3561 8.28101 6.76758 8.86953 6.76758 9.59551V10.0455C6.76758 10.7715 7.3561 11.36 8.08208 11.36C8.80806 11.36 9.39658 10.7715 9.39658 10.0455V9.59551Z" fill="black"/><path d="M8.90804 16.4696V15.1496C8.90804 14.9441 8.74204 14.7781 8.53654 14.7781C8.33104 14.7781 8.16504 14.9441 8.16504 15.1496V16.4696H8.90804Z" fill="#A1A4A4"/><path d="M10.3934 16.4696V15.1496C10.3934 14.9441 10.2274 14.7781 10.0219 14.7781C9.81639 14.7781 9.65039 14.9441 9.65039 15.1496V16.4696H10.3934Z" fill="#A1A4A4"/><path d="M11.8795 16.4696V15.1496C11.8795 14.9441 11.7135 14.7781 11.508 14.7781C11.3025 14.7781 11.1365 14.9441 11.1365 15.1496V16.4696H11.8795Z" fill="#A1A4A4"/><path d="M9.36116 12.039L9.68366 11.5805C9.85366 11.3385 10.2137 11.342 10.3787 11.587L10.6882 12.0455C10.8772 12.326 10.6767 12.7035 10.3382 12.7035H9.70616C9.36416 12.7035 9.16416 12.318 9.36066 12.0385L9.36116 12.039Z" fill="black"/></svg> Đăng nhập</button>
-        <button class="btn-login-on" id="btn-login-on" onclick="logout()" style="display:none">Bố Đức</button>
-      </div>
-    </div>
-    <div class="page">
-      <div class="filter-bar" style="margin-bottom:12px">
-        <span class="tb-title">Quỹ bia</span>
-      </div>
-      <!-- Charts -->
-      <div class="charts-grid" style="margin-bottom:20px">
-        <div class="chart-card">
-          <div class="chart-title">Tổng quỹ bia từng tháng</div>
-          <div class="chart-wrap"><canvas id="cPM"></canvas></div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title" style="justify-content:flex-start;gap:6px">
-            <span class="tf">💣</span> Top quả tạ
-            <button type="button" onclick="openQuaTaModal()" title="Xem tất cả" style="margin-left:auto;display:flex;align-items:center;background:transparent;border:0;padding:4px;cursor:pointer;color:var(--gray-400);border-radius:8px" onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background='transparent'">
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-          </div>
-          <div class="chart-wrap"><canvas id="cTL"></canvas></div>
-        </div>
-      </div>
-      <!-- Accordion -->
-      <div class="acc-list" id="acc-list"></div>
-      <!-- Summary table -->
-      <div class="tbl-outer">
-        <div class="tbl-title"><span class="tbl-title-text">Tổng hợp quỹ bia theo tháng</span><span class="chip chip-p" id="tp-grand">—</span></div>
-        <div class="tbl-scroll">
-          <table>
-            <thead><tr><th>Tháng</th><th class="tc">Số trận</th><th class="tr">Tổng quỹ bia</th><th class="tr">TB/trận</th><th class="tr">Chưa nộp</th></tr></thead>
-            <tbody id="tb-phat-sum"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL TOP QUẢ TẠ -->
-<div class="ov" id="qua-ta-modal-backdrop" onclick="closeQuaTaModal()" style="display:none">
-  <div class="modal" onclick="event.stopPropagation()" style="max-width:480px;width:min(480px,calc(100vw - 32px));max-height:calc(100dvh - 48px);overflow:hidden;display:flex;flex-direction:column">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px">
-      <div>
-        <div style="font-size:18px;font-weight:800;color:var(--gray-900)"><span class="tf">💣</span> Top quả tạ</div>
-        <div id="qua-ta-modal-sub" style="font-size:13px;color:var(--gray-500);margin-top:2px">—</div>
-      </div>
-      <button class="modal-close" onclick="closeQuaTaModal()" style="position:static;flex-shrink:0">×</button>
-    </div>
-    <div id="qua-ta-modal-body" style="overflow:auto;border:1px solid var(--border);border-radius:12px"></div>
-  </div>
-</div>
-
-<!-- MATCH MODAL -->
-<div class="ov" id="ov-match">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title" id="match-modal-title">Thêm trận đấu</span>
-      <button class="modal-close" onclick="closeOv('ov-match')">×</button>
-    </div>
-    <div class="form-row">
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Tháng</label>
-        <input class="form-control" id="m-month" readonly>
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Ngày thi đấu *</label>
-        <input class="form-control" id="m-date" type="date" required>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Ghi chú</label>
-      <input class="form-control" id="m-note" placeholder="Tiền sân Hướng Mai, vv...">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Chọn đội thua (Click: chưa nộp → đã nộp → bỏ)</label>
-      <div class="loser-hint">
-        <span style="color:#b91c1c">● Chưa nộp</span>
-        <span style="color:#16a34a">● Đã nộp</span>
-        <span>· Click để đổi trạng thái</span>
-      </div>
-      <div class="loser-grid" id="loser-grid"></div>
-      <div id="loser-tags" style="display:flex;flex-wrap:wrap;gap:6px;min-height:24px;margin-top:8px"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Thu thêm (khách mời, đ)</label>
-        <input class="form-control" id="m-thuthem" type="number" step="50000" placeholder="0" inputmode="numeric">
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Ghi chú thu thêm</label>
-        <input class="form-control" id="m-ghichuthem" placeholder="VD: Lính đánh thuê...">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-g" onclick="closeOv('ov-match')">Hủy</button>
-      <button class="btn btn-p" onclick="saveMatch()">Lưu trận</button>
-    </div>
-  </div>
-</div>
-
-<!-- LOGIN MODAL -->
-<div class="ov" id="ov-login">
-  <div class="modal login-modal" style="position:relative">
-     <button class="modal-close" style="position:absolute;top:16px;right:16px" onclick="closeLoginModal()">×</button>
-    <div class="login-icon" style="padding:0;overflow:hidden"><img src="logo.jpg" style="width:72px;height:72px;object-fit:cover;border-radius:12px" alt="FC Sunday"></div>
-    <div class="login-title">Mày là ai?</div>
-    <div class="login-sub">Định tự mình đóng tiền cho mình à? Không được đâu sói à. 😈</div>
-    <div class="login-error" id="login-error">⚠ Sai tên đăng nhập hoặc mật khẩu</div>
-    <div class="form-group"><label class="form-label">Mày là ai?</label><input class="form-control" id="login-user" placeholder="mày là ai?" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
-    <div class="form-group"><label class="form-label">Mật khẩu</label><div class="pw-wrap"><input class="form-control" id="login-pass" type="password" placeholder="••••••••"><button class="pw-toggle" type="button">👁</button></div></div>
-    <div class="remember-row"><input type="checkbox" id="login-remember"><label for="login-remember">Lưu trạng thái đăng nhập</label></div>
-    <button class="btn btn-p btn-full" style="height:40px" onclick="submitLogin()">Đăng nhập</button>
-  </div>
-</div>
-<div id="toast"></div>
-<script src="app.js"></script>
-<script>
-let _cPM, _cTL;
-let _editMatchId = null, _editMatchMi = null;
-let _loserState = {};
-
-function renderAll() {
-  updateSidebarBadges();
-  renderPhatAccordion();
-  renderPhatSummary();
-  renderCharts();
-}
-
-function renderPhatAccordion() {
-  const list = $el('acc-list');
-  if (!list) return;
-  let html = '';
-  for (let i = 0; i < 12; i++) {
-    const matches = matchesInMonth(i, _year);
-    const phatTotal = thuPhatTotalMonth(i, _year);
-    const unpaid = matches.reduce((s,m)=>s+(m.losers||[]).filter(l=>!l.paid).length,0) * FINE;
-    const thuThemTot = thuThemMonth(i, _year);
-    html += `<div class="acc-item" id="acc-${i}">
-      <div class="acc-header" onclick="toggleAcc(${i})">
-        <span class="acc-title">Tháng ${i+1}</span>
-        <span class="acc-arrow"></span>
-      </div>
-    <div class="acc-meta" id="acc-meta-${i}">${[
-          matches.length?`<span class="chip chip-n" style="font-size:11px">${matches.length} trận</span>`:'',
-          phatTotal?`<span class="chip chip-r" style="font-size:11px">Σ: ${fmt(phatTotal)}</span>`:'',
-          thuThemTot?`<span class="chip chip-p" style="font-size:11px">Thêm: +${fmt(thuThemTot)}</span>`:'',
-          unpaid?`<span class="chip chip-w" style="font-size:11px">Nợ: ${fmt(unpaid)}</span>`:''
-        ].join('')}</div>
-          
-      <div class="acc-body" id="acc-body-${i}">
-        ${matches.length ? renderMatchCards(matches, i) : `<div class="acc-empty">Chưa có trận nào trong Tháng ${i+1}</div>`}
-        ${_auth?`<div class="acc-add-row"><button class="btn btn-po btn-sm" onclick="openMatchModal(${i})">+ Thêm trận Tháng ${i+1}</button></div>`:''}
-      </div>
-    </div>`;
-  }
-  list.innerHTML = html;
-  const curMi = new Date().getMonth();
-  const curItem = $el('acc-' + curMi);
-  if (curItem) curItem.classList.add('open');
-}
-
-function renderMatchCards(matches, mi) {
-  return matches.map(m => renderSingleMatchCard(m)).join('');
-}
-
-function renderSingleMatchCard(m) {
-  const losers = m.losers || [];
-  const loserTags = losers.map(l => {
-    const mem = S.members.find(x=>x.id===l.memberId);
-    const name = mem ? mem.name : '?';
-    return `<span class="lt ${l.paid?'lt-p':'lt-u'}" onclick="_auth&&toggleLoserPaid(${m.id},${l.memberId})" title="${l.paid?'Đã nộp':'Chưa nộp'}">${name} ${l.paid?'✓':'×'}</span>`;
-  }).join('');
-  const phatTotal = losers.filter(l=>l.paid).length * FINE;
-  const phatTotalAll = losers.length * FINE;
-  const thuThem = m.thuThem || 0;
-  const grandTotal = phatTotalAll + thuThem;
-  const unpaid = losers.filter(l=>!l.paid).length * FINE;
-  return `<div class="match-card" id="mc-${m.id}">
-    <div class="match-id">#${m.id}</div>
-    <div class="match-info">
-      <div class="match-date">${fmtDate(m.date)}</div>
-      ${m.note?`<div class="match-note">${esc(m.note)}</div>`:''}
-      <div class="match-losers">${loserTags || '<span style="color:var(--gray-400);font-size:12px">Không có người thua</span>'}</div>
-      ${thuThem?`<div style="font-size:12px;color:var(--p-700);margin-top:4px">🎁 Thu thêm: +${fmt(thuThem)}${m.ghiChuThem?' — '+esc(m.ghiChuThem):''}</div>`:''}
-      <div class="match-footer">
-        <div class="match-total">
-          Quỹ bia: ${fmt(phatTotalAll)}
-          ${thuThem ? ` · Thu thêm: <span style="color:var(--p-700)">+${fmt(thuThem)}</span> · Tổng: <b>${fmt(grandTotal)}</b>` : ''}
-          ${unpaid ? ` · Nợ: <span style="color:var(--c-warning)">${fmt(unpaid)}</span>` : ''}
-        </div>
-        ${_auth?`<div class="match-actions">
-          <button class="btn btn-g btn-ic btn-sm" onclick="openEditMatch(${m.id})" title="Sửa"><svg width="14" height="14" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M25.771 6.174L5.107 26.838L12.944 34.675L33.608 14.011L25.771 6.174Z" fill="#FFAA00"/><path fill-rule="evenodd" clip-rule="evenodd" d="M36.844 10.777L33.61 14.012L25.773 6.174L29.007 2.94C29.882 2.065 31.3 2.065 32.174 2.94L36.844 7.61C37.719 8.485 37.719 9.902 36.844 10.777Z" fill="#FF9000"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.295 37.261L7.125 36.235L3.548 32.657L2.522 36.488C2.396 36.957 2.826 37.386 3.295 37.261Z" fill="#313D4C"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.549 32.657L7.125 36.235L12.946 34.675L5.109 26.838L3.549 32.657Z" fill="#FFCCA8"/></svg></button>
-          <button class="btn btn-d btn-ic btn-sm" onclick="delMatch(${m.id})" title="Xóa"><svg width="14" height="14" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.242 11.317L7.137 34.101C7.201 35.72 8.532 37 10.152 37H30.183C31.803 37 33.134 35.72 33.198 34.101L34.093 11.317H6.242Z" fill="#6B7683"/><path d="M6.424 15.97L7.136 34.101C7.2 35.72 8.531 37 10.151 37H30.182C31.802 37 33.133 35.72 33.197 34.101L33.909 15.97H6.424Z" fill="#8A94A0"/><path d="M26.996 9.15C26.326 9.15 25.782 8.607 25.782 7.936V6.352C25.782 5.173 24.823 4.213 23.644 4.213H16.697C15.518 4.213 14.559 5.173 14.559 6.352V7.936C14.559 8.607 14.015 9.15 13.345 9.15C12.675 9.15 12.131 8.607 12.131 7.936V6.352C12.131 3.833 14.18 1.786 16.698 1.786H23.645C26.163 1.786 28.212 3.834 28.212 6.352V7.936C28.212 8.607 27.668 9.15 26.998 9.15H26.996Z" fill="#4B596A"/><path d="M34.416 7.93H5.584C4.751 7.93 4.075 8.606 4.075 9.439V11.45C4.075 12.284 4.751 12.959 5.584 12.959H34.416C35.249 12.959 35.925 12.284 35.925 11.45V9.439C35.925 8.606 35.249 7.93 34.416 7.93Z" fill="#8A94A0"/></svg></button>
-        </div>`:''}
-      </div>
-    </div>
-  </div>`;
-}
-
-function _updateMatchCard(matchId) {
-  const match = S.matches.find(m=>m.id===matchId);
-  if (!match) return;
-  const card = $el('mc-' + matchId);
-  if (!card) return;
-  const tmp = document.createElement('div');
-  tmp.innerHTML = renderSingleMatchCard(match);
-  card.replaceWith(tmp.firstElementChild);
-}
-
-function _updateAccordionHeader(mi) {
-  const hdr = $el('acc-meta-' + mi);
-  if (!hdr) return;
-  const matches = matchesInMonth(mi, _year);
-  const phatTotal = thuPhatTotalMonth(mi, _year);
-  const unpaid = matches.reduce((s,m)=>s+(m.losers||[]).filter(l=>!l.paid).length,0) * FINE;
-  const thuThemTot = thuThemMonth(mi, _year);
-  hdr.innerHTML =
-    (matches.length?`<span class="chip chip-n" style="font-size:11px">${matches.length} trận</span>`:'') +
-    (phatTotal?`<span class="chip chip-r" style="font-size:11px">${fmt(phatTotal)}</span>`:'') +
-    (thuThemTot?`<span class="chip chip-p" style="font-size:11px">+${fmt(thuThemTot)}</span>`:'') +
-    (unpaid?`<span class="chip chip-w" style="font-size:11px">Nợ: ${fmt(unpaid)}</span>`:'');
-}
-
-function toggleAcc(i) {
-  const item = $el('acc-'+i);
-  if (item) item.classList.toggle('open');
-}
-
-function toggleLoserPaid(matchId, memberId) {
-  if (!_requireAuth()) return;
-  const match = S.matches.find(m=>m.id===matchId);
-  if (!match) return;
-  const loser = match.losers.find(l=>l.memberId===memberId);
-  if (!loser) return;
-  loser.paid = !loser.paid;
-  saveS();
-  _updateMatchCard(matchId);
-  _updateAccordionHeader(match.monthIdx);
-  updateSidebarBadges();
-  renderCharts();
-}
-
-function openMatchModal(mi) {
-  if (!_requireAuth()) return;
-  _editMatchId = null;
-  _editMatchMi = mi;
-  $set('match-modal-title', `Thêm trận Tháng ${mi+1}`);
-  $el('m-month').value = `Tháng ${mi+1}`;
-  $el('m-date').value = new Date().toISOString().split('T')[0];
-  $el('m-note').value = '';
-  $el('m-thuthem').value = '';
-  $el('m-ghichuthem').value = '';
-  _loserState = {};
-  renderLoserGrid();
-  openOv('ov-match');
-}
-
-function openEditMatch(id) {
-  if (!_requireAuth()) return;
-  const match = S.matches.find(m=>m.id===id);
-  if (!match) return;
-  _editMatchId = id;
-  _editMatchMi = match.monthIdx;
-  $set('match-modal-title', `Sửa trận Tháng ${match.monthIdx+1}`);
-  $el('m-month').value = `Tháng ${match.monthIdx+1}`;
-  $el('m-date').value = match.date;
-  $el('m-note').value = match.note || '';
-  $el('m-thuthem').value = match.thuThem || '';
-  $el('m-ghichuthem').value = match.ghiChuThem || '';
-  _loserState = {};
-  (match.losers||[]).forEach(l=>{ _loserState[l.memberId] = l.paid ? 2 : 1; });
-  renderLoserGrid();
-  openOv('ov-match');
-}
-
-function renderLoserGrid() {
-  const grid = $el('loser-grid');
-  if (!grid) return;
-  const am = S.members.filter(m => m.status !== 'left');
-  grid.innerHTML = am.map(m => {
-    const s = _loserState[m.id] || 0;
-    const cls = s===1?'s1':s===2?'s2':'';
-    const icon = s===1?'✕':s===2?'✓':'';
-    return `<div class="loser-item ${cls}" onclick="cycleLoser(${m.id})">${icon} ${esc(m.name)}</div>`;
-  }).join('');
-  renderLoserTags();
-}
-
-function cycleLoser(mid) {
-  _loserState[mid] = ((_loserState[mid]||0) + 1) % 3;
-  renderLoserGrid();
-}
-
-function renderLoserTags() {
-  const tags = $el('loser-tags');
-  if (!tags) return;
-  const selected = Object.entries(_loserState).filter(([,s])=>s>0);
-  tags.innerHTML = selected.map(([mid,s]) => {
-    const m = S.members.find(x=>x.id===+mid);
-    if (!m) return '';
-    return `<span class="lt ${s===2?'lt-p':'lt-u'}" onclick="cycleLoser(${mid})">${m.name}</span>`;
-  }).join('');
-}
-
-function saveMatch() {
-  if (!_requireAuth()) return;
-  const date = $el('m-date')?.value;
-  if (!date) { showToast('Vui lòng chọn ngày thi đấu', 'red'); return; }
-  const note = $el('m-note')?.value?.trim() || '';
-  const thuThem = parseFloat($el('m-thuthem')?.value) || 0;
-  const ghiChuThem = $el('m-ghichuthem')?.value?.trim() || '';
-  const losers = Object.entries(_loserState)
-    .filter(([,s])=>s>0)
-    .map(([mid,s])=>({ memberId:+mid, paid: s===2 }));
-
-  if (_editMatchId) {
-    const match = S.matches.find(m=>m.id===_editMatchId);
-    if (match) { match.date=date; match.note=note; match.losers=losers; match.thuThem=thuThem; match.ghiChuThem=ghiChuThem; }
-  } else {
-    const mi = _editMatchMi;
-    const year = _year;
-    // Encode year in date field if needed
-    S.matches.push({ id:S.nextMaid++, monthIdx:mi, date, note, losers, thuThem, ghiChuThem });
-  }
-  saveS();
-  closeOv('ov-match');
-  showToast(_editMatchId?'✓ Đã cập nhật trận đấu':'✓ Đã thêm trận đấu', 'green');
-  renderAll();
-}
-
-function delMatch(id) {
-  if (!_requireAuth()) return;
-  if (!confirm('Xóa trận đấu này?')) return;
-  S.matches = S.matches.filter(m=>m.id!==id);
-  saveS();
-  showToast('Đã xóa trận đấu', 'default');
-  renderAll();
-}
-
-function renderPhatSummary() {
-  const tb = $el('tb-phat-sum');
-  if (!tb) return;
-  let rows = '', grandTotal = 0, grandTran = 0, grandUnpaid = 0;
-  for (let i=0;i<12;i++) {
-    const matches = matchesInMonth(i, _year);
-    const total = thuPhatTotalMonth(i, _year);
-    const unpaid = matches.reduce((s,m)=>s+(m.losers||[]).filter(l=>!l.paid).length,0) * FINE;
-    const avg = matches.length ? total/matches.length : 0;
-    grandTotal += total; grandTran += matches.length; grandUnpaid += unpaid;
-    rows += `<tr>
-      <td class="bold">Tháng ${i+1}</td>
-      <td class="tc">${matches.length?`<span class="chip chip-n">${matches.length}</span>`:'<span style="color:var(--gray-300)">—</span>'}</td>
-      <td class="tr" style="color:var(--gray-800)">${total?fmt(total):'<span style="color:var(--gray-300)">—</span>'}</td>
-      <td class="tr">${avg?fmt(avg):'<span style="color:var(--gray-300)">—</span>'}</td>
-      <td class="tr" style="color:${unpaid?'var(--c-warning)':'var(--p-700)'}">${unpaid?fmt(unpaid):'<span style="color:var(--p-700)">Đủ ✓</span>'}</td>
-    </tr>`;
-  }
-  rows += `<tr class="tbl-foot">
-    <td class="bold">TỔNG CỘNG</td>
-    <td class="tc bold">${grandTran} trận</td>
-    <td class="tr bold">${fmt(grandTotal)}</td>
-    <td class="tr">${grandTran?fmt(grandTotal/grandTran):'—'}</td>
-    <td class="tr bold" style="color:var(--c-warning)">${grandUnpaid?fmt(grandUnpaid):'Đủ ✓'}</td>
-  </tr>`;
-  tb.innerHTML = rows;
-  $set('tp-grand', fmt(grandTotal));
-}
-
-function renderCharts() {
-  const phatData = Array.from({length:12},(_,i)=>thuPhatTotalMonth(i, _year));
-  const opts = chartDefaults();
-
-  if (_cPM) _cPM.destroy();
-  _cPM = new Chart($el('cPM'), {
-    type:'bar',
-    data:{ labels:MONTHS, datasets:[{data:phatData,backgroundColor:'#00A887',borderRadius:4}] },
-    options:opts
-  });
-
-  const am = activeMembers();
-  const lossData = am.map(m=>({name:m.name,count:memberTotalLoss(m.id)}))
-    .filter(x=>x.count>0).sort((a,b)=>b.count-a.count).slice(0,10);
-
-  if (_cTL) _cTL.destroy();
-  if (lossData.length) {
-    _cTL = new Chart($el('cTL'), {
-      type:'bar',
-      data:{ labels:lossData.map(x=>x.name), datasets:[{data:lossData.map(x=>x.count),backgroundColor:'#d97706',borderRadius:4}] },
-      options:{ ...opts, plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+' trận'}}}, scales:{x:{grid:{display:false},ticks:{font:{size:10,family:'Pretendard'}}},y:{grid:{color:'rgba(17,24,39,.05)'},ticks:{font:{size:11,family:'Pretendard'},stepSize:1}}} }
-    });
-  }
-}
-
-function closeQuaTaModal() {
-  const bd = document.getElementById('qua-ta-modal-backdrop');
-  if (bd) bd.style.display = 'none';
-}
-function openQuaTaModal() {
-  const bd   = document.getElementById('qua-ta-modal-backdrop');
-  const sub  = document.getElementById('qua-ta-modal-sub');
-  const body = document.getElementById('qua-ta-modal-body');
-  if (!bd || !body) return;
-
-  const lastLossMap = {};
-  (S.matches || []).filter(m => !_year || String(m.date || '').startsWith(String(_year))).forEach(match => {
-    const matchDate = match.date || '';
-    (match.losers || []).forEach(l => {
-      const id = String(l.memberId ?? l.id ?? l.mid ?? '');
-      if (!id) return;
-      if (!lastLossMap[id] || matchDate > lastLossMap[id]) lastLossMap[id] = matchDate;
-    });
-  });
-
-  const allData = activeMembers()
-    .map(m => ({ name: m.name, count: memberTotalLoss(m.id), lastLoss: lastLossMap[String(m.id)] || '' }))
-    .filter(x => x.count > 0)
-    .sort((a, b) => b.count - a.count || b.lastLoss.localeCompare(a.lastLoss));
-
-  if (sub) sub.textContent = `Năm ${_year}`;
-
-  const medals = ['🥇','🥈','🥉'];
-  body.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px">
-    <thead><tr style="background:var(--gray-50)">
-      <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--gray-600);border-bottom:1px solid var(--border);width:48px">#</th>
-      <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--gray-600);border-bottom:1px solid var(--border)">Tên</th>
-      <th style="padding:10px 12px;text-align:right;font-weight:600;color:var(--gray-600);border-bottom:1px solid var(--border)">Số trận thua</th>
-    </tr></thead>
-    <tbody>
-      ${allData.map((d, i) => `<tr style="border-bottom:0.5px solid var(--border)">
-        <td style="padding:10px 12px;color:var(--gray-400);font-weight:600;width:48px;text-align:center">${i < 3 ? `<span class="tf" style="font-size:18px;line-height:1;display:inline-block;vertical-align:middle">${medals[i]}</span>` : `<span style="display:inline-block;line-height:1;vertical-align:middle">${i+1}</span>`}</td>
-        <td style="padding:10px 12px;font-weight:600;color:var(--gray-900)">${d.name}</td>
-        <td style="padding:10px 12px;text-align:right"><span class="qt-chip" style="gap:4px"><b style="font-weight:600;color:#555">${d.count}</b> trận</span></td>
-      </tr>`).join('')}
-    </tbody>
-  </table>`;
-
-  bd.style.display = 'flex';
-}
-
-wireLoginModal();
-initApp();
-
-// Auto re-render sau khi login — theo dõi btn-login-on hiện ra
-(function() {
-  const btnOn = document.getElementById('btn-login-on');
-  if (!btnOn) return;
-  new MutationObserver(() => {
-    if (btnOn.style.display !== 'none' && btnOn.style.display !== '') {
-      renderAll();
+  <meta charset="UTF-8">
+  <script>
+    /* Theme: apply trước khi render để tránh flash */
+    (function(){
+      var t = localStorage.getItem('fc-sunday-theme');
+      if (t === 'light') document.documentElement.setAttribute('data-theme','light');
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="theme-color" content="#0C0C0F">
+  <title>FC Sunday — Quỹ bia</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <style>
+    .month-tab {
+      padding: 8px 16px; border-radius: var(--radius-full);
+      font-size: 13px; font-weight: 600;
+      background: var(--bg-elevated); color: var(--text-secondary);
+      border: 1px solid var(--bg-border); cursor: pointer;
+      transition: background .12s, color .12s, border-color .12s;
     }
-  }).observe(btnOn, { attributes: true, attributeFilter: ['style'] });
-})();
+    .month-tab.active { background: rgba(255,192,46,.15); color: var(--color-primary); border-color: rgba(255,192,46,.3); }
+    .loser-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 10px; border-radius: var(--radius-full);
+      font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: background .12s;
+    }
+    .loser-paid   { background: rgba(46,204,113,.15); color: var(--color-success); border: 1px solid rgba(46,204,113,.3); }
+    .loser-unpaid { background: rgba(224,57,44,.1);  color: var(--color-accent-light); border: 1px solid rgba(224,57,44,.2); }
+
+    /* Loser toggle 3 states */
+    .loser-toggle {
+      padding: 6px 14px; border-radius: var(--radius-full);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      border: 1.5px solid var(--bg-stroke);
+      background: var(--bg-elevated); color: var(--text-muted);
+      transition: background .12s, color .12s, border-color .12s;
+      font-family: var(--font-sans);
+    }
+    /* state=1: thua chưa đóng — đỏ */
+    .loser-toggle[data-state="1"] {
+      background: rgba(224,57,44,.12); color: var(--color-accent-light);
+      border-color: rgba(224,57,44,.4);
+    }
+    /* state=2: thua đã đóng — xanh */
+    .loser-toggle[data-state="2"] {
+      background: rgba(46,204,113,.12); color: var(--color-success);
+      border-color: rgba(46,204,113,.4);
+    }
+    .month-accordion-card { border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--bg-border); background: var(--bg-surface); }
+    .month-accordion-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; cursor: pointer;
+      background: var(--bg-elevated);
+      user-select: none;
+      transition: background .12s;
+    }
+    .month-accordion-header:hover { background: var(--bg-stroke); }
+    .month-accordion-title { font-size: 16px; font-weight: 700; }
+    .month-accordion-chevron {
+      font-size: 20px; color: var(--text-muted);
+      transition: transform .2s;
+      flex-shrink: 0;
+    }
+    .month-accordion-card.is-open .month-accordion-chevron { transform: rotate(180deg); }
+    .month-accordion-body { display: none; padding: 16px 20px; display:flex; flex-direction:column; gap:16px; }
+    .month-accordion-card:not(.is-open) .month-accordion-body { display: none; }
+
+    /* Month summary chips */
+    .month-summary-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .month-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 8px; border-radius: var(--radius-full);
+      font-size: 12px; font-weight: 700;
+      background: var(--bg-elevated); color: var(--text-secondary);
+      border: 1px solid var(--bg-border);
+    }
+    .month-chip--total { background: rgba(224,57,44,.1); color: var(--color-accent-light); border-color: rgba(224,57,44,.2); }
+    .month-chip--extra { background: var(--bg-elevated); color: var(--text-primary); }
+    .month-chip--debt  { background: rgba(255,192,46,.1); color: var(--color-primary); border-color: rgba(255,192,46,.25); }
+
+    /* Match item */
+    .match-item { background: var(--bg-elevated); border-radius: var(--radius-lg); padding: 14px 16px; border: 1px solid var(--bg-border); }
+    .match-item__header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .match-item__num {
+      width: 32px; height: 32px; border-radius: var(--radius-sm);
+      background: var(--bg-border); color: var(--text-secondary);
+      font-size: 12px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .match-item__date { font-size: 15px; font-weight: 700; }
+    .match-item__losers { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .match-item__extra {
+      font-size: 12px; color: var(--text-secondary);
+      padding: 6px 10px; border-radius: var(--radius-sm);
+      background: rgba(255,192,46,.06); border: 1px solid rgba(255,192,46,.15);
+      margin-bottom: 6px;
+    }
+    .match-item__summary { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .match-item__summary strong { color: var(--text-primary); font-weight: 700; }
+    .match-item__actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+
+  </style>
+</head>
+<body data-active="thu-phat">
+<div class="app-shell">
+  <div data-component="sidebar"></div>
+  <div class="main-content">
+    <div data-component="header" data-title="Quỹ bia"></div>
+    <main class="page" id="page-content" style="opacity:0;transition:opacity .2s">
+
+      <div class="thu-thang-page-header">
+        <div class="thu-thang-page-title">
+          <div class="section-overline">50.000 / người / trận thua</div>
+          <h1 class="text-h1">Quỹ bia 🍺</h1>
+        </div>
+        <select class="year-selector thu-thang-year-selector" id="year-select">
+          <!-- options injected by JS -->
+        </select>
+      </div>
+
+      <!-- KPI 2x2 -->
+      <div class="grid-2-fixed" style="margin-bottom:20px">
+        <div class="kpi-card kpi-card--gold">
+          <div class="kpi-card__label">Tổng thu bia</div>
+          <div class="kpi-card__value" id="kpi-thu-bia">0</div>
+        </div>
+        <div class="kpi-card kpi-card--red">
+          <div class="kpi-card__label">Còn nợ</div>
+          <div class="kpi-card__value" id="kpi-con-no">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__label">Số trận</div>
+          <div class="kpi-card__value" id="kpi-so-tran">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__label">Người còn nợ</div>
+          <div class="kpi-card__value" id="kpi-nguoi-no">0</div>
+        </div>
+      </div>
+
+      <!-- Leaderboard full width -->
+      <div class="card" style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div>
+            <div class="section-overline" style="margin-bottom:4px">Xếp hạng</div>
+            <div class="section-title" style="font-size:16px">Top thua nhiều nhất</div>
+          </div>
+          <button onclick="openBiaRankingSheet()" class="btn btn-icon btn-ghost" title="Xem đầy đủ">
+            <iconify-icon icon="solar:alt-arrow-right-linear" style="font-size:20px"></iconify-icon>
+          </button>
+        </div>
+        <div id="bia-leaderboard">
+          <div style="color:var(--text-muted);font-size:13px;text-align:center;padding:24px">Chưa có dữ liệu</div>
+        </div>
+      </div>
+
+      <!-- Monthly accordion -->
+      <div id="month-accordion" style="display:flex;flex-direction:column;gap:12px"></div>
+
+      <!-- Save bar (pending changes) -->
+      <div class="save-bar" id="bia-save-bar" hidden>
+        <button class="save-bar__btn save-bar__btn--cancel" type="button" onclick="cancelBiaChanges()">Huỷ</button>
+        <button class="save-bar__btn save-bar__btn--save" id="bia-save-btn" type="button" onclick="saveBiaChanges()">Lưu</button>
+      </div>
+    </main>
+  </div>
+  <div data-component="bottom-nav"></div>
+</div>
+
+<!-- Match modal (thêm / sửa trận) -->
+<div class="sheet-backdrop" id="match-modal" style="display:none" role="dialog" aria-modal="true">
+  <div class="sheet fade-in">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <h2 class="modal-title" id="match-modal-title" style="margin-bottom:0">Thêm trận đấu</h2>
+      <button class="btn btn-icon btn-ghost" onclick="closeMatchModal()" style="flex-shrink:0;margin-top:-4px">
+        <iconify-icon icon="solar:close-circle-linear" style="font-size:22px"></iconify-icon>
+      </button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="field">
+        <label>Ngày thi đấu</label>
+        <button type="button" class="input" id="match-date-btn"
+          style="text-align:left;cursor:pointer;display:flex;align-items:center;gap:8px"
+          onclick="window.DatePicker?.open('match-date','match-date-display')">
+          <iconify-icon icon="solar:calendar-linear" style="font-size:18px;color:var(--text-muted);flex-shrink:0"></iconify-icon>
+          <span id="match-date-display" style="color:var(--text-primary)">Chọn ngày</span>
+        </button>
+        <input type="hidden" id="match-date">
+      </div>
+      <div class="field">
+        <label>Đội thua (chọn nhiều)</label>
+        <div id="loser-checkboxes" style="display:flex;flex-wrap:wrap;gap:8px;padding:4px 0"></div>
+      </div>
+      <div class="field">
+        <label>Thu thêm (nếu có)</label>
+        <input type="text" inputmode="numeric" class="input" id="match-thu-them" placeholder="0" autocomplete="off" data-money>
+      </div>
+      <div class="field">
+        <label>Ghi chú thu thêm</label>
+        <input type="text" class="input" id="match-ghi-chu" placeholder="VD: Thu bù trận cũ">
+      </div>
+      <div style="display:flex;gap:12px;margin-top:4px">
+        <button class="btn btn-surface" onclick="closeMatchModal()" style="justify-content:center">Huỷ</button>
+        <button class="btn btn-primary w-full" id="btn-save-match" style="justify-content:center">
+          <iconify-icon icon="solar:check-circle-linear" style="font-size:18px"></iconify-icon>
+          Lưu trận
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Inline DatePicker ── */
+window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];const DOW=['CN','T2','T3','T4','T5','T6','T7'];let _y,_m,_sel,_hid,_dis;function fmtVN(d){if(!d)return'Chọn ngày';const[y,m,dd]=d.split('-');return`${parseInt(dd)} ${MV[parseInt(m)-1]}, ${y}`;}function setVal(d){const h=document.getElementById(_hid),s=document.getElementById(_dis);if(h)h.value=d;if(s){s.textContent=fmtVN(d);s.style.color=d?'var(--text-primary)':'var(--text-muted)';}}function render(){const lb=document.getElementById('_dp_label');if(lb)lb.textContent=`${MV[_m]}, ${_y}`;const g=document.getElementById('_dp_days');if(!g)return;const fd=new Date(_y,_m,1).getDay(),dim=new Date(_y,_m+1,0).getDate(),ts=new Date().toISOString().slice(0,10);let h='';for(let i=0;i<fd;i++)h+='<div></div>';for(let d=1;d<=dim;d++){const ds=`${_y}-${String(_m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const isSel=ds===_sel,isTod=ds===ts;let bg='transparent',col='var(--text-primary)',fw='500';if(isSel){bg='var(--color-primary)';col='#1a1206';fw='800';}else if(isTod){bg='rgba(255,192,46,.15)';col='var(--color-primary)';fw='700';}h+=`<button type="button" style="padding:9px 0;text-align:center;font-size:13px;font-weight:${fw};border:none;cursor:pointer;border-radius:var(--radius-md);background:${bg};color:${col};font-family:var(--font-sans)" onclick="DatePicker._pick('${ds}')">${d}</button>`;}g.innerHTML=h;}function ensure(){if(document.getElementById('_dp_modal'))return;const el=document.createElement('div');el.className='modal-backdrop';el.id='_dp_modal';el.style.display='none';el.innerHTML=`<div class="modal fade-in" style="max-width:340px;padding:20px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><button class="btn btn-icon btn-ghost" onclick="DatePicker._prev()"><iconify-icon icon="solar:arrow-left-linear" style="font-size:18px"></iconify-icon></button><div style="font-size:15px;font-weight:700" id="_dp_label"></div><button class="btn btn-icon btn-ghost" onclick="DatePicker._next()"><iconify-icon icon="solar:arrow-right-linear" style="font-size:18px"></iconify-icon></button></div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">${DOW.map(d=>`<div style="text-align:center;font-size:11px;font-weight:700;color:var(--text-muted);padding:4px">${d}</div>`).join('')}</div><div id="_dp_days" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px"></div><div style="display:flex;justify-content:space-between;margin-top:14px"><button class="btn btn-ghost btn-sm" onclick="DatePicker._today()">Hôm nay</button><button class="btn btn-ghost btn-sm" onclick="DatePicker.close()">Đóng</button></div></div>`;el.addEventListener('click',e=>{if(e.target===el)DatePicker.close();});document.body.appendChild(el);}return{init(b,h,d,def){ensure();_hid=h;_dis=d;setVal(def||new Date().toISOString().slice(0,10));},open(h,d){ensure();_hid=h;_dis=d;const c=document.getElementById(h)?.value;const r=c?new Date(c+'T00:00:00'):new Date();_y=r.getFullYear();_m=r.getMonth();_sel=c||'';render();document.getElementById('_dp_modal').style.display='flex';},close(){const m=document.getElementById('_dp_modal');if(m)m.style.display='none';},_pick(d){_sel=d;setVal(d);this.close();},_prev(){_m--;if(_m<0){_m=11;_y--;}render();},_next(){_m++;if(_m>11){_m=0;_y++;}render();},_today(){const t=new Date();_y=t.getFullYear();_m=t.getMonth();_sel=t.toISOString().slice(0,10);render();},getValue(h){return document.getElementById(h)?.value||'';},setValue(h,d,v){_hid=h;_dis=d;setVal(v);}};})();
 </script>
-</body></html>
+
+<!-- Bia Loss Ranking Sheet -->
+<div class="sheet-backdrop" id="bia-ranking-sheet" style="display:none;align-items:flex-end" onclick="if(event.target===this)closeBiaRankingSheet()">
+  <div class="sheet fade-in" style="height:calc(100dvh - 64px);max-height:calc(100dvh - 64px);overflow:hidden;display:flex;flex-direction:column;border-radius:var(--radius-xl) var(--radius-xl) 0 0">
+    <div class="modal-handle"></div>
+    <div style="padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div>
+        <div class="section-overline">Xếp hạng</div>
+        <div class="section-title" style="font-size:16px">Top thua nhiều nhất</div>
+      </div>
+      <button class="btn btn-icon btn-ghost" onclick="closeBiaRankingSheet()">
+        <iconify-icon icon="solar:close-circle-linear" style="font-size:22px"></iconify-icon>
+      </button>
+    </div>
+    <div id="bia-ranking-sheet-list" style="overflow-y:auto;padding:0 20px 32px;flex:1"></div>
+  </div>
+</div>
+<script>
+  window.openBiaRankingSheet=function(){
+    const list=window._biafullRanking||[];
+    const el=document.getElementById('bia-ranking-sheet-list');
+    if(!el)return;
+    el.innerHTML=list.length===0
+      ?'<div class="empty-state" style="padding:32px 0"><div class="empty-state__desc">Chưa có dữ liệu</div></div>'
+      :list.map((r,i)=>`<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bg-border)"><div style="width:32px;height:32px;border-radius:var(--radius-full);background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--text-muted);flex-shrink:0">${i+1}</div><div style="flex:1;font-size:15px;font-weight:600;color:var(--text-primary)">${r.m.name}</div><div style="font-size:14px;font-weight:700;color:var(--color-accent-light)">${r.n} trận</div></div>`).join('');
+    document.getElementById('bia-ranking-sheet').style.display='flex';
+  };
+  window.closeBiaRankingSheet=function(){document.getElementById('bia-ranking-sheet').style.display='none';};
+</script>
+<script src="app.js" defer></script>
+<script src="components/components-loader.js" defer></script>
+<script>
+  const MONTHS = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
+  const MONTHS_FULL = ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6',
+                       'Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
+  const FINE = 50000, BASE_YEAR = 2026;
+  let _year = BASE_YEAR, _S = null;
+  const _openMonths = new Set([new Date().getMonth()]);
+  let _editMatchId = null;
+
+  function fmt(n) { return new Intl.NumberFormat('vi-VN').format(n); }
+  function fmtK(n) { return n === 0 ? '0' : (n / 1000).toLocaleString('vi-VN', {maximumFractionDigits: 0}) + ' K'; }
+  function fmtDate(d) { if(!d) return '—'; const p=d.split('-'); return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:d; }
+  function getYearMatches(S) {
+    return (S.matches||[]).filter(m=>_year===BASE_YEAR?(!m.year||m.year===BASE_YEAR):m.year===_year);
+  }
+
+  // ── 3-state loser toggle ──────────────────────────────────
+  function applyLoserState(btn) {
+    // state 0: mặc định, 1: thua chưa đóng (đỏ), 2: thua đã đóng (xanh)
+    btn.setAttribute('data-state', btn.dataset.state);
+  }
+  window.cycleLoserState = function(btn) {
+    const cur = parseInt(btn.dataset.state||'0');
+    btn.dataset.state = String((cur+1)%3);
+    applyLoserState(btn);
+  };
+
+  // ── Match modal ──────────────────────────────────────────
+  window.closeMatchModal = function() {
+    document.getElementById('match-modal').style.display='none'; _editMatchId=null;
+  };
+  document.getElementById('match-modal')?.addEventListener('click', e=>{
+    if(e.target===document.getElementById('match-modal')) closeMatchModal();
+  });
+
+  function openMatchModal(targetMi, editId) {
+    if(!window._isLoggedIn?.()) return;
+    _editMatchId = editId ?? null;
+    const isEdit = _editMatchId !== null;
+    document.getElementById('match-modal-title').textContent = isEdit ? 'Sửa trận đấu' : `Thêm trận — ${MONTHS_FULL[targetMi]}`;
+    const members = (_S?.members||[]).filter(m=>m.status!=='left');
+    const cbEl = document.getElementById('loser-checkboxes');
+    cbEl.innerHTML = members.map(m=>`
+      <button type="button" class="loser-toggle" data-mid="${m.id}" data-state="0" onclick="cycleLoserState(this)">${m.name}</button>`).join('');
+    if(isEdit) {
+      const match=(_S?.matches||[]).find(m=>m.id==_editMatchId);
+      if(match) {
+        document.getElementById('match-date').value=match.date||'';
+        window.DatePicker?.setValue('match-date','match-date-display', match.date||'');
+        document.getElementById('match-thu-them').value=match.thuThem||'';
+        document.getElementById('match-ghi-chu').value=match.ghiChuThem||'';
+        (match.losers||[]).forEach(l=>{
+          const btn=cbEl.querySelector(`[data-mid="${l.memberId}"]`);
+          if(btn){btn.dataset.state=l.paid?'2':'1';applyLoserState(btn);}
+        });
+      }
+    } else {
+      const today=new Date(),y=_year,mo=targetMi;
+      const def=new Date(y,mo,mo===today.getMonth()&&y===today.getFullYear()?today.getDate():1);
+      const defStr = def.toISOString().slice(0,10);
+      window.DatePicker?.setValue('match-date','match-date-display', defStr);
+      document.getElementById('match-thu-them').value='';
+      document.getElementById('match-ghi-chu').value='';
+    }
+    document.getElementById('match-modal').style.display='flex';
+  }
+  window.openAddMatch  = function(mi)      { openMatchModal(mi, null); };
+  window.openEditMatch = function(matchId) {
+    const m=(_S?.matches||[]).find(m=>m.id==matchId); if(m) openMatchModal(m.monthIdx, matchId);
+  };
+
+  // ── Pending state ────────────────────────────────────────
+  let _lastSavedS = null;
+  let _hasBiaChanges = false;
+
+  function setBiaPending(has) {
+    _hasBiaChanges = !!has;
+    const bar = document.getElementById('bia-save-bar');
+    if (bar) bar.hidden = !_hasBiaChanges;
+  }
+
+  window.togglePaid = function(matchId, memberId) {
+    if (!window._isLoggedIn?.() || !_S) return;
+    const match = (_S.matches||[]).find(m=>m.id==matchId);
+    if (!match) return;
+    const loser = (match.losers||[]).find(l=>l.memberId==memberId);
+    if (loser) loser.paid = !loser.paid;
+    setBiaPending(true);
+    renderPage(_S);
+  };
+
+  window.cancelBiaChanges = function() {
+    if (!_lastSavedS) return;
+    _S = JSON.parse(JSON.stringify(_lastSavedS));
+    setBiaPending(false);
+    renderPage(_S);
+  };
+
+  window.saveBiaChanges = async function() {
+    if (!_hasBiaChanges || !_S) return;
+    const btn = document.getElementById('bia-save-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Đang lưu…'; }
+    try {
+      await window._saveS?.(_S);
+      _lastSavedS = JSON.parse(JSON.stringify(_S));
+      setBiaPending(false);
+    } catch(e) {
+      console.error(e);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Lưu'; }
+    }
+  };
+
+  document.getElementById('btn-save-match')?.addEventListener('click', async ()=>{
+    if(!_S||!window._isLoggedIn?.()) return;
+    const date=document.getElementById('match-date').value;
+    if(!date){alert('Vui lòng chọn ngày');return;}
+    const selected=Array.from(document.querySelectorAll('#loser-checkboxes .loser-toggle'))
+      .filter(btn=>btn.dataset.state!=='0')
+      .map(btn=>({memberId:parseInt(btn.dataset.mid), paid:btn.dataset.state==='2'}));
+
+    const thuThem=window._moneyInput?.parse(document.getElementById('match-thu-them').value)||0;
+    const ghiChu=document.getElementById('match-ghi-chu').value.trim();
+    const mi=new Date(date).getMonth();
+    if(!_S.matches) _S.matches=[];
+    if(_editMatchId!==null) {
+      const match=_S.matches.find(m=>m.id==_editMatchId);
+      if(match) {
+        const oldPaid={};(match.losers||[]).forEach(l=>{oldPaid[l.memberId]=l.paid;});
+        match.date=date;match.monthIdx=mi;match.thuThem=thuThem;match.ghiChuThem=ghiChu;
+        match.losers=selected.map(s=>({memberId:s.memberId,paid:s.paid}));
+      }
+    } else {
+      const newId=(_S.nextMaid||1);
+      _S.matches.push({id:newId,date,monthIdx:mi,year:_year,thuThem,ghiChuThem:ghiChu,
+        losers:selected.map(s=>({memberId:s.memberId,paid:s.paid}))});
+      _S.nextMaid=newId+1;
+    }
+    _openMonths.add(mi);
+    await window._saveS?.(_S);
+    _lastSavedS = JSON.parse(JSON.stringify(_S));
+    setBiaPending(false);
+    closeMatchModal(); renderPage(_S);
+  });
+
+  // ── Leaderboard ──────────────────────────────────────────
+  function renderLeaderboard(matches, members) {
+    const lossMap={};
+    const lastLossMap={};
+    matches.forEach(match=>{(match.losers||[]).forEach(l=>{lossMap[l.memberId]=(lossMap[l.memberId]||0)+1;const d=match.date||'';if(!lastLossMap[l.memberId]||d>lastLossMap[l.memberId])lastLossMap[l.memberId]=d;});});
+    const fullRanking=Object.entries(lossMap).map(([id,n])=>({m:members.find(x=>x.id==id),n,lastLoss:lastLossMap[id]||''}))
+      .filter(x=>x.m).sort((a,b)=>b.n-a.n||(b.lastLoss>a.lastLoss?1:b.lastLoss<a.lastLoss?-1:0));
+    window._biafullRanking=fullRanking;
+    const ranking=fullRanking.slice(0,5);
+    const el=document.getElementById('bia-leaderboard');
+    if(!ranking.length){el.innerHTML='<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:24px">Chưa có dữ liệu</div>';return;}
+    const podium=ranking.slice(0,3),rest=ranking.slice(3);
+    const medals=['🥇','🥈','🥉'];
+    const po=podium.length===1?[podium[0]]:podium.length===2?[podium[1],podium[0]]:[podium[1],podium[0],podium[2]];
+    const pr=podium.length===1?[0]:podium.length===2?[1,0]:[1,0,2];
+    el.innerHTML=`<div class="podium-wrap">${po.map((r,pi)=>{const rank=pr[pi]+1;return`<div class="podium-card podium-card--${rank}"><div class="podium-medal">${medals[rank-1]}</div><div class="podium-name">${r.m.name}</div><div class="podium-losses">${r.n} trận</div></div>`;}).join('')}</div>`
+      +(rest.length?`<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">${rest.map((r,i)=>`<div class="leaderboard-item"><div class="leaderboard-item__rank">${i+4}</div><div class="leaderboard-item__name">${r.m.name}</div><div class="leaderboard-item__losses">${r.n} trận</div></div>`).join('')}</div>`:'');
+  }
+
+  // ── Accordion ────────────────────────────────────────────
+  function renderAccordion(S) {
+    const members=(S.members||[]).filter(m=>m.status!=='left');
+    const matches=getYearMatches(S);
+    const isAdmin=window._isLoggedIn?.();
+    const accordion=document.getElementById('month-accordion');
+    accordion.innerHTML='';
+    let hasAny=false;
+
+    MONTHS.forEach((mn,mi)=>{
+      // Sắp xếp toàn bộ trận trong năm theo ngày tăng dần → tính rank
+      const allSorted = matches.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+      const rankMap = {};
+      allSorted.forEach((m, i) => { rankMap[m.id] = i + 1; });
+
+      const monthMatches = matches.filter(m=>m.monthIdx===mi)
+        .sort((a,b)=>(a.date||'').localeCompare(b.date||'')); // ASC
+      if(!monthMatches.length&&!isAdmin) return;
+      hasAny=true;
+      const isOpen=_openMonths.has(mi);
+      let thuBiaMo=0,thuThemMo=0,noBiaMo=0;
+      monthMatches.forEach(m=>{(m.losers||[]).forEach(l=>{if(l.paid)thuBiaMo+=FINE;else noBiaMo+=FINE;});thuThemMo+=(m.thuThem||0);});
+      const tongMo=thuBiaMo+thuThemMo;
+
+      const summaryChips=monthMatches.length?`<div class="month-summary-chips">
+        <span class="month-chip">${monthMatches.length} trận</span>
+        <span class="month-chip month-chip--total">Σ: ${fmtK(tongMo)}</span>
+        ${thuThemMo?`<span class="month-chip month-chip--extra">Thêm: +${fmtK(thuThemMo)}</span>`:''}
+        ${noBiaMo?`<span class="month-chip month-chip--debt">Nợ: ${fmtK(noBiaMo)}</span>`:''}
+      </div>`:'';
+
+      const matchesHTML=monthMatches.map(match=>{
+        const losersHTML=(match.losers||[]).map(l=>{
+          const member=members.find(m=>m.id==l.memberId);
+          const cls=l.paid?'loser-paid':'loser-unpaid';
+          const icon=l.paid?'solar:check-circle-linear':'solar:close-circle-linear';
+          const ca=isAdmin?`onclick="togglePaid(${match.id},${l.memberId})" style="cursor:pointer"`:'';
+          return `<span class="loser-chip ${cls}" ${ca}><iconify-icon icon="${icon}" style="font-size:13px"></iconify-icon>${member?.name||'?'}</span>`;
+        }).join('');
+        const paidCount=(match.losers||[]).filter(l=>l.paid).length;
+        const biaMo=paidCount*FINE;
+        const noBiaTran=(match.losers||[]).filter(l=>!l.paid).length*FINE;
+        const extraHTML=match.thuThem?`<div class="match-item__extra">🎁 Thu thêm: +${fmtK(match.thuThem)}${match.ghiChuThem?` — ${match.ghiChuThem}`:''}</div>`:'';
+        const adminBtns=isAdmin?`<div style="display:flex;gap:4px;margin-left:auto">
+          <button class="btn btn-icon btn-ghost" onclick="openEditMatch(${match.id})" title="Sửa" style="color:var(--color-primary);width:36px;height:36px"><iconify-icon icon="solar:pen-2-linear" style="font-size:16px"></iconify-icon></button>
+          <button class="btn btn-icon btn-ghost" onclick="deleteMatch(${match.id})" title="Xoá" style="color:var(--text-muted);width:36px;height:36px"><iconify-icon icon="solar:trash-bin-trash-linear" style="font-size:16px"></iconify-icon></button>
+        </div>`:'';
+        return `<div class="match-item fade-in">
+          <div class="match-item__header">
+            <div class="match-item__num">#${rankMap[match.id]||'?'}</div>
+            <div class="match-item__date">${fmtDate(match.date)}</div>
+            ${adminBtns}
+          </div>
+          <div class="match-item__losers">${losersHTML}</div>
+          ${extraHTML}
+          <div class="match-item__summary">Quỹ bia: ${fmtK(biaMo)}${noBiaTran?` · <span style="color:var(--color-primary)">Nợ: ${fmtK(noBiaTran)}</span>`:''}${match.thuThem?` · Thu thêm: +${fmtK(match.thuThem)}`:''}</div>
+        </div>`;
+      }).join('');
+
+      const addBtn=isAdmin?`<button class="btn btn-outline w-full" onclick="openAddMatch(${mi})" style="justify-content:center;">
+        <iconify-icon icon="solar:add-circle-linear" style="font-size:18px"></iconify-icon>Thêm trận ${MONTHS_FULL[mi]}
+      </button>`:'';
+
+      const card=document.createElement('div');
+      card.className=`month-accordion-card${isOpen?' is-open':''}`;
+      card.dataset.mi=mi;
+      card.innerHTML=`
+        <div class="month-accordion-header" onclick="toggleAccordion(${mi})">
+          <span class="month-accordion-title">${MONTHS_FULL[mi]}</span>
+          <iconify-icon icon="solar:alt-arrow-down-linear" class="month-accordion-chevron"></iconify-icon>
+        </div>
+        <div class="month-accordion-body">
+          ${summaryChips}
+          <div style="display:flex;flex-direction:column;gap:10px">${matchesHTML}</div>
+          ${addBtn}
+        </div>`;
+      accordion.appendChild(card);
+    });
+
+    if(!hasAny) {
+      accordion.innerHTML=`<div style="text-align:center;color:var(--text-muted);padding:48px 0">
+        <iconify-icon icon="solar:cup-star-linear" style="font-size:48px;opacity:.3"></iconify-icon>
+        <div style="margin-top:12px">Chưa có trận nào trong năm ${_year}</div>
+      </div>`;
+    }
+  }
+
+  window.toggleAccordion=function(mi){
+    if(_openMonths.has(mi))_openMonths.delete(mi);else _openMonths.add(mi);
+    const card=document.querySelector(`.month-accordion-card[data-mi="${mi}"]`);
+    if(card) card.classList.toggle('is-open',_openMonths.has(mi));
+  };
+
+  function renderPage(S) {
+    _S=S;
+    const members=(S.members||[]).filter(m=>m.status!=='left');
+    const matches=getYearMatches(S);
+    let thuBia=0,noBia=0; const nguoiNoSet=new Set();
+    matches.forEach(m=>{
+      (m.losers||[]).forEach(l=>{if(l.paid)thuBia+=FINE;else{noBia+=FINE;nguoiNoSet.add(l.memberId);}});
+      thuBia+=(m.thuThem||0);
+    });
+    document.getElementById('kpi-thu-bia').textContent=fmt(thuBia);
+    document.getElementById('kpi-con-no').textContent=fmt(noBia);
+    document.getElementById('kpi-so-tran').textContent=matches.length;
+    document.getElementById('kpi-nguoi-no').textContent=nguoiNoSet.size;
+    renderLeaderboard(matches,members);
+    renderAccordion(S);
+  }
+
+
+  window.deleteMatch = function(matchId) {
+    if(!window._isLoggedIn?.()||!_S) return;
+    const match = (_S.matches||[]).find(m=>m.id==matchId);
+    const dateLabel = match?.date ? match.date.split('-').reverse().join('/') : `#${matchId}`;
+
+    // Hiện confirm modal
+    const old = document.getElementById('delete-confirm-modal');
+    if(old) old.remove();
+    const backdrop = document.createElement('div');
+    backdrop.id = 'delete-confirm-modal';
+    backdrop.className = 'modal-backdrop';
+    backdrop.innerHTML = `
+      <div class="modal fade-in" style="max-width:380px">
+        <div class="modal-handle"></div>
+        <div style="text-align:center;margin-bottom:20px">
+          <div style="width:56px;height:56px;border-radius:var(--radius-full);background:rgba(224,57,44,.12);
+            border:1.5px solid rgba(224,57,44,.3);display:flex;align-items:center;justify-content:center;
+            margin:0 auto 16px;font-size:24px">
+            <iconify-icon icon="solar:trash-bin-trash-linear" style="color:var(--color-accent-light)"></iconify-icon>
+          </div>
+          <div style="font-size:17px;font-weight:700;margin-bottom:6px">Xoá trận đấu?</div>
+          <div style="font-size:13px;color:var(--text-secondary)">
+            Trận ngày <strong style="color:var(--text-primary)">${dateLabel}</strong> sẽ bị xoá vĩnh viễn và không thể khôi phục.
+          </div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-surface w-full" id="btn-delete-cancel" style="justify-content:center">Huỷ</button>
+          <button class="btn btn-primary w-full" id="btn-delete-confirm" style="justify-content:center;background:var(--color-accent);color:#fff">
+            <iconify-icon icon="solar:trash-bin-trash-linear" style="font-size:16px;color:#fff"></iconify-icon>
+            Xoá
+          </button>
+        </div>
+      </div>`;
+
+    document.body.appendChild(backdrop);
+    window._lockScroll?.();
+
+    const close = () => { backdrop.remove(); window._unlockScroll?.(); };
+    backdrop.addEventListener('click', e => { if(e.target===backdrop) close(); });
+    document.getElementById('btn-delete-cancel').addEventListener('click', close);
+    document.getElementById('btn-delete-confirm').addEventListener('click', async () => {
+      _S.matches = (_S.matches||[]).filter(m=>m.id!=matchId);
+      await window._saveS?.(_S);
+      close();
+      renderPage(_S);
+    });
+  };
+
+  function updateYearUI(){
+    const sel=document.getElementById('year-select');
+    if(sel){
+      const curY=new Date().getFullYear(),minY=BASE_YEAR,maxY=Math.max(curY+1,BASE_YEAR);
+      sel.innerHTML='';
+      for(let y=maxY;y>=minY;y--){const opt=document.createElement('option');opt.value=y;opt.textContent=y;if(y===_year)opt.selected=true;sel.appendChild(opt);}
+    }
+    window._currentYear=_year;
+  }
+
+  window.onComponentsReady=function(){
+    updateYearUI();
+    document.getElementById('year-select')?.addEventListener('change',e=>{
+      _year=parseInt(e.target.value)||BASE_YEAR; updateYearUI(); if(_S) renderPage(_S);
+    });
+    document.getElementById('page-content').style.opacity='1';
+  };
+  window._onDataReady=function(S){
+    _lastSavedS = JSON.parse(JSON.stringify(S));
+    renderPage(S);
+  };
+  window._onAuthChange=function(){if(_S)renderPage(_S);};
+</script>
+<div class="sheet-backdrop" id="login-modal" style="display:none" role="dialog" aria-modal="true">
+  <div class="sheet fade-in">
+    <div class="modal-handle" style="display:block"></div>
+    <h2 class="modal-title">Đăng nhập</h2>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="field">
+        <label for="login-email">Email</label>
+        <input class="input" type="email" id="login-email" placeholder="email@example.com" autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="login-password">Mật khẩu</label>
+        <input class="input" type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <div id="login-error" style="display:none;background:rgba(224,57,44,.12);border:1px solid rgba(224,57,44,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--color-accent-light)">
+        <iconify-icon icon="solar:close-circle-linear" style="vertical-align:middle;margin-right:4px"></iconify-icon>
+        <span id="login-error-msg">Email hoặc mật khẩu không đúng.</span>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:4px">
+        <button class="btn btn-primary w-full" id="btn-login-submit" style="justify-content:center">
+          <iconify-icon icon="solar:lock-unlocked-linear" style="font-size:18px"></iconify-icon>
+          Đăng nhập
+        </button>
+        <button class="btn btn-ghost" id="btn-login-cancel" style="flex-shrink:0">Huỷ</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .catch(err => console.warn('SW register failed:', err));
+    });
+  }
+</script>
+</body>
+</html>

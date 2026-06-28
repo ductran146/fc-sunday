@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <script>
+    /* Theme: apply trước khi render để tránh flash */
+    (function(){
+      var t = localStorage.getItem('fc-sunday-theme');
+      if (t === 'light') document.documentElement.setAttribute('data-theme','light');
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="theme-color" content="#0C0C0F">
+  <title>FC Sunday — Cài đặt</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js" defer></script>
+</head>
+<body data-active="settings">
+
+<div class="app-shell">
+  <div data-component="sidebar" data-active="settings"></div>
+
+  <div class="main-content">
+    <div data-component="header" data-title="Cài đặt"></div>
+
+    <main class="page settings-page" id="page-content" style="opacity:0;transition:opacity .2s">
+      <div class="settings-hero">
+        <div class="settings-hero__icon">
+          <iconify-icon icon="solar:settings-linear"></iconify-icon>
+        </div>
+        <div>
+          <div class="section-overline">Quản lý hệ thống</div>
+          <h1 class="text-h1">Cài đặt</h1>
+        </div>
+      </div>
+
+
+      <section class="settings-card" id="settings-form-card" style="display:none">
+        <div class="settings-card__header">
+          <div>
+            <div class="section-overline">Số dư đầu kỳ</div>
+            <div class="section-title">Quỹ đội bóng</div>
+          </div>
+          <span class="settings-badge">Năm 2026</span>
+        </div>
+
+        <div class="settings-form-grid">
+          <div class="field">
+            <label for="opening-thang">Số dư đầu kỳ quỹ tháng</label>
+            <div class="settings-money-field">
+              <input class="input" type="text" inputmode="numeric" id="opening-thang" placeholder="0" autocomplete="off">
+            </div>
+            <div class="field-hint">Số dương là quỹ còn dư, số âm là quỹ đang âm.</div>
+          </div>
+
+          <div class="field">
+            <label for="opening-bia">Số dư đầu kỳ quỹ bia</label>
+            <div class="settings-money-field">
+              <input class="input" type="text" inputmode="numeric" id="opening-bia" placeholder="0" autocomplete="off">
+            </div>
+            <div class="field-hint">Khoản này được tính trực tiếp vào tổng quỹ, không hiển thị trong lịch sử chi tiêu.</div>
+          </div>
+        </div>
+
+        <div class="settings-preview" id="settings-preview">
+          <div>
+            <span>Tổng số dư đầu kỳ</span>
+            <strong id="opening-total-preview">0</strong>
+          </div>
+        </div>
+
+        <div class="settings-actions">
+          <a class="btn btn-ghost" href="index.html">Huỷ</a>
+          <button class="btn btn-primary" id="btn-save-settings">
+            <iconify-icon icon="solar:check-circle-linear" style="font-size:18px"></iconify-icon>
+            Lưu
+          </button>
+        </div>
+      </section>
+
+      <!-- Giao diện — hiện trên mobile, ẩn desktop (desktop dùng header toggle) -->
+      <section class="settings-card" style="margin-top:12px">
+        <div class="settings-card__header" style="margin-bottom:16px">
+          <div>
+            <div class="section-overline" style="margin-bottom:2px">Hiển thị</div>
+            <div class="section-title">Giao diện</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text-primary)" id="theme-label">Chế độ tối</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Chuyển đổi giao diện sáng / tối</div>
+          </div>
+          <button id="btn-theme-settings" onclick="window._toggleTheme?.(); updateThemeUI()"
+            style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:var(--radius-lg);border:1px solid var(--bg-stroke);background:var(--bg-elevated);cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-primary);white-space:nowrap">
+            <iconify-icon id="theme-settings-icon" icon="solar:sun-linear" style="font-size:18px;color:var(--color-primary)"></iconify-icon>
+            <span id="theme-settings-label">Sang sáng</span>
+          </button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div data-component="bottom-nav" data-active="settings"></div>
+</div>
+
+<div data-component="login-modal"></div>
+
+<script src="app.js" defer></script>
+<script src="components/components-loader.js" defer></script>
+<script>
+  let _S = null;
+
+  function fmt(n) {
+    return new Intl.NumberFormat('vi-VN').format(Math.round(Number(n) || 0));
+  }
+  function parseMoney(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return 0;
+    const normalized = raw.replace(/[^0-9\-]/g, '');
+    return Number(normalized) || 0;
+  }
+  function formatMoneyInput(input) {
+    const value = parseMoney(input.value);
+    input.value = value ? fmt(value) : '';
+  }
+  function normalizeVNText(str) {
+    return String(str || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'D')
+      .toLowerCase();
+  }
+  function isOpeningBalanceEntry(c) {
+    const text = normalizeVNText([c.cat, c.note, c.title, c.desc].filter(Boolean).join(' '));
+    return text.includes('tien dau ky') || text.includes('so du dau ky') || text.includes('dau ky');
+  }
+  function getOpeningBalance(S, fund) {
+    const explicit = S?.settings?.openingBalances?.[fund];
+    if (explicit !== undefined && explicit !== null && explicit !== '') return Number(explicit) || 0;
+    return (S.chiTieu || []).reduce((sum, c) => {
+      const cFund = (!c.fund || c.fund === 'bong') ? 'thang' : c.fund;
+      if (cFund !== fund || !isOpeningBalanceEntry(c)) return sum;
+      // Version 1 formula: opening balance is added to fund income.
+      // Legacy rows may have been stored as expense-style amounts, so use the absolute value.
+      return sum + Math.abs(Number(c.amount || 0));
+    }, 0);
+  }
+  function updatePreview() {
+    const thang = parseMoney(document.getElementById('opening-thang')?.value);
+    const bia = parseMoney(document.getElementById('opening-bia')?.value);
+    const total = thang + bia;
+    const el = document.getElementById('opening-total-preview');
+    if (el) {
+      el.textContent = fmt(total);
+      el.style.color = total >= 0 ? 'var(--color-success)' : 'var(--color-accent-light)';
+    }
+  }
+  function showToast(message) {
+    const old = document.querySelector('.settings-toast');
+    old?.remove();
+    const toast = document.createElement('div');
+    toast.className = 'settings-toast';
+    toast.innerHTML = `<iconify-icon icon="solar:check-circle-linear"></iconify-icon><span>${message}</span>`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 180); }, 1800);
+  }
+  function renderSettings() {
+    const logged = window._isLoggedIn?.();
+    document.getElementById('settings-form-card').style.display = logged ? 'block' : 'none';
+    if (!logged || !_S) return;
+
+    const thang = getOpeningBalance(_S, 'thang');
+    const bia = getOpeningBalance(_S, 'bia');
+    document.getElementById('opening-thang').value = thang ? fmt(thang) : '';
+    document.getElementById('opening-bia').value = bia ? fmt(bia) : '';
+    updatePreview();
+  }
+
+  window._onDataReady = function(S) {
+    _S = S;
+    renderSettings();
+    const page = document.getElementById('page-content');
+    if (page) page.style.opacity = '1';
+  };
+  window._onAuthChange = function() { renderSettings(); };
+
+  function updateThemeUI() {
+    const isLight = document.documentElement.hasAttribute('data-theme');
+    const label = document.getElementById('theme-label');
+    const btnLabel = document.getElementById('theme-settings-label');
+    const icon = document.getElementById('theme-settings-icon');
+    if (label) label.textContent = isLight ? 'Chế độ sáng' : 'Chế độ tối';
+    if (btnLabel) btnLabel.textContent = isLight ? 'Sang tối' : 'Sang sáng';
+    if (icon) icon.setAttribute('icon', isLight ? 'solar:moon-linear' : 'solar:sun-linear');
+  }
+
+  window.onComponentsReady = function () {
+    updateThemeUI();
+    document.getElementById('btn-settings-login')?.addEventListener('click', () => document.getElementById('btn-login')?.click());
+    ['opening-thang', 'opening-bia'].forEach(id => {
+      const input = document.getElementById(id);
+      input?.addEventListener('input', updatePreview);
+      input?.addEventListener('blur', () => { formatMoneyInput(input); updatePreview(); });
+    });
+    document.getElementById('btn-save-settings')?.addEventListener('click', async () => {
+      if (!window._isLoggedIn?.() || !_S) return;
+      const btn = document.getElementById('btn-save-settings');
+      const old = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<iconify-icon icon="solar:spinner-linear" style="font-size:18px"></iconify-icon>Đang lưu…';
+      try {
+        if (!_S.settings) _S.settings = {};
+        _S.settings.openingBalances = {
+          thang: parseMoney(document.getElementById('opening-thang')?.value),
+          bia: parseMoney(document.getElementById('opening-bia')?.value)
+        };
+        await window._saveS?.(_S);
+        showToast('Đã lưu cài đặt');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = old;
+      }
+    });
+    renderSettings();
+    const page = document.getElementById('page-content');
+    if (page) page.style.opacity = '1';
+  };
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .catch(err => console.warn('SW register failed:', err));
+    });
+  }
+</script>
+</body>
+</html>
