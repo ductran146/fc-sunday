@@ -557,11 +557,11 @@ if ('serviceWorker' in navigator) {
     window._lockScroll?.();
 
     const phase = getPhase();
-    const icon  = phase === 'soon' ? '🔔' : '⏰';
-    const title = phase === 'soon' ? 'Sắp đến hạn đóng quỹ!' : 'Đã đến hạn đóng quỹ!';
+    const icon  = phase === 'soon' ? '💰' : '🚨';
+    const title = phase === 'soon' ? 'Sắp đến kỳ đóng quỹ!' : 'Đã đến kỳ đóng quỹ!';
     const desc  = phase === 'soon'
-      ? 'Anh em ơi! Cuối tháng rồi đó 👀 Nhanh nhanh đóng quỹ cho Cường Buồn nhé, không có tiền là Thủ quỹ ngồi bờ nhìn anh em đá đó nha! 🥲⚽'
-      : 'Đầu tháng rồi anh em ơi! 💸 Cường Buồn đang cầm túi đứng chờ ở sân — chưa đóng quỹ là chưa được đá đâu nha! 😤🏃';
+      ? 'Sắp đến tháng đóng quỹ rồi anh em ơi! Chuẩn bị đạn dược 💵 để đóng quỹ dần. Ai chưa đóng thì liên hệ Cường Buồn 📲 để không bị réo tên trước toàn đội! 😅'
+      : 'Đã đến kỳ đóng quỹ rồi anh em! Mang đạn dược 💵 đóng cho Cường Buồn ngay. Đạn dược chưa đủ thì nhớ note lại 📝 để Cường biết mà chờ! 🙏';
 
     const el = document.createElement('div');
     el.id = '_fund_reminder';
