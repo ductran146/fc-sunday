@@ -75,11 +75,11 @@
       flex-shrink: 0;
     }
     .month-accordion-card.is-open .month-accordion-chevron { transform: rotate(180deg); }
-    .month-accordion-body { display: none; padding: 16px 20px; display:flex; flex-direction:column; gap:16px; }
+    .month-accordion-body { display: none; padding: 16px 0 0; display:flex; flex-direction:column; gap:0px; }
     .month-accordion-card:not(.is-open) .month-accordion-body { display: none; }
 
     /* Month summary chips */
-    .month-summary-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .month-summary-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 20px 16px; }
     .month-chip {
       display: inline-flex; align-items: center; gap: 4px;
       padding: 4px 8px; border-radius: var(--radius-full);
@@ -92,7 +92,7 @@
     .month-chip--debt  { background: rgba(255,192,46,.1); color: var(--color-primary); border-color: rgba(255,192,46,.25); }
 
     /* Match item */
-    .match-item { background: var(--bg-elevated); border-radius: var(--radius-lg); padding: 14px 16px; border: 1px solid var(--bg-border); }
+    .match-item { background: var(--bg-hover); padding: 12px 20px; border-top: 1px solid var(--bg-border); }
     .match-item__header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
     .match-item__num {
       width: 32px; height: 32px; border-radius: var(--radius-sm);
@@ -483,9 +483,11 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
         </div>`;
       }).join('');
 
-      const addBtn=isAdmin?`<button class="btn btn-outline w-full" onclick="openAddMatch(${mi})" style="justify-content:center;">
-        <iconify-icon icon="solar:add-circle-linear" style="font-size:18px"></iconify-icon>Thêm trận ${MONTHS_FULL[mi]}
-      </button>`:'';
+      const addBtn=isAdmin?`<div style="padding: 20px 20px 20px;">
+        <button class="btn btn-outline w-full" onclick="openAddMatch(${mi})" style="justify-content:center;">
+          <iconify-icon icon="solar:add-circle-linear" style="font-size:18px"></iconify-icon>Thêm trận ${MONTHS_FULL[mi]}
+        </button>
+      </div>`:'';
 
       const card=document.createElement('div');
       card.className=`month-accordion-card${isOpen?' is-open':''}`;
