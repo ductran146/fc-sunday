@@ -526,8 +526,8 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
       (m.losers||[]).forEach(l=>{if(l.paid)thuBia+=FINE;else{noBia+=FINE;nguoiNoSet.add(l.memberId);}});
       thuBia+=(m.thuThem||0);
     });
-    document.getElementById('kpi-thu-bia').textContent=fmtK(thuBia);
-    document.getElementById('kpi-con-no').textContent=fmtK(noBia);
+    document.getElementById('kpi-thu-bia').textContent=fmt(thuBia);
+    document.getElementById('kpi-con-no').textContent=fmt(noBia);
     document.getElementById('kpi-so-tran').textContent=matches.length;
     document.getElementById('kpi-nguoi-no').textContent=nguoiNoSet.size;
     renderLeaderboard(matches,members);
