@@ -435,10 +435,10 @@
     const isDark = !document.documentElement.hasAttribute('data-theme');
     elThang.style.color = tonThang >= 0
       ? (isDark ? 'var(--text-primary)' : '#1A1206')
-      : (isDark ? 'var(--color-accent-light)' : '#B82020');
+      : (isDark ? 'var(--color-danger)' : '#B82020');
     document.getElementById('fund-thang-thu').textContent    = fmtShort(thuThangDisplay);
     document.getElementById('fund-thang-chi').textContent    = fmtShort(chiThang);
-    const noColor = isDark ? 'var(--color-accent-light)' : '#B82020';
+    const noColor = isDark ? 'var(--color-danger)' : '#B82020';
     const noThangEl = document.getElementById('fund-thang-no');
     noThangEl.textContent = fmtShort(thuThangNo);
     noThangEl.style.color = noColor;
@@ -446,7 +446,7 @@
     elBia.textContent = fmtShort(tonBia);
     elBia.style.color = tonBia >= 0
       ? (isDark ? 'var(--text-primary)' : '#1A1206')
-      : (isDark ? 'var(--color-accent-light)' : '#B82020');
+      : (isDark ? 'var(--color-danger)' : '#B82020');
     document.getElementById('fund-bia-thu').textContent      = fmtShort(thuBiaDisplay);
     document.getElementById('fund-bia-chi').textContent      = fmtShort(chiBia);
     const noBiaEl = document.getElementById('fund-bia-no');
