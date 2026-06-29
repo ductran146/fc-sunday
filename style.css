@@ -351,7 +351,7 @@ body.components-ready .app-shell {
 }
 
 .kpi-card--gold .kpi-card__value { color: var(--color-primary); }
-.kpi-card--red  .kpi-card__value  { color: var(--color-accent-light); }
+.kpi-card--red  .kpi-card__value  { color: var(--color-danger); }
 .kpi-card--green .kpi-card__value { color: var(--color-success); }
 
 /* ── Buttons ── */
