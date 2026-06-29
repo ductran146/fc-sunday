@@ -470,7 +470,7 @@ table.fc-table {
   background: var(--bg-elevated);
 }
 .fc-table td {
-  padding: 12px 16px;
+  padding: 6px 10px;
   border-top: 1px solid var(--bg-border);
   color: var(--text-primary);
   white-space: nowrap;
@@ -2889,4 +2889,64 @@ body[data-active="thanh-vien"] .member-sort-chip:active {
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-bottom: 24px;
+}
+
+/* Ẩn native clear button trên input (WebKit/IE) */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration,
+input::-ms-clear {
+  display: none;
+  -webkit-appearance: none;
+}
+
+/* Input clear button wrapper */
+._input-clear-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+._input-clear-wrap input,
+._input-clear-wrap textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+._input-clear-btn {
+  position: absolute;
+  right: 8px;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  height: 28px;
+  width: 28px;
+}
+
+/* Desktop: ẩn sort bar, hiện sort trong table header */
+@media (min-width: 768px) {
+  body[data-active="thanh-vien"] .member-sort-bar {
+    display: none !important;
+  }
+}
+
+/* Sort icon trong th */
+.member-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.member-table th.sortable:hover {
+  color: var(--text-primary);
+}
+.member-table th.sortable .th-sort-icon {
+  display: inline-block;
+  margin-left: 4px;
+  opacity: .4;
+  vertical-align: middle;
+  font-size: 12px;
+}
+.member-table th.sortable.sort-active .th-sort-icon {
+  opacity: 1;
+  color: var(--color-primary);
+}
+.member-table th.sortable.sort-active {
+  color: var(--color-primary);
 }

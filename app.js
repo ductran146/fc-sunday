@@ -647,3 +647,125 @@ if ('serviceWorker' in navigator) {
     init();
   }
 })();
+
+// ── Input Clear Button ─────────────────────────────────────
+(function initInputClear() {
+  const SKIP_TYPES = ['checkbox','radio','file','submit','button','reset','hidden','range','color'];
+
+  function addClearBtn(input) {
+    if (input.dataset.clearInited) return;
+    input.dataset.clearInited = '1';
+
+    // Tạo wrapper bao quanh input
+    const wrap = document.createElement('div');
+    wrap.className = '_input-clear-wrap';
+    wrap.style.cssText = 'position:relative;display:block;width:100%';
+    // Giữ nguyên display nếu input là inline
+    if (getComputedStyle(input).display === 'inline') {
+      wrap.style.display = 'inline-block';
+    }
+
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = '_input-clear-btn';
+    btn.setAttribute('tabindex', '-1');
+    btn.setAttribute('aria-label', 'Xóa');
+    btn.innerHTML = '<iconify-icon icon="solar:close-circle-bold" style="font-size:18px;display:block"></iconify-icon>';
+    btn.style.cssText = [
+      'position:absolute',
+      'right:8px',
+      'top:0',
+      'bottom:0',
+      'margin:auto',
+      'width:28px',
+      'height:28px',
+      'display:none',
+      'align-items:center',
+      'justify-content:center',
+      'padding:0',
+      'border:none',
+      'background:transparent',
+      'cursor:pointer',
+      'color:var(--text-muted)',
+      'z-index:5',
+      'border-radius:50%',
+      'flex-shrink:0',
+    ].join(';');
+    wrap.appendChild(btn);
+
+    // Padding phải để không bị chữ đè lên icon
+    const origPR = getComputedStyle(input).paddingRight;
+    const basePR = parseFloat(origPR) || 12;
+
+    function updateBtn() {
+      const hasVal = input.value.length > 0;
+      const isFocused = document.activeElement === input;
+      if (hasVal && isFocused) {
+        btn.style.display = 'flex';
+        input.style.paddingRight = `${basePR + 32}px`;
+      } else {
+        btn.style.display = 'none';
+        input.style.paddingRight = `${basePR}px`;
+      }
+    }
+
+    input.addEventListener('focus', updateBtn);
+    input.addEventListener('input', updateBtn);
+    input.addEventListener('blur', () => {
+      // Delay để click btn kịp xử lý trước khi ẩn
+      setTimeout(updateBtn, 150);
+    });
+
+    btn.addEventListener('mousedown', e => e.preventDefault()); // prevent blur
+    btn.addEventListener('click', () => {
+      input.value = '';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      input.focus();
+      updateBtn();
+    });
+
+    updateBtn();
+  }
+
+  function initAll() {
+    document.querySelectorAll('input, textarea').forEach(el => {
+      if (SKIP_TYPES.includes(el.type)) return;
+      if (el.readOnly || el.disabled) return;
+      if (el.closest('._input-clear-btn')) return;
+      addClearBtn(el);
+    });
+  }
+
+  // Chạy sau DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+  } else {
+    initAll();
+  }
+
+  // Re-run sau components ready (để catch input trong modals/sheets)
+  const orig = window.onComponentsReady;
+  const origAdded = window._clearBtnHooked;
+  if (!origAdded) {
+    window._clearBtnHooked = true;
+    const _origReady = window.onComponentsReady;
+    window.onComponentsReady = function(...args) {
+      if (_origReady) _origReady.apply(this, args);
+      setTimeout(initAll, 100);
+    };
+  }
+
+  // MutationObserver để catch input được thêm động (modal, sheet)
+  const obs = new MutationObserver(() => initAll());
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      obs.observe(document.body, { childList: true, subtree: true });
+    });
+  } else {
+    obs.observe(document.body, { childList: true, subtree: true });
+  }
+})();
