@@ -322,9 +322,22 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
     const filtered = filterFund ? chiTieu.filter(c => c.fund === filterFund) : chiTieu;
 
     // KPI
-    const tong = chiTieu.reduce((s,c)=>s+(c.amount||0),0);
-    const chiThang = chiTieu.filter(c=>!c.fund||c.fund==='thang').reduce((s,c)=>s+(c.amount||0),0);
-    const chiBia   = chiTieu.filter(c=>c.fund==='bia').reduce((s,c)=>s+(c.amount||0),0);
+    // Amount dương = chi thực tế; amount âm = thu thêm vào quỹ (không tính vào chi)
+    const chiThang = chiTieu
+      .filter(c => (!c.fund || c.fund === 'thang') && Number(c.amount||0) > 0)
+      .reduce((s,c) => s + Number(c.amount||0), 0);
+    const chiBia = chiTieu
+      .filter(c => c.fund === 'bia' && Number(c.amount||0) > 0)
+      .reduce((s,c) => s + Number(c.amount||0), 0);
+    const tong = chiThang + chiBia;
+
+    // Thu thêm từ chi tiêu (amount âm)
+    const incomeThang = chiTieu
+      .filter(c => (!c.fund || c.fund === 'thang') && Number(c.amount||0) < 0)
+      .reduce((s,c) => s + Math.abs(Number(c.amount||0)), 0);
+    const incomeBia = chiTieu
+      .filter(c => c.fund === 'bia' && Number(c.amount||0) < 0)
+      .reduce((s,c) => s + Math.abs(Number(c.amount||0)), 0);
     document.getElementById('kpi-tong-chi').textContent  = fmt(tong);
     document.getElementById('kpi-chi-thang').textContent = fmt(chiThang);
     document.getElementById('kpi-chi-bia').textContent   = fmt(chiBia);
