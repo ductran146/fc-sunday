@@ -398,6 +398,12 @@ body.components-ready .app-shell {
 }
 .btn-outline:hover { background: rgba(255,192,46,.1); }
 
+.btn-success {
+  background: var(--color-success);
+  color: #0A1F12;
+}
+.btn-success:hover { opacity: .9; }
+
 .btn-ghost {
   background: transparent;
   color: var(--text-secondary);
@@ -461,7 +467,7 @@ table.fc-table {
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--text-muted);
-  padding: 12px 16px;
+  padding: 12px 10px;
   text-align: left;
   white-space: nowrap;
   position: sticky;
@@ -2070,6 +2076,12 @@ body[data-active="thanh-vien"] .member-search-input {
   border-radius: var(--radius-lg);
 }
 
+/* Icon kính lúp: khoá đúng màu placeholder (--text-muted), thêm !important
+   để tránh mọi trường hợp bị màu khác (mặc định trình duyệt/component) đè lên. */
+body[data-active="thanh-vien"] .member-search-icon {
+  color: var(--text-muted) !important;
+}
+
 body[data-active="thanh-vien"] .member-add-btn {
   min-width: 112px;
   justify-content: center;
@@ -2949,4 +2961,31 @@ input::-ms-clear {
 }
 .member-table th.sortable.sort-active {
   color: var(--color-primary);
+}
+
+/* table-layout:fixed — độ rộng mỗi cột chỉ do width khai báo trên <th> ở dòng
+   đầu quyết định, KHÔNG phụ thuộc nội dung ở các dòng dưới (tên dài/ngắn,
+   badge to/nhỏ, scrollbar ẩn/hiện...). Đây là cách duy nhất để đảm bảo các
+   cột (đặc biệt "Thành viên" và "Trạng thái") không bị trình duyệt tính lại
+   độ rộng và gây lệch khi cuộn/re-render. */
+/* width:100% (không fix px) — các cột đều đã khoá width riêng ở <th>,
+   chỉ cột thao tác (cuối) không khoá width nên sẽ hấp thụ phần dư ra để
+   lấp đầy bảng. Nút "Thanh toán" bên trong căn phải với padding cố định
+   (10px) nên luôn cách viền bảng đúng 10px, bất kể cột co giãn thế nào. */
+table.member-table { table-layout: fixed; width: 100%; }
+.member-table td:nth-child(2) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* .table-wrap có overflow-x:auto khiến overflow-y được trình duyệt tự suy ra
+   thành "auto" (theo spec CSS), biến nó thành một scroll-container riêng.
+   Hệ quả: position:sticky trên thead th không còn dính theo cửa sổ trình
+   duyệt như mong đợi — nó chỉ "dính tĩnh" trong khối table-wrap (vốn cao bằng
+   đúng nội dung, không có gì để cuộn), nên trông như dòng tiêu đề bất ngờ biến
+   mất/lệch khi cuộn trang. Bỏ sticky cho bảng thành viên để tránh hiện tượng
+   này — tiêu đề sẽ cuộn cùng nội dung một cách nhất quán, dễ đoán. */
+.member-table th {
+  position: static;
+  top: auto;
 }

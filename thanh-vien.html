@@ -64,7 +64,10 @@
 
       <!-- Search + add -->
       <div class="member-toolbar">
-        <input class="input member-search-input" id="member-search" type="text" placeholder="Tìm thành viên..." autocomplete="off">
+        <div style="position:relative;min-width:0">
+          <iconify-icon icon="solar:magnifer-linear" class="member-search-icon" style="display:inline-flex;align-items:center;justify-content:center;position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;font-size:16px;line-height:1;z-index:1;pointer-events:none"></iconify-icon>
+          <input class="input member-search-input" id="member-search" type="text" placeholder="Tìm thành viên..." autocomplete="off" style="padding-left:40px">
+        </div>
         <button class="btn btn-gold member-add-btn" id="btn-add-member" type="button">
           <iconify-icon icon="solar:add-circle-linear" class="member-add-btn__icon" aria-hidden="true"></iconify-icon>
           Thêm
@@ -292,25 +295,30 @@
     if (isDesktop) {
       // Dạng bảng cho desktop/tablet
       el.style.display = 'block';
-      function thSort(key, label, align) {
+      // Width mỗi cột: khi có admin (2 button Sửa+Thanh toán) dùng px cố định,
+      // cột thao tác (min-width) hấp thụ phần dư. Khi không login (không có
+      // cột thao tác), đổi 7 cột còn lại sang % (giữ nguyên tỉ lệ tương đối)
+      // để dàn đều lấp hết bề rộng bảng, không bị trống bên phải.
+      const W = (px, pct) => isAdmin ? `${px}px` : `${pct}%`;
+      function thSort(key, label, align, px, pct) {
         const active = _sortKey === key;
         const icon = active ? (_sortDir === 'asc' ? 'solar:arrow-up-linear' : 'solar:arrow-down-linear') : 'solar:sort-vertical-linear';
         const cls = active ? 'sortable sort-active' : 'sortable';
-        return `<th class="${cls}" style="text-align:${align}" onclick="setMemberSort('${key}')">${label} <iconify-icon class="th-sort-icon" icon="${icon}"></iconify-icon></th>`;
+        return `<th class="${cls}" style="text-align:${align};width:${W(px,pct)}" onclick="setMemberSort('${key}')">${label} <iconify-icon class="th-sort-icon" icon="${icon}"></iconify-icon></th>`;
       }
       el.innerHTML = `
         <div class="table-wrap">
           <table class="fc-table member-table">
             <thead>
               <tr>
-                <th style="text-align:left;width:40px">STT</th>
-                ${thSort('name','Thành viên','left')}
-                <th>Trạng thái</th>
-                ${thSort('soTran','Trận thua','center')}
-                ${thSort('noThang','Nợ tháng','right')}
-                ${thSort('noBia','Nợ bia','right')}
-                ${thSort('total','Tổng nợ','right')}
-                <th style="width:96px"></th>
+                <th style="text-align:left;width:${W(48,7)}">STT</th>
+                ${thSort('name','Thành viên','left',145,20)}
+                <th style="text-align:left;width:${W(110,15)}">Trạng thái</th>
+                ${thSort('soTran','Thua','center',60,8)}
+                ${thSort('noThang','Nợ tháng','right',120,17)}
+                ${thSort('noBia','Nợ bia','right',110,15)}
+                ${thSort('total','Tổng nợ','right',120,18)}
+                ${isAdmin ? '<th style="min-width:190px"></th>' : ''}
               </tr>
             </thead>
             <tbody>
@@ -322,23 +330,23 @@
                 return `<tr class="fade-in" style="cursor:default;height:40px">
                   <td style="color:var(--text-muted);font-size:13px">${i + 1}</td>
                   <td style="font-weight:700;color:var(--text-primary)">${m.name}</td>
-                  <td style="text-align:center">${STATUS_BADGE[m.status] || ''}</td>
+                  <td style="text-align:left">${STATUS_BADGE[m.status] || ''}</td>
                   <td style="text-align:center;font-weight:600;color:var(--text-secondary)">${d.soTran}</td>
-                  <td style="text-align:right;font-weight:700;${noThangColor}">${d.noThang > 0 ? fmt(d.noThang) : '<span style=\"text-align:center;display:block\">✓</span>'}</td>
-                  <td style="text-align:right;font-weight:700;${noBiaColor}">${d.noBia > 0 ? fmt(d.noBia) : '<span style=\"text-align:center;display:block\">✓</span>'}</td>
-                  <td style="text-align:right;font-weight:700;${totalColor}">${d.total > 0 ? fmt(d.total) : '<span style=\"text-align:center;display:block\">✓</span>'}</td>
+                  <td style="text-align:right;font-weight:700;${noThangColor}">${d.noThang > 0 ? fmt(d.noThang) : '✓'}</td>
+                  <td style="text-align:right;font-weight:700;${noBiaColor}">${d.noBia > 0 ? fmt(d.noBia) : '✓'}</td>
+                  <td style="text-align:right;font-weight:700;${totalColor}">${d.total > 0 ? fmt(d.total) : '✓'}</td>
+                  ${isAdmin ? `
                   <td style="text-align:right">
-                    <div style="display:flex;gap:4px;justify-content:flex-end">
-                      ${isAdmin ? `
-                        <button class="btn btn-icon btn-ghost btn-h32" type="button" onclick="editMember(${m.id})" title="Sửa">
-                          <iconify-icon icon="solar:pen-2-linear" style="font-size:15px"></iconify-icon>
-                        </button>
-                        <button class="btn btn-icon btn-ghost btn-h32" type="button" onclick="payMember(${m.id})" title="Thanh toán">
-                          <iconify-icon icon="solar:wallet-money-linear" style="font-size:15px"></iconify-icon>
-                        </button>
-                      ` : ''}
+                    <div style="display:flex;gap:4px;justify-content:flex-end;white-space:nowrap">
+                      <button class="btn btn-icon btn-ghost btn-h32" type="button" onclick="editMember(${m.id})" title="Sửa">
+                        <iconify-icon icon="solar:pen-2-linear" style="font-size:15px"></iconify-icon>
+                      </button>
+                      <button class="btn btn-success btn-h32" type="button" onclick="payMember(${m.id})" title="Thanh toán" style="white-space:nowrap">
+                        <iconify-icon icon="solar:wallet-money-linear" style="font-size:15px"></iconify-icon>
+                        <span>Thanh toán</span>
+                      </button>
                     </div>
-                  </td>
+                  </td>` : ''}
                 </tr>`;
               }).join('')}
             </tbody>

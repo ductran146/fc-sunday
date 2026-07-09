@@ -93,6 +93,17 @@
       .chi-action-btn iconify-icon { font-size: 18px; }
       .chi-action-text { display: inline; }
     }
+
+    /* ── History: cards on mobile, table on desktop ── */
+    .chi-list-mobile { display: flex; flex-direction: column; gap: 8px; padding: 16px 0 0; }
+    .chi-history-table-wrap { display: none; }
+    #chi-history-table th:not(.stt-col), #chi-history-table td:not(.stt-col) { text-align: left; }
+    #chi-history-table th.amount-col, #chi-history-table td.amount-col { text-align: right; }
+    #chi-history-table th.actions-col, #chi-history-table td.actions-col { text-align: right; }
+    @media (min-width: 768px) {
+      .chi-list-mobile { display: none; }
+      .chi-history-table-wrap { display: block; margin-top: 16px; }
+    }
   </style>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
@@ -177,7 +188,24 @@
               <option value="bia">Quỹ bia</option>
             </select>
           </div>
-          <div id="chi-list" style="display:flex;flex-direction:column;gap:8px;padding: 16px 0px 0 0"></div>
+          <div id="chi-list" class="chi-list-mobile"></div>
+          <!-- Desktop: table view -->
+          <div class="table-wrap chi-history-table-wrap">
+            <table class="fc-table" id="chi-history-table">
+              <thead>
+                <tr>
+                  <th class="stt-col">STT</th>
+                  <th>Ngày</th>
+                  <th>Danh mục</th>
+                  <th>Ghi chú</th>
+                  <th>Quỹ</th>
+                  <th class="amount-col">Số tiền</th>
+                  <th class="actions-col" id="chi-history-actions-th" style="display:none">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="chi-history-tbody"></tbody>
+            </table>
+          </div>
         </div>
       </div><!-- /panel-history -->
 
@@ -372,16 +400,40 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
     const thActions = document.getElementById('th-actions');
     if (thActions) thActions.style.display = isAdmin ? '' : 'none';
 
-    // Card list
+    // Card list (mobile) + table (desktop)
     const list = document.getElementById('chi-list');
+    const tbody = document.getElementById('chi-history-tbody');
+    const actionsTh = document.getElementById('chi-history-actions-th');
+    if (actionsTh) actionsTh.style.display = isAdmin ? '' : 'none';
     if (!filtered.length) {
       list.innerHTML = `<div class="empty-state" style="padding:32px 0">
         <div class="empty-state__icon"><iconify-icon icon="solar:bill-list-linear" style="font-size:40px"></iconify-icon></div>
         <div class="empty-state__desc">Chưa có khoản chi nào</div>
       </div>`;
+      if (tbody) tbody.innerHTML = `<tr><td colspan="${isAdmin ? 7 : 6}" style="text-align:center;color:var(--text-muted);padding:24px">Chưa có khoản chi nào</td></tr>`;
       return;
     }
     const sorted = [...filtered].sort((a,b) => (b.date||'').localeCompare(a.date||''));
+    if (tbody) {
+      tbody.innerHTML = sorted.map((c, i) => {
+        const d = c.date ? (() => { const [y,m,dd]=c.date.split('-'); return `${dd}/${m}/${y}`; })() : '—';
+        const amtColor = c.amount < 0 ? 'var(--color-success)' : 'var(--color-accent-light)';
+        const amtLabel = (c.amount < 0 ? '+' : '-') + fmt(Math.abs(c.amount));
+        const fundLabel = c.fund === 'bia' ? 'Quỹ bia' : 'Quỹ tháng';
+        return `<tr>
+          <td class="stt-col" style="text-align:center">${sorted.length - i}</td>
+          <td>${d}</td>
+          <td>${c.cat||'—'}</td>
+          <td>${c.note||'—'}</td>
+          <td>${fundLabel}</td>
+          <td class="amount-col" style="font-weight:700;color:${amtColor}">${amtLabel}</td>
+          ${isAdmin ? `<td class="actions-col" style="white-space:nowrap">
+            <button class="btn btn-icon btn-ghost" onclick="editChiTieu(${c.id})" title="Sửa"><iconify-icon icon="solar:pen-2-linear"></iconify-icon></button>
+            <button class="btn btn-icon btn-ghost" onclick="deleteChiTieu(${c.id})" title="Xoá"><iconify-icon icon="solar:trash-bin-trash-linear" style="color:var(--color-accent-light)"></iconify-icon></button>
+          </td>` : ''}
+        </tr>`;
+      }).join('');
+    }
     list.innerHTML = sorted.map((c, i) => {
       const d = c.date ? (() => { const [y,m,dd]=c.date.split('-'); return `${dd}/${m}/${y}`; })() : '—';
       const amtColor = c.amount < 0 ? 'var(--color-success)' : 'var(--color-accent-light)';
@@ -446,10 +498,14 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
     document.getElementById('edit-chi-modal').style.display = 'none';
     _editChiId = null;
   };
-  document.getElementById('edit-chi-modal')?.addEventListener('click', e => {
+  // Lưu ý: modal #edit-chi-modal nằm SAU script này trong DOM, nên không
+  // dùng getElementById(...)?.addEventListener(...) ở đây (element chưa
+  // tồn tại lúc script chạy → listener không được gắn). Dùng onclick inline
+  // trên HTML (xem sheet-backdrop id="edit-chi-modal") và hàm global dưới đây.
+  window.onEditChiBackdropClick = function(e) {
     if (e.target === document.getElementById('edit-chi-modal')) closeEditChi();
-  });
-  document.getElementById('btn-save-edit-chi')?.addEventListener('click', async () => {
+  };
+  window.saveEditChi = async function() {
     if (!_S || !_editChiId) return;
     const date   = document.getElementById('edit-chi-date-value').value;
     const amount = window._moneyInput?.parse(document.getElementById('edit-chi-amount').value);
@@ -459,10 +515,16 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
     if (!date || isNaN(amount)) { alert('Vui lòng điền đủ thông tin'); return; }
     const item = (_S.chiTieu||[]).find(x => x.id == _editChiId);
     if (item) { item.date=date; item.amount=amount; item.cat=cat; item.fund=fund; item.note=note; }
-    await window._saveS?.(_S);
-    closeEditChi();
-    renderPage(_S);
-  });
+    const btn = document.getElementById('btn-save-edit-chi');
+    if (btn) { btn.disabled = true; }
+    try {
+      await window._saveS?.(_S);
+      closeEditChi();
+      renderPage(_S);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  };
 
   window.editChiTieu = function(id) {
     if (!window._isLoggedIn?.() || !_S) return;
@@ -631,7 +693,7 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
   window._onAuthChange = function() { if(_S) renderPage(_S); };
 </script>
 <!-- Sheet: Sửa khoản chi -->
-<div class="sheet-backdrop" id="edit-chi-modal" style="display:none" role="dialog" aria-modal="true">
+<div class="sheet-backdrop" id="edit-chi-modal" style="display:none" role="dialog" aria-modal="true" onclick="window.onEditChiBackdropClick?.(event)">
   <div class="sheet fade-in">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div>
@@ -662,7 +724,7 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
         <select class="input" id="edit-chi-cat">
           <option value="Sân bóng">⚽ Sân bóng</option>
           <option value="Thiết bị">🎽 Thiết bị</option>
-          <option value="Tiệc / Liên hoan">🎉 Tiệc / Liên hoan</option>
+          <option value="Liên hoan">🎉 Liên hoan</option>
           <option value="Y tế">🏥 Y tế</option>
           <option value="Phần thưởng">🏆 Phần thưởng</option>
           <option value="Khác">📦 Khác</option>
@@ -681,7 +743,7 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
       </div>
       <div style="display:flex;gap:12px;margin-top:4px">
         <button class="btn btn-surface" onclick="closeEditChi()" style="justify-content:center;flex-shrink:0">Huỷ</button>
-        <button class="btn btn-gold w-full" id="btn-save-edit-chi" style="justify-content:center">
+        <button class="btn btn-gold w-full" id="btn-save-edit-chi" type="button" onclick="saveEditChi()" style="justify-content:center">
           <iconify-icon icon="solar:check-circle-linear" style="font-size:18px"></iconify-icon>
           Lưu thay đổi
         </button>
