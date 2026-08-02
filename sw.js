@@ -1,7 +1,7 @@
 // FC Sunday V2 — Service Worker
 // Đủ điều kiện PWA install, cache shell assets để load nhanh
 
-const CACHE_NAME = 'fc-sunday-v2-v6';
+const CACHE_NAME = 'fc-sunday-v2-v8';
 const SHELL_ASSETS = [
   './',
   './index.html',
@@ -16,6 +16,7 @@ const SHELL_ASSETS = [
   './date-picker.js',
   './manifest.json',
   './icon-192.png',
+  './icon-256.png',
   './icon-512.png',
   './TossFaceFontWeb.otf',
   './components/header.html',
@@ -65,19 +66,17 @@ self.addEventListener('fetch', (e) => {
     return; // browser xử lý bình thường
   }
 
-  // Shell assets: cache first, revalidate background
+  // Shell assets: network first (luôn lấy bản mới nhất khi online),
+  // chỉ dùng cache khi mất mạng — tránh HTML mới bị ghép với CSS/JS cache cũ.
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      const fetchPromise = fetch(e.request)
-        .then(res => {
-          if (res && res.status === 200 && res.type !== 'opaque') {
-            const clone = res.clone();
-            caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
-          }
-          return res;
-        })
-        .catch(() => cached); // offline fallback
-      return cached || fetchPromise;
-    })
+    fetch(e.request)
+      .then(res => {
+        if (res && res.status === 200 && res.type !== 'opaque') {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+        }
+        return res;
+      })
+      .catch(() => caches.match(e.request)) // offline fallback
   );
 });

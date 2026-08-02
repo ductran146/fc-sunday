@@ -55,7 +55,7 @@
   --color-primary:       #FFC02E;   /* Gold / Primary */
   --color-primary-end:   #F5891F;   /* Cam cháy (gradient) */
   --color-accent:        #E0392C;   /* Đỏ rồng / Accent */
-  --color-accent-light:  #FF6A5E;   /* Đỏ sáng (text on dark) */
+  --color-accent-light:  #FF4136;   /* Đỏ sáng (text on dark) — rõ/tươi hơn cho dark mode */
   --color-accent-hover:  #c5291d;
 
   /* Surface / Background */
@@ -120,7 +120,14 @@
 /* ── Reset & Base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { -webkit-text-size-adjust: 100%; }
+html {
+  -webkit-text-size-adjust: 100%;
+  /* Luôn chừa chỗ thanh cuộn dọc trên desktop — tránh nội dung (bottom-nav, header
+     đã canh giữa theo max-width) bị xê dịch vài px khi trang chuyển từ ngắn (chưa
+     có scrollbar) sang dài (có scrollbar) hoặc ngược lại lúc chuyển trang. */
+  scrollbar-gutter: stable;
+  overflow-y: scroll;
+}
 
 body {
   font-family: var(--font-sans);
@@ -139,6 +146,10 @@ a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; border: none; }
 input, select, textarea { font-family: inherit; font-size: inherit; }
 img { max-width: 100%; display: block; }
+
+/* Iconify custom element chưa "upgrade" xong (đợi JS/network) sẽ không có kích thước,
+   gây layout shift (icon "nhảy vào" làm nội dung xô lệch) — ép trước theo font-size. */
+iconify-icon { display: inline-block; width: 1em; height: 1em; flex-shrink: 0; }
 
 ::selection { background: var(--color-accent); color: #fff; }
 
@@ -159,13 +170,13 @@ body.components-ready .app-shell {
   min-height: 100dvh;
 }
 
-/* Sidebar (desktop only) */
+/* Sidebar — retired in favor of bottom nav on all devices, kept in DOM/CSS for easy revert */
 .sidebar {
   width: var(--sidebar-w);
   flex-shrink: 0;
   background: var(--bg-surface);
   border-right: 1px solid var(--bg-border);
-  display: flex;
+  display: none;
   flex-direction: column;
   position: fixed;
   top: 0;
@@ -179,11 +190,12 @@ body.components-ready .app-shell {
 .main-content {
   flex: 1;
   min-width: 0;
-  margin-left: var(--sidebar-w);
+  margin-left: 0;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   min-height: 100dvh;
+  padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px) + 8px);
 }
 
 /* Topbar */
@@ -193,6 +205,13 @@ body.components-ready .app-shell {
   position: sticky;
   top: 0;
   z-index: 30;
+}
+
+/* Nội dung topbar — thu về giữa, cùng max-width với page/bottom-nav */
+.topbar-inner {
+  height: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
   display: flex;
   align-items: center;
   padding: 0 var(--space-5);
@@ -208,9 +227,9 @@ body.components-ready .app-shell {
   margin: 0 auto;
 }
 
-/* Bottom Nav (mobile / PWA) */
+/* Bottom Nav (all devices) */
 .bottom-nav {
-  display: none;
+  display: flex;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -224,9 +243,6 @@ body.components-ready .app-shell {
 
 /* ── Responsive: mobile / PWA ── */
 @media (max-width: 767px) {
-  .sidebar { display: none; }
-  .main-content { margin-left: 0; padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px) + 8px); }
-  .bottom-nav { display: flex; }
   .topbar {
     padding-top: env(safe-area-inset-top, 0px);
     height: var(--topbar-h-safe);
@@ -235,9 +251,6 @@ body.components-ready .app-shell {
 }
 
 @media (display-mode: standalone) {
-  .sidebar { display: none; }
-  .main-content { margin-left: 0; padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px) + 8px); }
-  .bottom-nav { display: flex; }
   .topbar {
     padding-top: env(safe-area-inset-top, 0px);
     height: var(--topbar-h-safe);
@@ -894,6 +907,8 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   align-items: stretch;
   height: 100%;
   width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
 }
 .bottom-nav-item {
   flex: 1;
@@ -986,15 +1001,8 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   border-top: 1px solid var(--bg-border);
 }
 
-/* Logo trên topbar — ẩn trên desktop (sidebar đã có logo) */
-.topbar-logo { display: none; }
-
-@media (max-width: 767px) {
-  .topbar-logo { display: block; width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; border-radius: 6px; }
-}
-@media (display-mode: standalone) {
-  .topbar-logo { display: block; width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; border-radius: 6px; }
-}
+/* Logo trên topbar — hiện trên mọi kích thước (sidebar đã bỏ) */
+.topbar-logo { display: block; width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; border-radius: 6px; }
 
 /* Avatar chữ Đ */
 .topbar-avatar {
@@ -2666,10 +2674,9 @@ body[data-active="thanh-vien"] .member-sort-chip:active {
   -webkit-backdrop-filter: blur(20px);
 }
 
-/* Desktop/tablet: bottom-nav ẩn → bottom = 0 */
+/* Desktop/tablet: bottom-nav vẫn hiện → giữ nguyên bottom offset, chỉ đổi padding */
 @media (min-width: 768px) {
   .save-bar:not([hidden]) {
-    bottom: 0;
     justify-content: center;
     padding: 12px 32px;
     gap: 12px;
@@ -2729,7 +2736,7 @@ body[data-active="thanh-vien"] .member-sort-chip:active {
 }
 @media (min-width: 768px) {
   .page:has(.save-bar:not([hidden])) {
-    padding-bottom: 80px;
+    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px) + 80px);
   }
 }
 
@@ -2754,6 +2761,12 @@ body[data-active="thanh-vien"] .member-sort-chip:active {
 
   /* Amount */
   --color-amount:   #2A2824;
+
+  /* Giữ nguyên đỏ cũ cho light mode — chỉ đổi rõ hơn ở dark mode */
+  --color-accent-light: #FF6A5E;
+
+  /* Vàng/gold đậm hơn cho light mode — #FFC02E gốc tương phản quá thấp trên nền trắng */
+  --color-primary: #C77700;
 
   /* Shadow — nhẹ hơn trên nền sáng */
   --shadow-sm:  0 2px 8px rgba(0,0,0,.08);
