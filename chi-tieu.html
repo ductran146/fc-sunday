@@ -274,6 +274,9 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
 <script>
   const CATS = ['Sân bóng','Thiết bị','Liên hoan','Y tế','Phần thưởng','Khác'];
   const CAT_COLORS = ['#E0392C','#FFC02E','#2ECC71','#FF6A5E','#F5891F','#9A9AA2'];
+  // Gộp các tên hạng mục cũ/trùng nghĩa vào tên chuẩn hiện tại (để không tách slice trên chart)
+  const CAT_ALIASES = { 'Tiệc / Liên hoan': 'Liên hoan', 'Tiệc/ Liên hoan': 'Liên hoan', 'Tiệc/Liên hoan': 'Liên hoan' };
+  function normalizeCat(cat) { return CAT_ALIASES[String(cat||'').trim()] || cat; }
   const BASE_YEAR = 2026;
   let _year = BASE_YEAR, _S = null, _chart = null, _editingCid = null;
 
@@ -302,7 +305,7 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
 
   function renderChart(chiTieu) {
     const catTotals = {};
-    chiTieu.forEach(c => { if (c.amount > 0) catTotals[c.cat] = (catTotals[c.cat]||0) + c.amount; });
+    chiTieu.forEach(c => { if (c.amount > 0) { const cat = normalizeCat(c.cat); catTotals[cat] = (catTotals[cat]||0) + c.amount; } });
     const labels = Object.keys(catTotals);
     const data   = Object.values(catTotals);
     const total  = data.reduce((s,v) => s+v, 0);
