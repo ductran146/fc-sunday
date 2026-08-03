@@ -331,7 +331,16 @@
       return sum + Math.abs(Number(c.amount || 0));
     }, 0);
   }
-  function getOpeningBalance(S, fund) {
+  function getOpeningBalance(S, fund, year) {
+    const y = year === undefined ? _year : year;
+
+    // Năm sau BASE_YEAR: số dư đầu kỳ = số dư cuối kỳ (tồn quỹ) của năm liền trước đó,
+    // tự động cuốn chiếu, không cần nhập tay ở Cài đặt.
+    if (y > BASE_YEAR) {
+      const prev = computeFundTotals(S, y - 1);
+      return fund === 'bia' ? prev.tonBia : prev.tonThang;
+    }
+
     const legacy = getLegacyOpeningBalance(S, fund);
     const explicit = S?.settings?.openingBalances?.[fund];
     const hasExplicit = explicit !== undefined && explicit !== null && explicit !== '';
@@ -343,6 +352,61 @@
     if (hasExplicit && explicitValue !== 0) return explicitValue;
     if (legacy !== 0) return legacy;
     return explicitValue;
+  }
+
+  // Tính thu/chi/tồn quỹ thuần cho MỘT năm bất kỳ (không phụ thuộc _year hiện tại) —
+  // dùng để lấy số dư cuối kỳ làm số dư đầu kỳ cho năm kế tiếp.
+  function computeFundTotals(S, year) {
+    const chiTieuAll = (S.chiTieu || []).filter(c => String(c.date?.substring(0,4)) === String(year));
+    const chiTieu = chiTieuAll.filter(c => !isOpeningBalanceEntry(c));
+    const openingThang = getOpeningBalance(S, 'thang', year);
+    const openingBia   = getOpeningBalance(S, 'bia', year);
+
+    let thuThangTotal = 0;
+    (S.members || []).forEach(m => {
+      const key = year === BASE_YEAR ? String(m.id) : `${m.id}_${year}`;
+      const arr = S.thuThang?.[key] || Array(12).fill(0);
+      arr.forEach(v => { if (v === 1) thuThangTotal += FEE; });
+    });
+
+    const matches = (S.matches || []).filter(m => {
+      return year === BASE_YEAR ? (!m.year || m.year === BASE_YEAR) : m.year === year;
+    });
+    let thuBiaThu = 0, thuBiaThuThem = 0;
+    matches.forEach(match => {
+      (match.losers || []).forEach(l => { if (l.paid) thuBiaThu += FINE; });
+      thuBiaThuThem += (match.thuThem || 0);
+    });
+
+    const incomeThangFromExpenses = chiTieu
+      .filter(c => (!c.fund || c.fund === 'thang') && Number(c.amount || 0) < 0)
+      .reduce((s,c) => s + Math.abs(Number(c.amount || 0)), 0);
+    const incomeBiaFromExpenses = chiTieu
+      .filter(c => c.fund === 'bia' && Number(c.amount || 0) < 0)
+      .reduce((s,c) => s + Math.abs(Number(c.amount || 0)), 0);
+
+    const thuBiaTotal = thuBiaThu + thuBiaThuThem + incomeBiaFromExpenses;
+
+    const chiThang = chiTieu
+      .filter(c => (!c.fund || c.fund === 'thang') && Number(c.amount || 0) > 0)
+      .reduce((s,c) => s + Number(c.amount || 0), 0);
+    const chiBia = chiTieu
+      .filter(c => c.fund === 'bia' && Number(c.amount || 0) > 0)
+      .reduce((s,c) => s + Number(c.amount || 0), 0);
+
+    const thuThangDisplay = openingThang + thuThangTotal + incomeThangFromExpenses;
+    const thuBiaDisplay   = openingBia + thuBiaTotal;
+
+    return {
+      openingThang, openingBia,
+      thuThangTotal, thuBiaTotal,
+      incomeThangFromExpenses, incomeBiaFromExpenses,
+      thuBiaThuThem,
+      chiThang, chiBia,
+      thuThangDisplay, thuBiaDisplay,
+      tonThang: thuThangDisplay - chiThang,
+      tonBia: thuBiaDisplay - chiBia,
+    };
   }
 
   function renderOverview(S) {
@@ -360,12 +424,21 @@
       return String(_year) === d;
     });
     const chiTieu = chiTieuAll.filter(c => !isOpeningBalanceEntry(c));
-    const openingThang = getOpeningBalance(S, 'thang');
-    const openingBia = getOpeningBalance(S, 'bia');
 
-    // Thu tháng
-    let thuThangTotal = 0;
-    let thuThangNo    = 0;
+    // Số dư đầu kỳ + thu/chi/tồn quỹ của năm đang xem — số dư đầu kỳ của các năm
+    // sau BASE_YEAR được tự động cuốn chiếu từ số dư cuối kỳ năm liền trước (xem computeFundTotals).
+    const {
+      openingThang, openingBia,
+      chiThang, chiBia,
+      thuThangDisplay, thuBiaDisplay,
+      thuBiaThuThem,
+      tonThang, tonBia,
+    } = computeFundTotals(S, _year);
+    const tonTotal = tonThang + tonBia;
+    const thuTotal = thuThangDisplay + thuBiaDisplay;
+
+    // Nợ tháng (còn thiếu, chưa đóng) — không ảnh hưởng số dư quỹ
+    let thuThangNo = 0;
     const curMonthIdx = _year < new Date().getFullYear() ? 11
                       : _year > new Date().getFullYear() ? -1
                       : new Date().getMonth(); // 0-based
@@ -373,50 +446,16 @@
       const key = _year === BASE_YEAR ? String(m.id) : `${m.id}_${_year}`;
       const arr = S.thuThang?.[key] || Array(12).fill(0);
       arr.forEach((v, mi) => {
-        if (v === 1) thuThangTotal += FEE; // đã đóng: tính vào quỹ dù bất kể trạng thái
         // chỉ tính nợ cho tháng đã đến kỳ, chưa đóng, và thành viên chưa nghỉ
         if (v === 0 && mi <= curMonthIdx && m.status !== 'left') thuThangNo += FEE;
       });
     });
 
-    // Thu bia & nợ bia
-    let thuBiaThu = 0, thuBiaThuThem = 0, noBia = 0;
+    // Nợ bia (thua chưa nộp) — không ảnh hưởng số dư quỹ
+    let noBia = 0;
     matches.forEach(match => {
-      (match.losers || []).forEach(l => {
-        if (l.paid) thuBiaThu += FINE;
-        else noBia += FINE;
-      });
-      thuBiaThuThem += (match.thuThem || 0);
+      (match.losers || []).forEach(l => { if (!l.paid) noBia += FINE; });
     });
-    // Các khoản thu nhập nhập trong trang Chi tiêu đang lưu amount âm
-    // để hiển thị dạng +500.000 / +1.000.000.
-    // Khi tính quỹ, đưa các khoản này vào Thu, không trừ vào Chi.
-    const incomeThangFromExpenses = chiTieu
-      .filter(c => (!c.fund || c.fund === 'thang') && Number(c.amount || 0) < 0)
-      .reduce((s,c) => s + Math.abs(Number(c.amount || 0)), 0);
-    const incomeBiaFromExpenses = chiTieu
-      .filter(c => c.fund === 'bia' && Number(c.amount || 0) < 0)
-      .reduce((s,c) => s + Math.abs(Number(c.amount || 0)), 0);
-
-    const thuBiaTotal = thuBiaThu + thuBiaThuThem + incomeBiaFromExpenses;
-
-    // Chi — chỉ tính khoản chi thực tế amount dương. Khoản thu/ủng hộ amount âm được cộng vào Thu ở trên.
-    // Khoản không có fund mặc định thuộc quỹ tháng.
-    const chiThang = chiTieu
-      .filter(c => (!c.fund || c.fund === 'thang') && Number(c.amount || 0) > 0)
-      .reduce((s,c) => s + Number(c.amount || 0), 0);
-    const chiBia = chiTieu
-      .filter(c => c.fund === 'bia' && Number(c.amount || 0) > 0)
-      .reduce((s,c) => s + Number(c.amount || 0), 0);
-
-    // Thu hiển thị = số dư đầu kỳ + quỹ đã đóng/đã thu + khoản thu/ủng hộ
-    const thuThangDisplay = openingThang + thuThangTotal + incomeThangFromExpenses;
-    const thuBiaDisplay   = openingBia + thuBiaTotal;
-
-    const tonThang = thuThangDisplay - chiThang;
-    const tonBia   = thuBiaDisplay - chiBia;
-    const tonTotal = tonThang + tonBia;
-    const thuTotal = thuThangDisplay + thuBiaDisplay;
 
     // Tiền sân gần nhất: lấy từ chi tiêu quỹ bóng/quỹ tháng có nội dung liên quan đến sân bóng
     const sanExpenses = chiTieu

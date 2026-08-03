@@ -112,7 +112,16 @@
     }, 0);
   }
 
-  function getOpeningBalance(S, fund) {
+  function getOpeningBalance(S, fund, year) {
+    const y = year === undefined ? BASE_YEAR : year;
+
+    // Năm sau BASE_YEAR: số dư đầu kỳ = số dư cuối kỳ (tồn quỹ) của năm liền trước đó,
+    // tự động cuốn chiếu — đồng bộ với logic ở index.html.
+    if (y > BASE_YEAR) {
+      const prev = computeFundTotals(S, y - 1);
+      return fund === 'bia' ? prev.tonBia : prev.tonThang;
+    }
+
     const legacy = getLegacyOpeningBalance(S, fund);
     const explicit = S?.settings?.openingBalances?.[fund];
     const hasExplicit = explicit !== undefined && explicit !== null && explicit !== '';
@@ -122,43 +131,27 @@
     return explicitValue;
   }
 
-  function renderShare(S) {
-    const now = new Date();
-    const YEAR = BASE_YEAR;
-    const curMonthIdx = now.getMonth();
-
-    // toArr() bắt buộc vì Firebase lưu array thành object
-    const allMembers = toArr(S.members);
-    const members    = allMembers.filter(m => m && m.status !== 'left');
-    const matches    = toArr(S.matches).filter(m => m && (!m.year || m.year === YEAR));
-    const chiTieuAll = toArr(S.chiTieu).filter(c => {
-      if (!c) return false;
-      const d = c.date?.substring(0, 4);
-      return String(YEAR) === d;
-    });
+  // Tính thu/chi/tồn quỹ thuần cho MỘT năm bất kỳ — dùng để lấy số dư cuối kỳ
+  // làm số dư đầu kỳ cho năm kế tiếp (đồng bộ với index.html).
+  function computeFundTotals(S, year) {
+    const chiTieuAll = toArr(S.chiTieu).filter(c => c && String(c.date?.substring(0,4)) === String(year));
     const chiTieu = chiTieuAll.filter(c => !isOpeningBalanceEntry(c));
+    const openingThang = getOpeningBalance(S, 'thang', year);
+    const openingBia   = getOpeningBalance(S, 'bia', year);
 
-    const openingThang = getOpeningBalance(S, 'thang');
-    const openingBia   = getOpeningBalance(S, 'bia');
-
-    // Thu tháng — dùng allMembers
-    let thuThangTotal = 0, noThang = 0;
-    allMembers.forEach(m => {
-      const key = String(m.id);
+    let thuThangTotal = 0;
+    toArr(S.members).forEach(m => {
+      const key = year === BASE_YEAR ? String(m.id) : `${m.id}_${year}`;
       const arr = S.thuThang?.[key] || Array(12).fill(0);
-      arr.forEach((v, mi) => {
-        if (v === 1) thuThangTotal += FEE;
-        if (v === 0 && mi <= curMonthIdx && m.status !== 'left') noThang += FEE;
-      });
+      arr.forEach(v => { if (v === 1) thuThangTotal += FEE; });
     });
 
-    // Thu bia
-    let thuBiaThu = 0, thuBiaThuThem = 0, noBia = 0;
+    const matches = toArr(S.matches).filter(m => {
+      return m && (year === BASE_YEAR ? (!m.year || m.year === BASE_YEAR) : m.year === year);
+    });
+    let thuBiaThu = 0, thuBiaThuThem = 0;
     matches.forEach(match => {
-      toArr(match.losers).forEach(l => {
-        if (l.paid) thuBiaThu += FINE;
-        else noBia += FINE;
-      });
+      toArr(match.losers).forEach(l => { if (l.paid) thuBiaThu += FINE; });
       thuBiaThuThem += (match.thuThem || 0);
     });
 
@@ -181,15 +174,65 @@
     const thuThangDisplay = openingThang + thuThangTotal + incomeThangFromExpenses;
     const thuBiaDisplay   = openingBia   + thuBiaTotal;
 
-    const tonThang = thuThangDisplay - chiThang;
-    const tonBia   = thuBiaDisplay   - chiBia;
+    return {
+      openingThang, openingBia,
+      thuThangTotal, thuBiaTotal,
+      incomeThangFromExpenses, incomeBiaFromExpenses,
+      thuBiaThuThem,
+      chiThang, chiBia,
+      thuThangDisplay, thuBiaDisplay,
+      tonThang: thuThangDisplay - chiThang,
+      tonBia: thuBiaDisplay - chiBia,
+    };
+  }
+
+  function renderShare(S) {
+    const now = new Date();
+    const YEAR = BASE_YEAR;
+    const curMonthIdx = now.getMonth();
+
+    // toArr() bắt buộc vì Firebase lưu array thành object
+    const allMembers = toArr(S.members);
+    const members    = allMembers.filter(m => m && m.status !== 'left');
+    const matches    = toArr(S.matches).filter(m => m && (!m.year || m.year === YEAR));
+    const chiTieuAll = toArr(S.chiTieu).filter(c => {
+      if (!c) return false;
+      const d = c.date?.substring(0, 4);
+      return String(YEAR) === d;
+    });
+    const chiTieu = chiTieuAll.filter(c => !isOpeningBalanceEntry(c));
+
+    // Thu/chi/tồn quỹ năm hiện tại — số dư đầu kỳ tự cuốn chiếu nếu YEAR > BASE_YEAR.
+    const {
+      openingThang, openingBia,
+      thuThangTotal, thuBiaTotal,
+      incomeThangFromExpenses, incomeBiaFromExpenses,
+      thuBiaThuThem,
+      chiThang, chiBia,
+      thuThangDisplay, thuBiaDisplay,
+      tonThang, tonBia,
+    } = computeFundTotals(S, YEAR);
     const tonTotal = tonThang + tonBia;
+
+    // Nợ tháng / nợ bia — không ảnh hưởng số dư quỹ
+    let noThang = 0;
+    allMembers.forEach(m => {
+      const key = String(m.id);
+      const arr = S.thuThang?.[key] || Array(12).fill(0);
+      arr.forEach((v, mi) => {
+        if (v === 0 && mi <= curMonthIdx && m.status !== 'left') noThang += FEE;
+      });
+    });
+    let noBia = 0;
+    matches.forEach(match => {
+      toArr(match.losers).forEach(l => { if (!l.paid) noBia += FINE; });
+    });
 
     // DEBUG
     console.log('=== SHARE DEBUG ===');
     console.log('openingThang:', openingThang, 'openingBia:', openingBia);
     console.log('thuThangTotal:', thuThangTotal, 'chiThang:', chiThang);
-    console.log('thuBiaThu:', thuBiaThu, 'thuBiaThuThem:', thuBiaThuThem, 'chiBia:', chiBia);
+    console.log('thuBiaTotal:', thuBiaTotal, 'thuBiaThuThem:', thuBiaThuThem, 'chiBia:', chiBia);
     console.log('incomeThang:', incomeThangFromExpenses, 'incomeBia:', incomeBiaFromExpenses);
     console.log('thuThangDisplay:', thuThangDisplay, 'thuBiaDisplay:', thuBiaDisplay);
     console.log('tonThang:', tonThang, 'tonBia:', tonBia, 'tonTotal:', tonTotal);
