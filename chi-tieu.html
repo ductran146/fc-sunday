@@ -104,6 +104,39 @@
       .chi-list-mobile { display: none; }
       .chi-history-table-wrap { display: block; margin-top: 16px; }
     }
+
+    /* ── Custom category dropdown ──
+       <select> gốc để trình duyệt/OS tự vẽ danh sách khi mở (popup native),
+       nên font TossFace không áp dụng được lên phần list. Dùng dropdown tự
+       dựng bằng div/ul để emoji hiển thị đúng font TossFace mọi lúc. */
+    .cat-select { position: relative; }
+    .cat-select__btn {
+      display: flex; align-items: center; gap: 8px;
+      cursor: pointer; text-align: left;
+    }
+    .cat-select__emoji { font-size: 17px; line-height: 1; flex-shrink: 0; }
+    .cat-select__label { flex: 1; font-size: 14px; color: var(--text-primary); }
+    .cat-select__chevron { font-size: 16px; color: var(--text-secondary); transition: transform .15s ease; flex-shrink: 0; }
+    .cat-select__btn.is-open .cat-select__chevron { transform: rotate(180deg); }
+    .cat-select__list {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 30;
+      background: var(--bg-elevated);
+      border: 1px solid var(--bg-stroke);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 12px 28px rgba(0,0,0,.35);
+      padding: 6px; margin: 0; list-style: none;
+      max-height: 260px; overflow-y: auto;
+    }
+    .cat-select__list li {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: var(--radius-md);
+      font-size: 14px; color: var(--text-primary); cursor: pointer;
+    }
+    .cat-select__list li:hover { background: rgba(255,255,255,.06); }
+    .cat-select__check { margin-left: auto; font-size: 14px; font-weight: 800; color: var(--color-primary); flex-shrink: 0; visibility: hidden; }
+    .cat-select__list li.is-selected .cat-select__check { visibility: visible; }
+    .cat-select__opt-emoji { font-size: 16px; flex-shrink: 0; }
+    [data-theme="light"] .cat-select__list li:hover { background: rgba(0,0,0,.05); }
   </style>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
@@ -133,7 +166,7 @@
         <div class="toggle-tab-group">
           <button class="toggle-tab active" id="tab-history" onclick="setChiTab('history')">Lịch sử chi tiêu</button>
           <button class="toggle-tab" id="tab-add" onclick="setChiTab('add')">
-            <iconify-icon icon="solar:add-circle-linear" style="font-size:14px;vertical-align:middle;margin-right:4px"></iconify-icon>Thêm khoản
+            <iconify-icon icon="solar:add-circle-linear" style="font-size:14px;vertical-align:middle;margin-right:4px"></iconify-icon>Thêm khoản chi
           </button>
         </div>
       </div>
@@ -231,14 +264,22 @@
             </div>
             <div class="field">
               <label>Danh mục</label>
-              <select class="input" id="chi-cat">
-                <option value="Sân bóng">⚽ Sân bóng</option>
-                <option value="Thiết bị">🎽 Thiết bị</option>
-                <option value="Liên hoan">🎉 Liên hoan</option>
-                <option value="Y tế">🏥 Y tế</option>
-                <option value="Phần thưởng">🏆 Phần thưởng</option>
-                <option value="Khác">📦 Khác</option>
-              </select>
+              <div class="cat-select" data-target="chi-cat">
+                <button type="button" class="cat-select__btn input">
+                  <span class="cat-select__emoji"></span>
+                  <span class="cat-select__label"></span>
+                  <iconify-icon icon="solar:alt-arrow-down-linear" class="cat-select__chevron"></iconify-icon>
+                </button>
+                <input type="hidden" id="chi-cat" value="Sân bóng">
+                <ul class="cat-select__list" hidden>
+                  <li data-value="Sân bóng" data-emoji="🏟️"><span class="cat-select__opt-emoji">🏟️</span><span>Sân bóng</span><span class="cat-select__check">✓</span></li>
+                  <li data-value="Thiết bị" data-emoji="⚽"><span class="cat-select__opt-emoji">⚽</span><span>Thiết bị</span><span class="cat-select__check">✓</span></li>
+                  <li data-value="Liên hoan" data-emoji="🎉"><span class="cat-select__opt-emoji">🎉</span><span>Liên hoan</span><span class="cat-select__check">✓</span></li>
+                  <li data-value="Y tế" data-emoji="🏥"><span class="cat-select__opt-emoji">🏥</span><span>Y tế</span><span class="cat-select__check">✓</span></li>
+                  <li data-value="Phần thưởng" data-emoji="🏆"><span class="cat-select__opt-emoji">🏆</span><span>Phần thưởng</span><span class="cat-select__check">✓</span></li>
+                  <li data-value="Khác" data-emoji="📦"><span class="cat-select__opt-emoji">📦</span><span>Khác</span><span class="cat-select__check">✓</span></li>
+                </ul>
+              </div>
             </div>
             <div class="field">
               <label>Nguồn quỹ</label>
@@ -724,14 +765,22 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
       </div>
       <div class="field">
         <label>Danh mục</label>
-        <select class="input" id="edit-chi-cat">
-          <option value="Sân bóng">⚽ Sân bóng</option>
-          <option value="Thiết bị">🎽 Thiết bị</option>
-          <option value="Liên hoan">🎉 Liên hoan</option>
-          <option value="Y tế">🏥 Y tế</option>
-          <option value="Phần thưởng">🏆 Phần thưởng</option>
-          <option value="Khác">📦 Khác</option>
-        </select>
+        <div class="cat-select" data-target="edit-chi-cat">
+          <button type="button" class="cat-select__btn input">
+            <span class="cat-select__emoji"></span>
+            <span class="cat-select__label"></span>
+            <iconify-icon icon="solar:alt-arrow-down-linear" class="cat-select__chevron"></iconify-icon>
+          </button>
+          <input type="hidden" id="edit-chi-cat" value="Sân bóng">
+          <ul class="cat-select__list" hidden>
+            <li data-value="Sân bóng" data-emoji="🏟️"><span class="cat-select__opt-emoji">🏟️</span><span>Sân bóng</span><span class="cat-select__check">✓</span></li>
+            <li data-value="Thiết bị" data-emoji="⚽"><span class="cat-select__opt-emoji">⚽</span><span>Thiết bị</span><span class="cat-select__check">✓</span></li>
+            <li data-value="Liên hoan" data-emoji="🎉"><span class="cat-select__opt-emoji">🎉</span><span>Liên hoan</span><span class="cat-select__check">✓</span></li>
+            <li data-value="Y tế" data-emoji="🏥"><span class="cat-select__opt-emoji">🏥</span><span>Y tế</span><span class="cat-select__check">✓</span></li>
+            <li data-value="Phần thưởng" data-emoji="🏆"><span class="cat-select__opt-emoji">🏆</span><span>Phần thưởng</span><span class="cat-select__check">✓</span></li>
+            <li data-value="Khác" data-emoji="📦"><span class="cat-select__opt-emoji">📦</span><span>Khác</span><span class="cat-select__check">✓</span></li>
+          </ul>
+        </div>
       </div>
       <div class="field">
         <label>Nguồn quỹ</label>
@@ -756,6 +805,58 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
 </div>
 
 <script>
+  // ── Custom category dropdown init ──
+  document.querySelectorAll('.cat-select').forEach(wrap => {
+    const btn = wrap.querySelector('.cat-select__btn');
+    const emojiEl = wrap.querySelector('.cat-select__emoji');
+    const labelEl = wrap.querySelector('.cat-select__label');
+    const list = wrap.querySelector('.cat-select__list');
+    const hidden = document.getElementById(wrap.dataset.target);
+    const items = Array.from(list.querySelectorAll('li'));
+
+    function render(v) {
+      const item = items.find(li => li.dataset.value === v) || items[items.length - 1];
+      emojiEl.textContent = item.dataset.emoji;
+      labelEl.textContent = item.dataset.value;
+      items.forEach(li => li.classList.toggle('is-selected', li === item));
+    }
+
+    // Cho phép code cũ set `.value = ...` như input thường mà vẫn tự cập nhật UI
+    const proto = Object.getPrototypeOf(hidden);
+    const desc = Object.getOwnPropertyDescriptor(proto, 'value');
+    Object.defineProperty(hidden, 'value', {
+      get() { return desc.get.call(hidden); },
+      set(v) { desc.set.call(hidden, v); render(v); },
+      configurable: true,
+    });
+
+    function closeList() {
+      list.hidden = true;
+      btn.classList.remove('is-open');
+    }
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = list.hidden;
+      document.querySelectorAll('.cat-select__list').forEach(l => l.hidden = true);
+      document.querySelectorAll('.cat-select__btn').forEach(b => b.classList.remove('is-open'));
+      if (willOpen) { list.hidden = false; btn.classList.add('is-open'); }
+    });
+
+    items.forEach(li => {
+      li.addEventListener('click', () => {
+        hidden.value = li.dataset.value;
+        closeList();
+      });
+    });
+
+    render(hidden.value);
+  });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.cat-select__list').forEach(l => l.hidden = true);
+    document.querySelectorAll('.cat-select__btn').forEach(b => b.classList.remove('is-open'));
+  });
+
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js')

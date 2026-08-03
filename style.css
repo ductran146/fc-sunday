@@ -2897,25 +2897,26 @@ body[data-active="thanh-vien"] .member-sort-chip:active {
 @keyframes hero-fund-rotate {
   to { --hero-angle: 360deg; }
 }
-:root:not([data-theme="light"]) .hero-fund::before {
-  content: '';
+/* Glow orbs — phần tử DOM thật (không phải ::before/::after) để JS có thể
+   set transform trực tiếp cho hiệu ứng parallax theo chuột/nghiêng máy */
+.hero-glow { display: none; }
+:root:not([data-theme="light"]) .hero-glow {
+  display: block;
   position: absolute;
+  border-radius: 50%;
+  filter: blur(20px);
+  pointer-events: none;
+  transition: transform .25s ease-out;
+}
+:root:not([data-theme="light"]) .hero-glow--gold {
   top: -40px; right: -30px; left: auto; bottom: auto;
   width: 180px; height: 180px;
-  border-radius: 50%;
   background: radial-gradient(circle, rgba(255,192,46,.5), transparent 70%);
-  filter: blur(20px);
-  pointer-events: none;
 }
-:root:not([data-theme="light"]) .hero-fund::after {
-  content: '';
-  position: absolute;
+:root:not([data-theme="light"]) .hero-glow--red {
   bottom: -50px; left: -20px;
   width: 160px; height: 160px;
-  border-radius: 50%;
   background: radial-gradient(circle, rgba(224,57,44,.4), transparent 70%);
-  filter: blur(20px);
-  pointer-events: none;
 }
 :root:not([data-theme="light"]) .hero-fund__label {
   color: var(--text-secondary);

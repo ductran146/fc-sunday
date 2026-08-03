@@ -22,7 +22,6 @@
 <div class="app-shell">
   <div data-component="sidebar"></div>
   <div class="main-content">
-    <div data-component="header" data-title="Tổng quỹ"></div>
     <main class="page" id="page-content" style="opacity:0;transition:opacity .2s">
 
       <!-- Header -->
@@ -269,8 +268,11 @@
       ? '<div style="grid-column:1/-1;padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Chưa có dữ liệu</div>'
       : sorted.map((m, i) => {
           const debt = debtMap[m.id] || 0;
+          const lastRowStart = Math.floor((sorted.length - 1) / 4) * 4;
+          const isLastRow = i >= lastRowStart;
           const br = (i % 4 !== 3) ? '1px solid var(--bg-border)' : 'none';
-          return `<div style="padding:6px 6px;text-align:center;border-right:${br};border-bottom:1px solid var(--bg-border)">
+          const bb = isLastRow ? 'none' : '1px solid var(--bg-border)';
+          return `<div style="padding:6px 6px;text-align:center;border-right:${br};border-bottom:${bb}">
             <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.name}</div>
             ${debt === 0
               ? '<div style="font-size:11px;font-weight:600;color:var(--color-success)">Đủ ✓</div>'

@@ -83,6 +83,8 @@
 
       <!-- Hero Fund -->
       <div class="hero-fund" style="margin-bottom:24px">
+        <span class="hero-glow hero-glow--gold" aria-hidden="true"></span>
+        <span class="hero-glow hero-glow--red" aria-hidden="true"></span>
         <div class="hero-fund__top">
           <div class="hero-fund__summary">
             <div class="hero-fund__label">Tổng quỹ hiện tại</div>
@@ -793,6 +795,53 @@
   };
 </script>
 <script>
+  // ── Hero-fund glow parallax: di chuột (desktop) / nghiêng máy (mobile) ──
+  (function initHeroGlowParallax(){
+    const hero = document.querySelector('.hero-fund');
+    const glowGold = hero?.querySelector('.hero-glow--gold');
+    const glowRed  = hero?.querySelector('.hero-glow--red');
+    if (!hero || !glowGold || !glowRed) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    function setGlow(x, y) {
+      glowGold.style.transform = `translate(${(x * 16).toFixed(1)}px, ${(y * 16).toFixed(1)}px)`;
+      glowRed.style.transform  = `translate(${(x * -12).toFixed(1)}px, ${(y * -12).toFixed(1)}px)`;
+    }
+
+    // Desktop: di chuột trong khu vực hero-fund
+    hero.addEventListener('mousemove', (e) => {
+      const rect = hero.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      const y = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+      setGlow(x, y);
+    });
+    hero.addEventListener('mouseleave', () => setGlow(0, 0));
+
+    // Mobile: nghiêng máy (deviceorientation)
+    function onOrientation(e) {
+      if (e.beta === null || e.gamma === null) return;
+      const x = Math.max(-1, Math.min(1, e.gamma / 30));
+      const y = Math.max(-1, Math.min(1, (e.beta - 40) / 30));
+      setGlow(x, y);
+    }
+    function bindOrientation() {
+      window.addEventListener('deviceorientation', onOrientation);
+    }
+
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      // iOS 13+: cần xin quyền qua thao tác chạm của người dùng
+      const requestOnce = () => {
+        DeviceOrientationEvent.requestPermission()
+          .then(state => { if (state === 'granted') bindOrientation(); })
+          .catch(() => {});
+        document.removeEventListener('touchend', requestOnce);
+      };
+      document.addEventListener('touchend', requestOnce, { once: true });
+    } else if (typeof DeviceOrientationEvent !== 'undefined') {
+      bindOrientation();
+    }
+  })();
+
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js')
