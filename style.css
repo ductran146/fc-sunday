@@ -715,7 +715,6 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   overflow: hidden;
 }
 .hero-fund::before {
-  content: '';
   position: absolute;
   inset: 0;
   background: radial-gradient(ellipse at 80% 20%, rgba(255,255,255,.18) 0%, transparent 60%);
@@ -2866,9 +2865,86 @@ body[data-active="thanh-vien"] .member-sort-chip:active {
   color: var(--text-primary);
 }
 
+/* ── Dark mode: hero-fund dạng kính mờ (glassmorphism), thay cho nền cam ──
+   Khớp đúng thông số Option D (hero_fund_artistic_options.html) ── */
+@property --hero-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+:root:not([data-theme="light"]) .hero-fund {
+  border: 1px solid transparent;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(255,255,255,.06) 0%, transparent 40%) padding-box,
+    radial-gradient(circle at 100% 100%, rgba(255,255,255,.06) 0%, transparent 40%) padding-box,
+    linear-gradient(var(--bg-surface), var(--bg-surface)) padding-box,
+    conic-gradient(from var(--hero-angle),
+      rgba(255,255,255,0) 0deg,
+      rgba(255,255,255,.35) 12deg,
+      rgba(255,255,255,0) 40deg,
+      rgba(255,255,255,0) 160deg,
+      rgba(255,255,255,.35) 192deg,
+      rgba(255,255,255,0) 220deg,
+      rgba(255,255,255,0) 360deg
+    ) border-box;
+  animation: hero-fund-rotate 8s linear infinite;
+  box-shadow: 0 0 30px rgba(255,255,255,.05);
+}
+@keyframes hero-fund-rotate {
+  to { --hero-angle: 360deg; }
+}
+:root:not([data-theme="light"]) .hero-fund::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -30px; left: auto; bottom: auto;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,192,46,.5), transparent 70%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+:root:not([data-theme="light"]) .hero-fund::after {
+  content: '';
+  position: absolute;
+  bottom: -50px; left: -20px;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(224,57,44,.4), transparent 70%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+:root:not([data-theme="light"]) .hero-fund__label {
+  color: var(--text-secondary);
+}
+:root:not([data-theme="light"]) .hero-fund__total,
+:root:not([data-theme="light"]) .hero-fund__total span {
+  color: var(--text-primary);
+}
+:root:not([data-theme="light"]) .hero-extra-stat__label {
+  color: var(--text-secondary);
+}
+:root:not([data-theme="light"]) .hero-extra-stat__value {
+  color: var(--text-primary);
+}
+:root:not([data-theme="light"]) .hero-fund .year-selector {
+  background-color: rgba(255,255,255,.08);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 0.5px solid rgba(255,255,255,.15);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23FFFFFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 9l6 6l6-6'/%3E%3C/svg%3E");
+}
+:root:not([data-theme="light"]) .hero-fund .year-selector:hover {
+  background-color: rgba(255,255,255,.13);
+}
+
 /* ── Dark mode: fund-split cards dùng màu nền trang, chữ trắng ── */
 :root:not([data-theme="light"]) .hero-fund .fund-split__item {
-  background: var(--bg-base);
+  background: rgba(255,255,255,.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 0.5px solid rgba(255,255,255,.12);
+  padding: 14px;
 }
 :root:not([data-theme="light"]) .hero-fund .fund-split__item-label {
   color: var(--text-muted);
