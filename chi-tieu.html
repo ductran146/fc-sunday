@@ -54,6 +54,61 @@
     .chi-card__note { font-size: 12px; color: var(--text-secondary); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .chi-card__amount { font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; flex-shrink: 0; }
 
+    .field .fund-credit-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .field .fund-credit-check input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .fund-credit-check__box {
+      width: 20px;
+      height: 20px;
+      flex: 0 0 20px;
+      display: inline-flex;
+      color: var(--text-muted);
+      transition: color .15s ease, filter .15s ease, transform .12s ease;
+    }
+    .fund-credit-check__box svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+    .fund-credit-check__checked { display: none; }
+    .fund-credit-check input:checked + .fund-credit-check__box {
+      color: var(--color-success);
+      filter: drop-shadow(0 0 4px rgba(46,204,113,.22));
+    }
+    .fund-credit-check input:checked + .fund-credit-check__box .fund-credit-check__unchecked { display: none; }
+    .fund-credit-check input:checked + .fund-credit-check__box .fund-credit-check__checked { display: inline; }
+    .fund-credit-check input:focus-visible + .fund-credit-check__box {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+    .fund-credit-check:active .fund-credit-check__box {
+      transform: scale(.94);
+    }
+    .field .fund-credit-check:has(input:checked) { color: var(--color-success); }
+    .amount-field-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
     /* Swipe actions: edit + delete */
     .chi-swipe-actions {
       position: absolute; inset: 0 0 0 auto; z-index: 1;
@@ -137,6 +192,18 @@
     .cat-select__list li.is-selected .cat-select__check { visibility: visible; }
     .cat-select__opt-emoji { font-size: 16px; flex-shrink: 0; }
     [data-theme="light"] .cat-select__list li:hover { background: rgba(0,0,0,.05); }
+
+    /* Chừa vùng an toàn để lát donut phóng to không bị canvas cắt mất */
+    .chi-donut-wrap {
+      position: relative;
+      width: min(220px, 100%);
+      aspect-ratio: 1;
+      flex-shrink: 0;
+    }
+    .chi-donut-wrap canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
   </style>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
@@ -198,7 +265,7 @@
           <div class="section-overline" style="margin-bottom:4px">Thống kê</div>
           <div class="section-title" style="font-size:16px;margin-bottom:16px">Phân bổ theo danh mục</div>
           <div style="display:flex;flex-direction:column;align-items:center;gap:16px">
-            <div style="position:relative;width:220px;height:220px">
+            <div class="chi-donut-wrap">
               <canvas id="donut-chart"></canvas>
               <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;flex-direction:column">
                 <div style="font-size:12px;color:var(--text-muted)">Tổng</div>
@@ -245,8 +312,6 @@
       <!-- Tab: Thêm khoản (admin only) -->
       <div id="panel-add" style="display:none">
         <div class="card">
-          <div class="section-overline" id="chi-form-overline" style="margin-bottom:4px">Thêm khoản</div>
-          <div class="section-title" id="chi-form-title" style="font-size:16px;margin-bottom:16px">Ghi nhận chi tiêu</div>
           <div style="display:flex;flex-direction:column;gap:14px">
             <div class="field">
               <label>Ngày chi</label>
@@ -259,8 +324,18 @@
               <input type="hidden" id="chi-date-value">
             </div>
             <div class="field">
-              <label>Số tiền <span style="color:var(--text-muted);font-weight:400">(âm = cộng lại quỹ)</span></label>
+              <div class="amount-field-heading">
+                <label>Số tiền</label>
+                <label class="fund-credit-check"><input type="checkbox" id="chi-amount-sign"><span class="fund-credit-check__box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path class="fund-credit-check__unchecked" d="M11.5996 2.75H12.4004C14.0925 2.75 15.3165 2.75047 16.2793 2.8291C17.2334 2.90706 17.8654 3.05814 18.3838 3.32227C19.3714 3.82556 20.1744 4.62859 20.6777 5.61621C20.9419 6.1346 21.0929 6.76657 21.1709 7.7207C21.2495 8.68345 21.25 9.90753 21.25 11.5996V12.4004C21.25 14.0925 21.2495 15.3165 21.1709 16.2793C21.0929 17.2334 20.9419 17.8654 20.6777 18.3838C20.1744 19.3714 19.3714 20.1744 18.3838 20.6777C17.8654 20.9419 17.2334 21.0929 16.2793 21.1709C15.3165 21.2495 14.0925 21.25 12.4004 21.25H11.5996C9.90753 21.25 8.68345 21.2495 7.7207 21.1709C6.76657 21.0929 6.1346 20.9419 5.61621 20.6777C4.62859 20.1744 3.82556 19.3714 3.32227 18.3838C3.05814 17.8654 2.90706 17.2334 2.8291 16.2793C2.75047 15.3165 2.75 14.0925 2.75 12.4004V11.5996C2.75 9.90753 2.75047 8.68345 2.8291 7.7207C2.90706 6.76657 3.05814 6.1346 3.32227 5.61621C3.82556 4.62859 4.62859 3.82556 5.61621 3.32227C6.1346 3.05814 6.76657 2.90706 7.7207 2.8291C8.68345 2.75047 9.90753 2.75 11.5996 2.75Z" stroke="currentColor" stroke-width="1"/><g class="fund-credit-check__checked"><path d="M2 11.6C2 8.23969 2 6.55953 2.65396 5.27606C3.2292 4.14708 4.14708 3.2292 5.27606 2.65396C6.55953 2 8.23969 2 11.6 2H12.4C15.7603 2 17.4405 2 18.7239 2.65396C19.8529 3.2292 20.7708 4.14708 21.346 5.27606C22 6.55953 22 8.23969 22 11.6V12.4C22 15.7603 22 17.4405 21.346 18.7239C20.7708 19.8529 19.8529 20.7708 18.7239 21.346C17.4405 22 15.7603 22 12.4 22H11.6C8.23969 22 6.55953 22 5.27606 21.346C4.14708 20.7708 3.2292 19.8529 2.65396 18.7239C2 17.4405 2 15.7603 2 12.4V11.6Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M16.7337 8.61783C17.0888 8.97285 17.0888 9.54846 16.7337 9.90348L11.2792 15.358C10.9242 15.713 10.3486 15.713 9.99354 15.358L7.26627 12.6308C6.91124 12.2757 6.91124 11.7001 7.26627 11.3451C7.62129 10.9901 8.19689 10.9901 8.55192 11.3451L10.6364 13.4296L15.4481 8.61783C15.8031 8.26281 16.3787 8.26281 16.7337 8.61783Z" fill="white"/></g></svg></span><span>Cộng vào quỹ</span></label>
+              </div>
               <input type="text" inputmode="numeric" class="input" id="chi-amount" placeholder="VD: 500.000" autocomplete="off" data-money>
+            </div>
+            <div class="field">
+              <label>Nguồn quỹ</label>
+              <select class="input" id="chi-fund">
+                <option value="thang">Quỹ tháng</option>
+                <option value="bia">Quỹ bia</option>
+              </select>
             </div>
             <div class="field">
               <label>Danh mục</label>
@@ -280,13 +355,6 @@
                   <li data-value="Khác" data-emoji="📦"><span class="cat-select__opt-emoji">📦</span><span>Khác</span><span class="cat-select__check">✓</span></li>
                 </ul>
               </div>
-            </div>
-            <div class="field">
-              <label>Nguồn quỹ</label>
-              <select class="input" id="chi-fund">
-                <option value="thang">Quỹ tháng</option>
-                <option value="bia">Quỹ bia</option>
-              </select>
             </div>
             <div class="field">
               <label>Ghi chú</label>
@@ -322,6 +390,14 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
   let _year = BASE_YEAR, _S = null, _chart = null, _editingCid = null;
 
   function fmt(n) { return new Intl.NumberFormat('vi-VN').format(Math.round(n||0)) + ''; }
+
+  function setChiAmountSign(buttonId, negative) {
+    const checkbox = document.getElementById(buttonId);
+    if (checkbox) checkbox.checked = Boolean(negative);
+  }
+  function isChiAmountNegative(buttonId) {
+    return Boolean(document.getElementById(buttonId)?.checked);
+  }
 
 
   function normalizeVNText(str) {
@@ -360,19 +436,26 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
       document.getElementById('chart-legend').innerHTML = '<span style="color:var(--text-muted);font-size:13px">Chưa có dữ liệu</span>';
       return;
     }
+    const chartGapColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-surface').trim() || '#141418';
     _chart = new Chart(ctx, {
       type: 'doughnut',
       data: {
         labels,
         datasets: [{ data, backgroundColor: labels.map(l => CAT_COLORS[CATS.indexOf(l)] || '#5D5D66'),
-          borderWidth: 0,
+          borderColor: chartGapColor,
+          hoverBorderColor: chartGapColor,
+          borderWidth: 2,
+          hoverBorderWidth: 2,
           borderRadius: 4,
-          spacing: 3,
-          hoverOffset: 4
+          spacing: 0,
+          hoverOffset: 12
         }]
       },
       options: {
-        cutout: '70%',
+        cutout: '61%',
+        layout: { padding: 16 },
+        animation: { duration: 260 },
+        hover: { animationDuration: 180 },
         plugins: { legend: { display: false }, tooltip: {
           callbacks: { label: ctx => ` ${ctx.label}: ${fmt(ctx.raw)}` }
         }}
@@ -520,8 +603,6 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
   function setChiFormMode(mode, item) {
     const isEdit = mode === 'edit';
     _editingCid = isEdit ? item.id : null;
-    document.getElementById('chi-form-overline').textContent = isEdit ? 'Cập nhật' : 'Thêm khoản';
-    document.getElementById('chi-form-title').textContent = isEdit ? 'Sửa khoản chi tiêu' : 'Ghi nhận chi tiêu';
     document.getElementById('chi-submit-icon')?.setAttribute('icon', isEdit ? 'solar:diskette-linear' : 'solar:add-circle-linear');
     document.getElementById('chi-submit-label').textContent = isEdit ? 'Lưu thay đổi' : 'Thêm khoản chi';
     const cancelBtn = document.getElementById('btn-cancel-edit-chi');
@@ -531,6 +612,7 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
   function resetChiForm() {
     _editingCid = null;
     document.getElementById('chi-amount').value = '';
+    setChiAmountSign('chi-amount-sign', false);
     document.getElementById('chi-note').value = '';
     window.DatePicker?.init('chi-date-btn','chi-date-value','chi-date-display');
     setChiFormMode('add');
@@ -552,7 +634,8 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
   window.saveEditChi = async function() {
     if (!_S || !_editChiId) return;
     const date   = document.getElementById('edit-chi-date-value').value;
-    const amount = window._moneyInput?.parse(document.getElementById('edit-chi-amount').value);
+    const parsedAmount = window._moneyInput?.parse(document.getElementById('edit-chi-amount').value);
+    const amount = isNaN(parsedAmount) ? NaN : Math.abs(parsedAmount) * (isChiAmountNegative('edit-chi-amount-sign') ? -1 : 1);
     const cat    = document.getElementById('edit-chi-cat').value;
     const fund   = document.getElementById('edit-chi-fund').value;
     const note   = document.getElementById('edit-chi-note').value.trim();
@@ -577,7 +660,8 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
     _editChiId = id;
     // Fill form
     window.DatePicker?.setValue('edit-chi-date-value','edit-chi-date-display', c.date || new Date().toISOString().slice(0,10));
-    document.getElementById('edit-chi-amount').value = window._moneyInput?.format(String(c.amount ?? '')) ?? (c.amount ?? '');
+    document.getElementById('edit-chi-amount').value = window._moneyInput?.format(String(Math.abs(Number(c.amount) || 0))) ?? Math.abs(Number(c.amount) || 0);
+    setChiAmountSign('edit-chi-amount-sign', Number(c.amount) < 0);
     document.getElementById('edit-chi-cat').value    = c.cat || 'Khác';
     document.getElementById('edit-chi-fund').value   = c.fund || 'thang';
     document.getElementById('edit-chi-note').value   = c.note || '';
@@ -664,7 +748,8 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
     document.getElementById('btn-add-chi')?.addEventListener('click', () => {
       if (!_S || !window._isLoggedIn?.()) return;
       const date   = document.getElementById('chi-date-value').value;
-      const amount = window._moneyInput?.parse(document.getElementById('chi-amount').value);
+      const parsedAmount = window._moneyInput?.parse(document.getElementById('chi-amount').value);
+      const amount = isNaN(parsedAmount) ? NaN : Math.abs(parsedAmount) * (isChiAmountNegative('chi-amount-sign') ? -1 : 1);
       const cat    = document.getElementById('chi-cat').value;
       const fund   = document.getElementById('chi-fund').value;
       const note   = document.getElementById('chi-note').value.trim();
@@ -760,8 +845,18 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
         <input type="hidden" id="edit-chi-date-value">
       </div>
       <div class="field">
-        <label>Số tiền <span style="color:var(--text-muted);font-weight:400">(âm = cộng lại quỹ)</span></label>
+        <div class="amount-field-heading">
+          <label>Số tiền</label>
+          <label class="fund-credit-check"><input type="checkbox" id="edit-chi-amount-sign"><span class="fund-credit-check__box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path class="fund-credit-check__unchecked" d="M11.5996 2.75H12.4004C14.0925 2.75 15.3165 2.75047 16.2793 2.8291C17.2334 2.90706 17.8654 3.05814 18.3838 3.32227C19.3714 3.82556 20.1744 4.62859 20.6777 5.61621C20.9419 6.1346 21.0929 6.76657 21.1709 7.7207C21.2495 8.68345 21.25 9.90753 21.25 11.5996V12.4004C21.25 14.0925 21.2495 15.3165 21.1709 16.2793C21.0929 17.2334 20.9419 17.8654 20.6777 18.3838C20.1744 19.3714 19.3714 20.1744 18.3838 20.6777C17.8654 20.9419 17.2334 21.0929 16.2793 21.1709C15.3165 21.2495 14.0925 21.25 12.4004 21.25H11.5996C9.90753 21.25 8.68345 21.2495 7.7207 21.1709C6.76657 21.0929 6.1346 20.9419 5.61621 20.6777C4.62859 20.1744 3.82556 19.3714 3.32227 18.3838C3.05814 17.8654 2.90706 17.2334 2.8291 16.2793C2.75047 15.3165 2.75 14.0925 2.75 12.4004V11.5996C2.75 9.90753 2.75047 8.68345 2.8291 7.7207C2.90706 6.76657 3.05814 6.1346 3.32227 5.61621C3.82556 4.62859 4.62859 3.82556 5.61621 3.32227C6.1346 3.05814 6.76657 2.90706 7.7207 2.8291C8.68345 2.75047 9.90753 2.75 11.5996 2.75Z" stroke="currentColor" stroke-width="1.5"/><g class="fund-credit-check__checked"><path d="M2 11.6C2 8.23969 2 6.55953 2.65396 5.27606C3.2292 4.14708 4.14708 3.2292 5.27606 2.65396C6.55953 2 8.23969 2 11.6 2H12.4C15.7603 2 17.4405 2 18.7239 2.65396C19.8529 3.2292 20.7708 4.14708 21.346 5.27606C22 6.55953 22 8.23969 22 11.6V12.4C22 15.7603 22 17.4405 21.346 18.7239C20.7708 19.8529 19.8529 20.7708 18.7239 21.346C17.4405 22 15.7603 22 12.4 22H11.6C8.23969 22 6.55953 22 5.27606 21.346C4.14708 20.7708 3.2292 19.8529 2.65396 18.7239C2 17.4405 2 15.7603 2 12.4V11.6Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M16.7337 8.61783C17.0888 8.97285 17.0888 9.54846 16.7337 9.90348L11.2792 15.358C10.9242 15.713 10.3486 15.713 9.99354 15.358L7.26627 12.6308C6.91124 12.2757 6.91124 11.7001 7.26627 11.3451C7.62129 10.9901 8.19689 10.9901 8.55192 11.3451L10.6364 13.4296L15.4481 8.61783C15.8031 8.26281 16.3787 8.26281 16.7337 8.61783Z" fill="white"/></g></svg></span><span>Cộng vào quỹ</span></label>
+        </div>
         <input type="text" inputmode="numeric" class="input" id="edit-chi-amount" placeholder="VD: 500.000" autocomplete="off" data-money>
+      </div>
+      <div class="field">
+        <label>Nguồn quỹ</label>
+        <select class="input" id="edit-chi-fund">
+          <option value="thang">Quỹ tháng</option>
+          <option value="bia">Quỹ bia</option>
+        </select>
       </div>
       <div class="field">
         <label>Danh mục</label>
@@ -781,13 +876,6 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
             <li data-value="Khác" data-emoji="📦"><span class="cat-select__opt-emoji">📦</span><span>Khác</span><span class="cat-select__check">✓</span></li>
           </ul>
         </div>
-      </div>
-      <div class="field">
-        <label>Nguồn quỹ</label>
-        <select class="input" id="edit-chi-fund">
-          <option value="thang">Quỹ tháng</option>
-          <option value="bia">Quỹ bia</option>
-        </select>
       </div>
       <div class="field">
         <label>Ghi chú</label>

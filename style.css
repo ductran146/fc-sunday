@@ -46,6 +46,23 @@
 /* Helper class */
 .tf { font-family: 'TossFace', sans-serif; }
 
+.ranking-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ranking-heading__emoji {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 40px;
+  font-family: 'TossFace', sans-serif;
+  font-size: 36px;
+  line-height: 1;
+}
+
 /* Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
@@ -720,6 +737,8 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   background: radial-gradient(ellipse at 80% 20%, rgba(255,255,255,.18) 0%, transparent 60%);
   pointer-events: none;
 }
+.hero-fund__bank-card { position: relative; z-index: 2; }
+.hero-fund__rings { display: none; }
 .hero-fund__label {
   font-size: 11px; font-weight: 800;
   letter-spacing: .2em; text-transform: uppercase;
@@ -777,6 +796,12 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
 .hero-fund__year {
   flex: 0 0 auto;
   align-self: center;
+}
+
+@media (min-width: 768px) {
+  .hero-fund__top {
+    margin-bottom: 16px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1676,7 +1701,7 @@ body[data-active="thu-thang"] .thu-thang-page-title, body[data-active="thu-phat"
 }
 
 body[data-active="thu-thang"] .thu-thang-page-subtitle, body[data-active="thu-phat"] .thu-thang-page-subtitle, body[data-active="chi-tieu"] .thu-thang-page-subtitle {
-  margin-top: var(--space-2);
+  margin-top: var(--space-1);
   font-size: 14px;
   font-weight: 400;
   color: var(--text-secondary);
@@ -2907,6 +2932,7 @@ body[data-active="thanh-vien"] .member-sort-chip:active {
   filter: blur(20px);
   pointer-events: none;
   transition: transform .25s ease-out;
+  z-index: 0;
 }
 :root:not([data-theme="light"]) .hero-glow--gold {
   top: -40px; right: -30px; left: auto; bottom: auto;
@@ -2918,12 +2944,82 @@ body[data-active="thanh-vien"] .member-sort-chip:active {
   width: 160px; height: 160px;
   background: radial-gradient(circle, rgba(224,57,44,.4), transparent 70%);
 }
+:root:not([data-theme="light"]) .hero-fund__rings {
+  display: block;
+  position: absolute;
+  z-index: 1;
+  width: 360px;
+  height: 360px;
+  top: -145px;
+  right: -145px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+:root:not([data-theme="light"]) .hero-fund__rings span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  border: 0;
+  filter: blur(.6px);
+  animation: hero-ring-spread 6s cubic-bezier(.2,.5,.35,1) infinite;
+  will-change: transform, opacity;
+}
+:root:not([data-theme="light"]) .hero-fund__rings span:nth-child(1) {
+  width: 112px; height: 112px;
+  margin: -56px 0 0 -56px;
+  background: rgba(255,192,46,.08);
+  animation-delay: 0s;
+}
+:root:not([data-theme="light"]) .hero-fund__rings span:nth-child(2) {
+  width: 188px; height: 188px;
+  margin: -94px 0 0 -94px;
+  background: rgba(255,192,46,.085);
+  animation-delay: -1.5s;
+}
+:root:not([data-theme="light"]) .hero-fund__rings span:nth-child(3) {
+  width: 276px; height: 276px;
+  margin: -138px 0 0 -138px;
+  background: rgba(224,57,44,.055);
+  animation-delay: -3s;
+}
+:root:not([data-theme="light"]) .hero-fund__rings span:nth-child(4) {
+  width: 372px; height: 372px;
+  margin: -186px 0 0 -186px;
+  background: rgba(255,192,46,.03);
+  animation-delay: -4.5s;
+}
+@keyframes hero-ring-spread {
+  0% { opacity: 0; transform: scale(.84); }
+  14% { opacity: .72; }
+  72% { opacity: .38; }
+  100% { opacity: 0; transform: scale(1.18); }
+}
+:root:not([data-theme="light"]) .hero-fund__bank-card {
+  overflow: hidden;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgba(35,35,42,.54), rgba(17,17,22,.46));
+  -webkit-backdrop-filter: blur(7px) saturate(115%);
+  backdrop-filter: blur(7px) saturate(115%);
+  box-shadow: inset 0 1px rgba(255,255,255,.08), 0 16px 34px rgba(0,0,0,.22);
+}
+:root:not([data-theme="light"]) .hero-fund__bank-card .hero-extra-stats {
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+:root:not([data-theme="light"]) .hero-fund .fund-split {
+  position: relative;
+  z-index: 2;
+  margin-top: 15px;
+}
 :root:not([data-theme="light"]) .hero-fund__label {
   color: var(--text-secondary);
 }
 :root:not([data-theme="light"]) .hero-fund__total,
 :root:not([data-theme="light"]) .hero-fund__total span {
-  color: var(--text-primary);
+  color: var(--color-primary);
 }
 :root:not([data-theme="light"]) .hero-extra-stat__label {
   color: var(--text-secondary);

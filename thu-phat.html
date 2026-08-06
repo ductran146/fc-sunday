@@ -59,6 +59,25 @@
       background: rgba(46,204,113,.12); color: var(--color-success);
       border-color: rgba(46,204,113,.4);
     }
+    .winner-toggle {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: var(--radius-full);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      border: 1.5px solid var(--bg-stroke);
+      background: var(--bg-elevated); color: var(--text-muted);
+      transition: background .12s, color .12s, border-color .12s;
+      font-family: var(--font-sans);
+    }
+    .winner-toggle[data-selected="1"] {
+      background: rgba(46,204,113,.12); color: var(--color-success);
+      border-color: rgba(46,204,113,.4);
+    }
+    .winner-toggle__check { display: none; width: 18px; height: 18px; flex-shrink: 0; }
+    .winner-toggle[data-selected="1"] .winner-toggle__check { display: inline-block; }
+    .winner-list-empty {
+      width: 100%; padding: 10px 12px; border-radius: var(--radius-md);
+      background: var(--bg-elevated); color: var(--text-muted); font-size: 12px;
+    }
     .month-accordion-card { border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--bg-border); background: var(--bg-surface); }
     .month-accordion-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -102,7 +121,16 @@
       flex-shrink: 0;
     }
     .match-item__date { font-size: 15px; font-weight: 700; }
-    .match-item__losers { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .match-item__losers { display: flex; flex-wrap: wrap; gap: 6px; }
+    .match-item__team-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+    .match-item__team-label { width: 58px; padding-top: 5px; flex-shrink: 0; font-size: 11px; font-weight: 700; color: var(--text-muted); }
+    .winner-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 10px; border-radius: var(--radius-full);
+      background: rgba(46,204,113,.12); color: var(--color-success);
+      border: 1px solid rgba(46,204,113,.28);
+      font-size: 12px; font-weight: 600;
+    }
     .match-item__extra {
       font-size: 12px; color: var(--text-secondary);
       padding: 6px 10px; border-radius: var(--radius-sm);
@@ -124,8 +152,8 @@
 
       <div class="thu-thang-page-header">
         <div class="thu-thang-page-title">
-          <div class="section-overline">50.000 / người / trận thua</div>
           <h1 class="text-h1">Quỹ bia 🍺</h1>
+          <div class="thu-thang-page-subtitle" style="font-size:12px;color:var(--text-muted)">50.000 / người / trận thua</div>
         </div>
         <select class="year-selector thu-thang-year-selector" id="year-select">
           <!-- options injected by JS -->
@@ -155,9 +183,9 @@
       <!-- Leaderboard full width -->
       <div class="card" style="margin-bottom:20px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-          <div>
-            <div class="section-overline" style="margin-bottom:4px">Xếp hạng</div>
-            <div class="section-title" style="font-size:16px">Top thua nhiều nhất</div>
+          <div class="ranking-heading">
+            <span class="ranking-heading__emoji" aria-hidden="true">🏋️</span>
+            <div><div class="section-overline" style="margin-bottom:0px">Xếp hạng</div><div class="section-title" style="font-size:16px">Top quả tạ</div></div>
           </div>
           <button onclick="openBiaRankingSheet()" class="btn btn-icon btn-ghost" title="Xem đầy đủ">
             <iconify-icon icon="solar:alt-arrow-right-linear" style="font-size:20px"></iconify-icon>
@@ -165,6 +193,21 @@
         </div>
         <div id="bia-leaderboard">
           <div style="color:var(--text-muted);font-size:13px;text-align:center;padding:24px">Chưa có dữ liệu</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div class="ranking-heading">
+            <span class="ranking-heading__emoji" aria-hidden="true">🏆</span>
+            <div><div class="section-overline" style="margin-bottom:0px">Xếp hạng</div><div class="section-title" style="font-size:16px">Top thắng nhiều nhất</div></div>
+          </div>
+          <button onclick="openBiaWinRankingSheet()" class="btn btn-icon btn-ghost" title="Xem đầy đủ">
+            <iconify-icon icon="solar:alt-arrow-right-linear" style="font-size:20px"></iconify-icon>
+          </button>
+        </div>
+        <div id="bia-win-leaderboard">
+          <div style="color:var(--text-muted);font-size:13px;text-align:center;padding:24px">Chưa có dữ liệu người thắng</div>
         </div>
       </div>
 
@@ -207,6 +250,11 @@
         <div id="loser-checkboxes" style="display:flex;flex-wrap:wrap;gap:8px;padding:4px 0"></div>
       </div>
       <div class="field">
+        <label>Đội thắng (chọn người tham gia)</label>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:-4px">Danh sách còn lại mặc định chưa chọn. Tích vào người thực sự thi đấu và thắng trận.</div>
+        <div id="winner-checkboxes" style="display:flex;flex-wrap:wrap;gap:8px;padding:4px 0"></div>
+      </div>
+      <div class="field">
         <label>Thu thêm (nếu có)</label>
         <input type="text" inputmode="numeric" class="input" id="match-thu-them" placeholder="0" autocomplete="off" data-money>
       </div>
@@ -235,15 +283,27 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
   <div class="sheet fade-in" style="height:calc(100dvh - 64px);max-height:calc(100dvh - 64px);overflow:hidden;display:flex;flex-direction:column;border-radius:var(--radius-xl) var(--radius-xl) 0 0">
     <div class="modal-handle"></div>
     <div style="padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-      <div>
-        <div class="section-overline">Xếp hạng</div>
-        <div class="section-title" style="font-size:16px">Top thua nhiều nhất</div>
+      <div class="ranking-heading">
+        <span class="ranking-heading__emoji" aria-hidden="true">🏋️</span>
+        <div><div class="section-overline">Xếp hạng</div><div class="section-title" style="font-size:16px">Top quả tạ</div></div>
       </div>
       <button class="btn btn-icon btn-ghost" onclick="closeBiaRankingSheet()">
         <iconify-icon icon="solar:close-circle-linear" style="font-size:22px"></iconify-icon>
       </button>
     </div>
     <div id="bia-ranking-sheet-list" style="overflow-y:auto;padding:0 20px 32px;flex:1"></div>
+  </div>
+</div>
+
+<!-- Bia Win Ranking Sheet -->
+<div class="sheet-backdrop" id="bia-win-ranking-sheet" style="display:none;align-items:flex-end" onclick="if(event.target===this)closeBiaWinRankingSheet()">
+  <div class="sheet fade-in" style="height:calc(100dvh - 64px);max-height:calc(100dvh - 64px);overflow:hidden;display:flex;flex-direction:column;border-radius:var(--radius-xl) var(--radius-xl) 0 0">
+    <div class="modal-handle"></div>
+    <div style="padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div class="ranking-heading"><span class="ranking-heading__emoji" aria-hidden="true">🏆</span><div><div class="section-overline">Xếp hạng</div><div class="section-title" style="font-size:16px">Top thắng nhiều nhất</div></div></div>
+      <button class="btn btn-icon btn-ghost" onclick="closeBiaWinRankingSheet()"><iconify-icon icon="solar:close-circle-linear" style="font-size:22px"></iconify-icon></button>
+    </div>
+    <div id="bia-win-ranking-sheet-list" style="overflow-y:auto;padding:0 20px 32px;flex:1"></div>
   </div>
 </div>
 <script>
@@ -257,6 +317,13 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
     document.getElementById('bia-ranking-sheet').style.display='flex';
   };
   window.closeBiaRankingSheet=function(){document.getElementById('bia-ranking-sheet').style.display='none';};
+  window.openBiaWinRankingSheet=function(){
+    const list=window._biaFullWinRanking||[],el=document.getElementById('bia-win-ranking-sheet-list');
+    if(!el)return;
+    el.innerHTML=list.length===0?'<div class="empty-state" style="padding:32px 0"><div class="empty-state__desc">Chưa có dữ liệu người thắng</div></div>':list.map((r,i)=>`<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bg-border)"><div style="width:32px;height:32px;border-radius:var(--radius-full);background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--text-muted);flex-shrink:0">${i+1}</div><div style="flex:1;font-size:15px;font-weight:600;color:var(--text-primary)">${r.m.name}</div><div style="font-size:14px;font-weight:700;color:var(--color-success)">${r.n} trận</div></div>`).join('');
+    document.getElementById('bia-win-ranking-sheet').style.display='flex';
+  };
+  window.closeBiaWinRankingSheet=function(){document.getElementById('bia-win-ranking-sheet').style.display='none';};
 </script>
 <script src="app.js" defer></script>
 <script src="components/components-loader.js" defer></script>
@@ -268,12 +335,18 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
   let _year = BASE_YEAR, _S = null;
   const _openMonths = new Set([new Date().getMonth()]);
   let _editMatchId = null;
+  let _winnerSelection = new Set();
 
   function fmt(n) { return new Intl.NumberFormat('vi-VN').format(n); }
   function fmtK(n) { return n === 0 ? '0' : (n / 1000).toLocaleString('vi-VN', {maximumFractionDigits: 0}) + ' K'; }
   function fmtDate(d) { if(!d) return '—'; const p=d.split('-'); return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:d; }
   function getYearMatches(S) {
     return (S.matches||[]).filter(m=>_year===BASE_YEAR?(!m.year||m.year===BASE_YEAR):m.year===_year);
+  }
+  function getWinnerIds(match) {
+    const raw = match?.winners;
+    const list = Array.isArray(raw) ? raw : Object.values(raw || {});
+    return list.map(w => Number(typeof w === 'object' ? w.memberId : w)).filter(Number.isFinite);
   }
 
   // ── 3-state loser toggle ──────────────────────────────────
@@ -285,6 +358,44 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
     const cur = parseInt(btn.dataset.state||'0');
     btn.dataset.state = String((cur+1)%3);
     applyLoserState(btn);
+    if (btn.dataset.state !== '0') _winnerSelection.delete(parseInt(btn.dataset.mid));
+    renderWinnerCandidates();
+  };
+
+  function renderWinnerCandidates() {
+    const winnerEl = document.getElementById('winner-checkboxes');
+    const loserEl = document.getElementById('loser-checkboxes');
+    if (!winnerEl || !loserEl) return;
+
+    const loserIds = new Set(
+      Array.from(loserEl.querySelectorAll('.loser-toggle'))
+        .filter(btn => btn.dataset.state !== '0')
+        .map(btn => parseInt(btn.dataset.mid))
+    );
+    const candidates = (_S?.members || [])
+      .filter(m => m.status !== 'left' && !loserIds.has(Number(m.id)));
+
+    for (const id of [..._winnerSelection]) {
+      if (loserIds.has(Number(id))) _winnerSelection.delete(Number(id));
+    }
+
+    winnerEl.innerHTML = candidates.length
+      ? candidates.map(m => {
+          const selected = _winnerSelection.has(Number(m.id));
+          return `<button type="button" class="winner-toggle" data-mid="${m.id}" data-selected="${selected ? '1' : '0'}" aria-pressed="${selected}" onclick="toggleWinner(this)">
+            <svg class="winner-toggle__check" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 16c-5.76 0-6.78-5.74-6.96-10.294c-.051-1.266-.076-1.9.4-2.485c.475-.586 1.044-.682 2.183-.874A26.4 26.4 0 0 1 12 2c1.784 0 3.253.157 4.377.347c1.139.192 1.708.288 2.184.874s.45 1.219.4 2.485C18.781 10.26 17.761 16 12.001 16" opacity=".5"/><path fill="currentColor" d="m17.64 12.422l2.817-1.565c.752-.418 1.128-.627 1.336-.979C22 9.526 22 9.096 22 8.235v-.073c0-1.043 0-1.565-.283-1.958s-.778-.558-1.768-.888L19 5l-.017.085q-.008.283-.022.621c-.088 2.225-.377 4.733-1.32 6.716M5.04 5.706c.087 2.225.376 4.733 1.32 6.716l-2.817-1.565c-.752-.418-1.129-.627-1.336-.979S2 9.096 2 8.235v-.073c0-1.043 0-1.565.283-1.958s.778-.558 1.768-.888L5 5l.017.087q.008.281.022.62"/><path fill="currentColor" fill-rule="evenodd" d="M5.25 22a.75.75 0 0 1 .75-.75h12a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75" clip-rule="evenodd"/><path fill="currentColor" d="M15.458 21.25H8.542l.297-1.75a1 1 0 0 1 .98-.804h4.361a1 1 0 0 1 .98.804z" opacity=".5"/><path fill="currentColor" d="M12 16q-.39 0-.75-.034v2.73h1.5v-2.73A8 8 0 0 1 12 16"/></svg>${m.name}
+          </button>`;
+        }).join('')
+      : '<div class="winner-list-empty">Không còn thành viên nào trong danh sách đội thắng.</div>';
+  }
+
+  window.toggleWinner = function(btn) {
+    const memberId = parseInt(btn.dataset.mid);
+    if (_winnerSelection.has(memberId)) _winnerSelection.delete(memberId);
+    else _winnerSelection.add(memberId);
+    const selected = _winnerSelection.has(memberId);
+    btn.dataset.selected = selected ? '1' : '0';
+    btn.setAttribute('aria-pressed', String(selected));
   };
 
   // ── Match modal ──────────────────────────────────────────
@@ -298,6 +409,7 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
   function openMatchModal(targetMi, editId) {
     if(!window._isLoggedIn?.()) return;
     _editMatchId = editId ?? null;
+    _winnerSelection = new Set();
     const isEdit = _editMatchId !== null;
     document.getElementById('match-modal-title').textContent = isEdit ? 'Sửa trận đấu' : `Thêm trận — ${MONTHS_FULL[targetMi]}`;
     const members = (_S?.members||[]).filter(m=>m.status!=='left');
@@ -307,6 +419,7 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
     if(isEdit) {
       const match=(_S?.matches||[]).find(m=>m.id==_editMatchId);
       if(match) {
+        _winnerSelection = new Set(getWinnerIds(match));
         document.getElementById('match-date').value=match.date||'';
         window.DatePicker?.setValue('match-date','match-date-display', match.date||'');
         document.getElementById('match-thu-them').value=match.thuThem||'';
@@ -324,6 +437,7 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
       document.getElementById('match-thu-them').value='';
       document.getElementById('match-ghi-chu').value='';
     }
+    renderWinnerCandidates();
     document.getElementById('match-modal').style.display='flex';
   }
   window.openAddMatch  = function(mi)      { openMatchModal(mi, null); };
@@ -380,6 +494,7 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
     const selected=Array.from(document.querySelectorAll('#loser-checkboxes .loser-toggle'))
       .filter(btn=>btn.dataset.state!=='0')
       .map(btn=>({memberId:parseInt(btn.dataset.mid), paid:btn.dataset.state==='2'}));
+    const winners=Array.from(_winnerSelection);
 
     const thuThem=window._moneyInput?.parse(document.getElementById('match-thu-them').value)||0;
     const ghiChu=document.getElementById('match-ghi-chu').value.trim();
@@ -391,11 +506,12 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
         const oldPaid={};(match.losers||[]).forEach(l=>{oldPaid[l.memberId]=l.paid;});
         match.date=date;match.monthIdx=mi;match.thuThem=thuThem;match.ghiChuThem=ghiChu;
         match.losers=selected.map(s=>({memberId:s.memberId,paid:s.paid}));
+        match.winners=winners;
       }
     } else {
       const newId=(_S.nextMaid||1);
       _S.matches.push({id:newId,date,monthIdx:mi,year:_year,thuThem,ghiChuThem:ghiChu,
-        losers:selected.map(s=>({memberId:s.memberId,paid:s.paid}))});
+        losers:selected.map(s=>({memberId:s.memberId,paid:s.paid})),winners});
       _S.nextMaid=newId+1;
     }
     _openMonths.add(mi);
@@ -415,13 +531,28 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
     window._biafullRanking=fullRanking;
     const ranking=fullRanking.slice(0,5);
     const el=document.getElementById('bia-leaderboard');
-    if(!ranking.length){el.innerHTML='<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:24px">Chưa có dữ liệu</div>';return;}
+    if(!ranking.length)el.innerHTML='<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:24px">Chưa có dữ liệu</div>';
+    else {
     const podium=ranking.slice(0,3),rest=ranking.slice(3);
     const medals=['🥇','🥈','🥉'];
     const po=podium.length===1?[podium[0]]:podium.length===2?[podium[1],podium[0]]:[podium[1],podium[0],podium[2]];
     const pr=podium.length===1?[0]:podium.length===2?[1,0]:[1,0,2];
     el.innerHTML=`<div class="podium-wrap">${po.map((r,pi)=>{const rank=pr[pi]+1;return`<div class="podium-card podium-card--${rank}"><div class="podium-medal">${medals[rank-1]}</div><div class="podium-name">${r.m.name}</div><div class="podium-losses">${r.n} trận</div></div>`;}).join('')}</div>`
       +(rest.length?`<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">${rest.map((r,i)=>`<div class="leaderboard-item"><div class="leaderboard-item__rank">${i+4}</div><div class="leaderboard-item__name">${r.m.name}</div><div class="leaderboard-item__losses">${r.n} trận</div></div>`).join('')}</div>`:'');
+    }
+
+    const winMap={},lastWinMap={};
+    matches.forEach(match=>getWinnerIds(match).forEach(memberId=>{winMap[memberId]=(winMap[memberId]||0)+1;const d=match.date||'';if(!lastWinMap[memberId]||d>lastWinMap[memberId])lastWinMap[memberId]=d;}));
+    const fullWinRanking=Object.entries(winMap).map(([id,n])=>({m:members.find(x=>x.id==id),n,lastWin:lastWinMap[id]||''})).filter(x=>x.m).sort((a,b)=>b.n-a.n||(b.lastWin>a.lastWin?1:b.lastWin<a.lastWin?-1:0));
+    window._biaFullWinRanking=fullWinRanking;
+    const winRanking=fullWinRanking.slice(0,5),winEl=document.getElementById('bia-win-leaderboard');
+    if(!winRanking.length)winEl.innerHTML='<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:24px">Chưa có dữ liệu người thắng</div>';
+    else {
+      const podium=winRanking.slice(0,3),rest=winRanking.slice(3),medals=['🥇','🥈','🥉'];
+      const po=podium.length===1?[podium[0]]:podium.length===2?[podium[1],podium[0]]:[podium[1],podium[0],podium[2]];
+      const pr=podium.length===1?[0]:podium.length===2?[1,0]:[1,0,2];
+      winEl.innerHTML=`<div class="podium-wrap">${po.map((r,pi)=>{const rank=pr[pi]+1;return`<div class="podium-card podium-card--${rank}"><div class="podium-medal">${medals[rank-1]}</div><div class="podium-name">${r.m.name}</div><div class="podium-losses">${r.n} trận</div></div>`;}).join('')}</div>`+(rest.length?`<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">${rest.map((r,i)=>`<div class="leaderboard-item"><div class="leaderboard-item__rank">${i+4}</div><div class="leaderboard-item__name">${r.m.name}</div><div class="leaderboard-item__losses">${r.n} trận</div></div>`).join('')}</div>`:'');
+    }
   }
 
   // ── Accordion ────────────────────────────────────────────
@@ -463,7 +594,13 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
           const ca=isAdmin?`onclick="togglePaid(${match.id},${l.memberId})" style="cursor:pointer"`:'';
           return `<span class="loser-chip ${cls}" ${ca}><iconify-icon icon="${icon}" style="font-size:13px"></iconify-icon>${member?.name||'?'}</span>`;
         }).join('');
+        const winnerIds=getWinnerIds(match);
+        const winnersHTML=winnerIds.map(memberId=>{
+          const member=members.find(m=>m.id==memberId);
+          return member?`<span class="winner-chip"><iconify-icon icon="solar:cup-star-linear" style="font-size:13px"></iconify-icon>${member.name}</span>`:'';
+        }).join('');
         const paidCount=(match.losers||[]).filter(l=>l.paid).length;
+        const winnerCount=winnerIds.length;
         const biaMo=paidCount*FINE;
         const noBiaTran=(match.losers||[]).filter(l=>!l.paid).length*FINE;
         const extraHTML=match.thuThem?`<div class="match-item__extra">🎁 Thu thêm: +${fmtK(match.thuThem)}${match.ghiChuThem?` — ${match.ghiChuThem}`:''}</div>`:'';
@@ -477,9 +614,16 @@ window.DatePicker=(function(){'use strict';const MV=['Tháng 1','Tháng 2','Thá
             <div class="match-item__date">${fmtDate(match.date)}</div>
             ${adminBtns}
           </div>
-          <div class="match-item__losers">${losersHTML}</div>
+          <div class="match-item__team-row">
+            <div class="match-item__team-label">Đội thua</div>
+            <div class="match-item__losers">${losersHTML||'<span style="font-size:12px;color:var(--text-muted)">Chưa chọn</span>'}</div>
+          </div>
+          ${winnersHTML?`<div class="match-item__team-row">
+            <div class="match-item__team-label">Đội thắng</div>
+            <div class="match-item__losers">${winnersHTML}</div>
+          </div>`:''}
           ${extraHTML}
-          <div class="match-item__summary">Quỹ bia: ${fmtK(biaMo)}${noBiaTran?` · <span style="color:var(--color-primary)">Nợ: ${fmtK(noBiaTran)}</span>`:''}${match.thuThem?` · Thu thêm: +${fmtK(match.thuThem)}`:''}</div>
+          <div class="match-item__summary">Quỹ bia: ${fmtK(biaMo)}${winnerCount?` · Thắng: ${winnerCount} người`:''}${noBiaTran?` · <span style="color:var(--color-primary)">Nợ: ${fmtK(noBiaTran)}</span>`:''}${match.thuThem?` · Thu thêm: +${fmtK(match.thuThem)}`:''}</div>
         </div>`;
       }).join('');
 

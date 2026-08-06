@@ -85,14 +85,29 @@
       <div class="hero-fund" style="margin-bottom:24px">
         <span class="hero-glow hero-glow--gold" aria-hidden="true"></span>
         <span class="hero-glow hero-glow--red" aria-hidden="true"></span>
-        <div class="hero-fund__top">
-          <div class="hero-fund__summary">
-            <div class="hero-fund__label">Tổng quỹ hiện tại</div>
-            <div class="hero-fund__total" id="hero-total">0</div>
+        <div class="hero-fund__rings" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div class="hero-fund__bank-card">
+          <div class="hero-fund__top">
+            <div class="hero-fund__summary">
+              <div class="hero-fund__label">Tổng quỹ hiện tại</div>
+              <div class="hero-fund__total" id="hero-total">0</div>
+            </div>
+            <select class="year-selector hero-fund__year" id="year-select">
+              <!-- options injected by JS -->
+            </select>
           </div>
-          <select class="year-selector hero-fund__year" id="year-select">
-            <!-- options injected by JS -->
-          </select>
+          <div class="hero-extra-stats" aria-label="Thông tin thu chi bổ sung">
+            <div class="hero-extra-stat">
+              <div class="hero-extra-stat__label">Thu thêm (lính đánh thuê)</div>
+              <div class="hero-extra-stat__value" id="hero-thu-them">0</div>
+            </div>
+            <div class="hero-extra-stat">
+              <div class="hero-extra-stat__label">Tổng chi</div>
+              <div class="hero-extra-stat__value" id="hero-tong-chi">0</div>
+            </div>
+          </div>
         </div>
         <div class="fund-split">
           <div class="fund-split__item">
@@ -126,16 +141,6 @@
             </div>
           </div>
         </div>
-        <div class="hero-extra-stats" aria-label="Thông tin thu chi bổ sung">
-          <div class="hero-extra-stat">
-            <div class="hero-extra-stat__label">Thu thêm (lính đánh thuê)</div>
-            <div class="hero-extra-stat__value" id="hero-thu-them">0</div>
-          </div>
-          <div class="hero-extra-stat">
-            <div class="hero-extra-stat__label">Tổng chi</div>
-            <div class="hero-extra-stat__value" id="hero-tong-chi">0</div>
-          </div>
-        </div>
       </div>
 
       <!-- KPI Cards -->
@@ -165,9 +170,9 @@
       <!-- Top quả tạ (thua nhiều nhất) -->
       <div class="card" style="margin-bottom:24px">
         <div class="section-header" style="margin-bottom:16px">
-          <div>
-            <div class="section-overline">Bảng xếp hạng</div>
-            <div class="section-title" style="font-size:16px">Top thua nhiều nhất 🏆</div>
+          <div class="ranking-heading">
+            <span class="ranking-heading__emoji" aria-hidden="true">🏋️</span>
+            <div><div class="section-overline">Bảng xếp hạng</div><div class="section-title" style="font-size:16px">Top quả tạ</div></div>
           </div>
           <button onclick="openLossRankingSheet()" class="btn btn-icon btn-ghost" title="Xem đầy đủ">
             <iconify-icon icon="solar:alt-arrow-right-linear" style="font-size:20px"></iconify-icon>
@@ -177,6 +182,25 @@
           <div class="empty-state" style="padding:32px 0">
             <div class="empty-state__icon"><iconify-icon icon="solar:cup-star-linear" style="font-size:36px"></iconify-icon></div>
             <div class="empty-state__desc">Chưa có dữ liệu trận đấu</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top thắng nhiều nhất -->
+      <div class="card" style="margin-bottom:24px">
+        <div class="section-header" style="margin-bottom:16px">
+          <div class="ranking-heading">
+            <span class="ranking-heading__emoji" aria-hidden="true">🏆</span>
+            <div><div class="section-overline">Bảng xếp hạng</div><div class="section-title" style="font-size:16px">Top thắng nhiều nhất</div></div>
+          </div>
+          <button onclick="openWinRankingSheet()" class="btn btn-icon btn-ghost" title="Xem đầy đủ">
+            <iconify-icon icon="solar:alt-arrow-right-linear" style="font-size:20px"></iconify-icon>
+          </button>
+        </div>
+        <div class="leaderboard-list" id="win-leaderboard-list">
+          <div class="empty-state" style="padding:32px 0">
+            <div class="empty-state__icon"><iconify-icon icon="solar:cup-star-linear" style="font-size:36px"></iconify-icon></div>
+            <div class="empty-state__desc">Chưa có dữ liệu người thắng</div>
           </div>
         </div>
       </div>
@@ -281,15 +305,32 @@
   <div class="sheet fade-in" style="height:calc(100dvh - 64px);max-height:calc(100dvh - 64px);overflow:hidden;display:flex;flex-direction:column;border-radius:var(--radius-xl) var(--radius-xl) 0 0">
     <div class="modal-handle"></div>
     <div style="padding:0px 0 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-      <div>
-        <div class="section-overline">Bảng xếp hạng</div>
-        <div class="section-title" style="font-size:16px">Top thua nhiều nhất 🏆</div>
+      <div class="ranking-heading">
+        <span class="ranking-heading__emoji" aria-hidden="true">🏋️</span>
+        <div><div class="section-overline">Bảng xếp hạng</div><div class="section-title" style="font-size:16px">Top quả tạ</div></div>
       </div>
       <button class="btn btn-icon btn-ghost" onclick="closeLossRankingSheet()">
         <iconify-icon icon="solar:close-circle-linear" style="font-size:22px"></iconify-icon>
       </button>
     </div>
     <div id="loss-ranking-sheet-list" style="overflow-y:auto;padding: 0;flex:1"></div>
+  </div>
+</div>
+
+<!-- Win Ranking Bottom Sheet -->
+<div class="sheet-backdrop" id="win-ranking-sheet" style="display:none;align-items:flex-end" onclick="if(event.target===this) closeWinRankingSheet()">
+  <div class="sheet fade-in" style="height:calc(100dvh - 64px);max-height:calc(100dvh - 64px);overflow:hidden;display:flex;flex-direction:column;border-radius:var(--radius-xl) var(--radius-xl) 0 0">
+    <div class="modal-handle"></div>
+    <div style="padding:0 0 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div class="ranking-heading">
+        <span class="ranking-heading__emoji" aria-hidden="true">🏆</span>
+        <div><div class="section-overline">Bảng xếp hạng</div><div class="section-title" style="font-size:16px">Top thắng nhiều nhất</div></div>
+      </div>
+      <button class="btn btn-icon btn-ghost" onclick="closeWinRankingSheet()">
+        <iconify-icon icon="solar:close-circle-linear" style="font-size:22px"></iconify-icon>
+      </button>
+    </div>
+    <div id="win-ranking-sheet-list" style="overflow-y:auto;padding:0;flex:1"></div>
   </div>
 </div>
 <script src="app.js" defer></script>
@@ -318,6 +359,12 @@
       .replace(/đ/g, 'd')
       .replace(/Đ/g, 'D')
       .toLowerCase();
+  }
+
+  function getWinnerIds(match) {
+    const raw = match?.winners;
+    const list = Array.isArray(raw) ? raw : Object.values(raw || {});
+    return list.map(w => Number(typeof w === 'object' ? w.memberId : w)).filter(Number.isFinite);
   }
 
   function isOpeningBalanceEntry(c) {
@@ -572,6 +619,33 @@
       lbList.innerHTML = podiumHTML + (rest.length ? `<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">${restHTML}</div>` : '');
     }
 
+    // Leaderboard (thắng nhiều nhất)
+    const winMap = {}, lastWinMap = {};
+    matches.forEach(match => {
+      getWinnerIds(match).forEach(memberId => {
+        winMap[memberId] = (winMap[memberId] || 0) + 1;
+        const d = match.date || '';
+        if (!lastWinMap[memberId] || d > lastWinMap[memberId]) lastWinMap[memberId] = d;
+      });
+    });
+    const winRanking = Object.entries(winMap)
+      .map(([id, n]) => ({ member: members.find(m => m.id == id), n, lastWin: lastWinMap[id] || '' }))
+      .filter(x => x.member)
+      .sort((a, b) => b.n - a.n || (b.lastWin > a.lastWin ? 1 : b.lastWin < a.lastWin ? -1 : 0));
+    window._fullWinRanking = winRanking;
+
+    const winList = document.getElementById('win-leaderboard-list');
+    if (!winRanking.length) {
+      winList.innerHTML = `<div class="empty-state" style="padding:32px 0"><div class="empty-state__icon"><iconify-icon icon="solar:cup-star-linear" style="font-size:36px"></iconify-icon></div><div class="empty-state__desc">Chưa có dữ liệu người thắng</div></div>`;
+    } else {
+      const topWins = winRanking.slice(0, 5), podium = topWins.slice(0, 3), rest = topWins.slice(3);
+      const order = podium.length === 1 ? [podium[0]] : podium.length === 2 ? [podium[1], podium[0]] : [podium[1], podium[0], podium[2]];
+      const ranks = podium.length === 1 ? [0] : podium.length === 2 ? [1, 0] : [1, 0, 2];
+      const medals = ['🥇','🥈','🥉'];
+      winList.innerHTML = `<div class="podium-wrap">${order.map((r, i) => { const rank = ranks[i] + 1; return `<div class="podium-card podium-card--${rank}"><div class="podium-medal">${medals[rank-1]}</div><div class="podium-name">${r.member.name}</div><div class="podium-losses">${r.n} trận</div></div>`; }).join('')}</div>`
+        + (rest.length ? `<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">${rest.map((r, i) => `<div class="leaderboard-item"><div class="leaderboard-item__rank">${i+4}</div><div class="leaderboard-item__name">${r.member.name}</div><div class="leaderboard-item__losses">${r.n} trận</div></div>`).join('')}</div>` : '');
+    }
+
     // Summary table
     document.getElementById('summary-year').textContent = _year;
     let runTon = openingThang + openingBia;
@@ -788,6 +862,20 @@
 
   window.closeLossRankingSheet = function() {
     document.getElementById('loss-ranking-sheet').style.display = 'none';
+  };
+
+  window.openWinRankingSheet = function() {
+    const list = window._fullWinRanking || [];
+    const el = document.getElementById('win-ranking-sheet-list');
+    if (!el) return;
+    el.innerHTML = list.length === 0
+      ? '<div class="empty-state" style="padding:32px 0"><div class="empty-state__desc">Chưa có dữ liệu người thắng</div></div>'
+      : list.map((r, i) => `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bg-border)"><div style="width:32px;height:32px;border-radius:var(--radius-full);background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--text-muted);flex-shrink:0">${i+1}</div><div style="flex:1;font-size:15px;font-weight:600;color:var(--text-primary)">${r.member.name}</div><div style="font-size:14px;font-weight:700;color:var(--color-success)">${r.n} trận</div></div>`).join('');
+    document.getElementById('win-ranking-sheet').style.display = 'flex';
+  };
+
+  window.closeWinRankingSheet = function() {
+    document.getElementById('win-ranking-sheet').style.display = 'none';
   };
 
   window._onDataReady = function(S) {
