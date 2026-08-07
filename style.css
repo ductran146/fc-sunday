@@ -726,7 +726,7 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   background: linear-gradient(135deg, #FFC02E 0%, #F5891F 100%);
   border: none;
   border-radius: var(--radius-xl);
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-4) var(--space-4);
   box-shadow: 0 8px 32px rgba(255,192,46,.35);
   position: relative;
   overflow: hidden;
@@ -739,6 +739,7 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
 }
 .hero-fund__bank-card { position: relative; z-index: 2; }
 .hero-fund__rings { display: none; }
+.hero-fund > .hero-extra-stats { position: relative; z-index: 2; }
 .hero-fund__label {
   font-size: 11px; font-weight: 800;
   letter-spacing: .2em; text-transform: uppercase;
@@ -2959,56 +2960,38 @@ body[data-active="thanh-vien"] .member-sort-chip:active {
   position: absolute;
   top: 50%;
   left: 50%;
+  width: 112px;
+  height: 112px;
+  margin: -56px 0 0 -56px;
   border-radius: 50%;
   border: 0;
   filter: blur(.6px);
-  animation: hero-ring-spread 6s cubic-bezier(.2,.5,.35,1) infinite;
+  animation: hero-ring-spread 6s cubic-bezier(.22,.61,.36,1) infinite;
   will-change: transform, opacity;
 }
 :root:not([data-theme="light"]) .hero-fund__rings span:nth-child(1) {
-  width: 112px; height: 112px;
-  margin: -56px 0 0 -56px;
   background: rgba(255,192,46,.08);
   animation-delay: 0s;
 }
 :root:not([data-theme="light"]) .hero-fund__rings span:nth-child(2) {
-  width: 188px; height: 188px;
-  margin: -94px 0 0 -94px;
-  background: rgba(255,192,46,.085);
+  background: rgba(245,137,31,.07);
   animation-delay: -1.5s;
 }
 :root:not([data-theme="light"]) .hero-fund__rings span:nth-child(3) {
-  width: 276px; height: 276px;
-  margin: -138px 0 0 -138px;
-  background: rgba(224,57,44,.055);
+  background: rgba(235,79,40,.045);
   animation-delay: -3s;
 }
 :root:not([data-theme="light"]) .hero-fund__rings span:nth-child(4) {
-  width: 372px; height: 372px;
-  margin: -186px 0 0 -186px;
-  background: rgba(255,192,46,.03);
+  background: rgba(224,57,44,.025);
   animation-delay: -4.5s;
 }
 @keyframes hero-ring-spread {
-  0% { opacity: 0; transform: scale(.84); }
-  14% { opacity: .72; }
-  72% { opacity: .38; }
-  100% { opacity: 0; transform: scale(1.18); }
+  0% { opacity: 0; transform: scale(.72); }
+  18% { opacity: .62; }
+  72% { opacity: .3; }
+  100% { opacity: 0; transform: scale(3.35); }
 }
-:root:not([data-theme="light"]) .hero-fund__bank-card {
-  overflow: hidden;
-  padding: 20px;
-  border: 1px solid rgba(255,255,255,.13);
-  border-radius: 20px;
-  background: linear-gradient(145deg, rgba(35,35,42,.54), rgba(17,17,22,.46));
-  -webkit-backdrop-filter: blur(7px) saturate(115%);
-  backdrop-filter: blur(7px) saturate(115%);
-  box-shadow: inset 0 1px rgba(255,255,255,.08), 0 16px 34px rgba(0,0,0,.22);
-}
-:root:not([data-theme="light"]) .hero-fund__bank-card .hero-extra-stats {
-  padding-top: 16px;
-  border-top: 1px solid rgba(255,255,255,.1);
-}
+
 :root:not([data-theme="light"]) .hero-fund .fund-split {
   position: relative;
   z-index: 2;
