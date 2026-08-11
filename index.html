@@ -883,7 +883,7 @@
   };
 </script>
 <script>
-  // ── Hero-fund glow parallax: di chuột (desktop) / nghiêng máy (mobile) ──
+  // ── Hero-fund glow parallax: di chuột (desktop only, không xin quyền cảm biến trên mobile) ──
   (function initHeroGlowParallax(){
     const hero = document.querySelector('.hero-fund');
     const glowGold = hero?.querySelector('.hero-glow--gold');
@@ -904,30 +904,6 @@
       setGlow(x, y);
     });
     hero.addEventListener('mouseleave', () => setGlow(0, 0));
-
-    // Mobile: nghiêng máy (deviceorientation)
-    function onOrientation(e) {
-      if (e.beta === null || e.gamma === null) return;
-      const x = Math.max(-1, Math.min(1, e.gamma / 30));
-      const y = Math.max(-1, Math.min(1, (e.beta - 40) / 30));
-      setGlow(x, y);
-    }
-    function bindOrientation() {
-      window.addEventListener('deviceorientation', onOrientation);
-    }
-
-    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-      // iOS 13+: cần xin quyền qua thao tác chạm của người dùng
-      const requestOnce = () => {
-        DeviceOrientationEvent.requestPermission()
-          .then(state => { if (state === 'granted') bindOrientation(); })
-          .catch(() => {});
-        document.removeEventListener('touchend', requestOnce);
-      };
-      document.addEventListener('touchend', requestOnce, { once: true });
-    } else if (typeof DeviceOrientationEvent !== 'undefined') {
-      bindOrientation();
-    }
   })();
 
   if ('serviceWorker' in navigator) {
