@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thu hàng tháng – demo UX</title>
+<link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png">
+<link rel="stylesheet" href="../style.css">
+<style>
+  body { padding: 0 0 40px; }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 20px; margin: 4px 0; }
+  .lead { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px; }
+  .opts { position: sticky; top: 0; z-index: 20; background: var(--bg-base); padding: 10px 16px; margin: 0 -16px 12px; display: flex; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--bg-border); }
+  .opts button { flex: none; height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--bg-border); background: var(--bg-elevated); color: var(--text-secondary); font: 600 13px var(--font-sans); cursor: pointer; }
+  .opts button.on { background: rgba(255,192,46,.14); border-color: rgba(255,192,46,.45); color: var(--color-primary); }
+  .pane { display: none; } .pane.on { display: block; }
+  .pane__title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .pane__why { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 6px; }
+  .pros { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.6; }
+  .pros b { color: var(--color-success); } .pros i { color: var(--color-accent-light); font-style: normal; font-weight: 700; }
+  .num { font-family: 'DINOT Num', var(--font-sans); font-variant-numeric: tabular-nums; }
+
+  /* Chip tháng */
+  .months { display: flex; gap: 6px; overflow-x: auto; margin: 0 -16px 12px; padding: 0 16px 2px; scrollbar-width: none; }
+  .months button { flex: none; height: 34px; min-width: 46px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--bg-border); background: var(--bg-elevated); color: var(--text-secondary); font: 700 13px var(--font-sans); position: relative; }
+  .months button.on { background: var(--color-primary); color: #1a1206; border-color: transparent; }
+  .months button .badge { position: absolute; top: -5px; right: -5px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--color-accent); color: #fff; font-size: 10px; line-height: 16px; }
+  .months button.future { opacity: .45; }
+
+  /* Tóm tắt */
+  .sum { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .sum div { background: var(--bg-elevated); border: 1px solid var(--bg-border); border-radius: 14px; padding: 10px 12px; }
+  .sum span { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 2px; }
+  .sum b { font-size: 18px; }
+  .bar { height: 6px; border-radius: 3px; background: var(--bg-border); overflow: hidden; margin: -4px 0 12px; }
+  .bar i { display: block; height: 100%; background: var(--color-success); border-radius: 3px; transition: width .2s; }
+
+  .filters { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+  .filters button { height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--bg-border); background: transparent; color: var(--text-secondary); font: 600 12px var(--font-sans); }
+  .filters button.on { background: var(--bg-elevated); color: var(--text-primary); border-color: var(--bg-stroke); }
+
+  .list { border: 1px solid var(--bg-border); border-radius: 14px; overflow: hidden; }
+  .row { display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 14px; background: var(--bg-surface); border-top: 1px solid var(--bg-border); cursor: default; }
+  .row:first-child { border-top: 0; }
+  .row__name { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row__sub { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-top: 1px; }
+  .seg { display: flex; background: var(--bg-elevated); border: 1px solid var(--bg-border); border-radius: 10px; padding: 2px; }
+  .seg button { height: 32px; min-width: 50px; border: 0; border-radius: 8px; background: transparent; color: var(--text-muted); font: 700 12px var(--font-sans); }
+  .seg button.s1 { background: rgba(46,204,113,.18); color: var(--color-success); }
+  .seg button.s0 { background: rgba(224,57,44,.18); color: var(--color-accent-light); }
+  .seg button.s2 { background: var(--bg-border); color: var(--text-primary); }
+  .bulk { width: 100%; height: 44px; margin-top: 12px; border-radius: 12px; border: 1px dashed var(--bg-stroke); background: transparent; color: var(--text-secondary); font: 700 13px var(--font-sans); }
+
+  /* B: theo người */
+  .dots { display: flex; gap: 3px; margin-top: 5px; }
+  .dot { width: 9px; height: 9px; border-radius: 3px; background: var(--bg-border); }
+  .dot.s1 { background: var(--color-success); } .dot.s0 { background: var(--color-accent); } .dot.s2 { background: #6b6b78; } .dot.f { background: transparent; border: 1px solid var(--bg-border); }
+  .debt { text-align: right; flex: none; }
+  .debt b { display: block; font-size: 15px; color: var(--color-accent-light); }
+  .debt b.ok { color: var(--color-success); }
+  .debt span { font-size: 12px; color: var(--text-muted); }
+  .row.tap { cursor: pointer; } .row.tap:active { background: var(--bg-hover); }
+  .legend { display: flex; gap: 12px; font-size: 12px; color: var(--text-muted); margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
+  .legend .dot { display: inline-block; vertical-align: -1px; margin-right: 4px; }
+
+  /* Sheet chi tiết 1 người */
+  .sheet-bg { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.55); display: none; align-items: flex-end; justify-content: center; }
+  .sheet-bg.on { display: flex; }
+  .sheet2 { width: 100%; max-width: 480px; background: var(--bg-surface); border-radius: 20px 20px 0 0; border-top: 1px solid var(--bg-stroke); padding: 16px 16px calc(20px + env(safe-area-inset-bottom)); }
+  .sheet2__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .sheet2__head b { font-size: 17px; }
+  .x { width: 28px; height: 28px; border: 0; background: transparent; color: var(--text-secondary); font-size: 22px; line-height: 1; }
+  .mgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .mcell { height: 58px; border-radius: 12px; border: 1px solid var(--bg-border); background: var(--bg-elevated); font: 700 13px var(--font-sans); color: var(--text-secondary); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+  .mcell small { font-size: 11px; font-weight: 600; }
+  .mcell.s1 { background: rgba(46,204,113,.14); border-color: rgba(46,204,113,.45); color: var(--color-success); }
+  .mcell.s0 { background: rgba(224,57,44,.12); border-color: rgba(224,57,44,.45); color: var(--color-accent-light); }
+  .mcell.s2 { color: var(--text-muted); }
+  .mcell.f { opacity: .5; }
+  .hint { font-size: 12px; color: var(--text-muted); margin-top: 10px; }
+
+  /* C: thu tiền nhanh */
+  .step-t { font-size: 13px; font-weight: 700; color: var(--text-secondary); margin: 14px 0 8px; }
+  .search { width: 100%; height: 40px; border-radius: 12px; border: 1px solid var(--bg-border); background: var(--bg-elevated); color: var(--text-primary); padding: 0 12px; font: 14px var(--font-sans); margin-bottom: 8px; }
+  .pick { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pick button { height: 36px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--bg-border); background: var(--bg-elevated); color: var(--text-secondary); font: 600 13px var(--font-sans); }
+  .pick button.on { border-color: var(--color-primary); color: var(--color-primary); background: rgba(255,192,46,.1); }
+  .pick button small { color: var(--color-accent-light); font-weight: 700; margin-left: 4px; }
+  .mpick { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .mpick button { height: 44px; border-radius: 10px; border: 1.5px solid var(--bg-border); background: var(--bg-elevated); color: var(--text-secondary); font: 700 12px var(--font-sans); }
+  .mpick button.paid { opacity: .4; text-decoration: line-through; }
+  .mpick button.due { border-color: rgba(224,57,44,.5); color: var(--color-accent-light); }
+  .mpick button.on { background: var(--color-success); color: #fff; border-color: transparent; opacity: 1; text-decoration: none; }
+  .total { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding: 12px 14px; border-radius: 14px; background: var(--bg-elevated); border: 1px solid var(--bg-border); }
+  .total b { font-size: 22px; color: var(--color-primary); }
+  .cta { width: 100%; height: 48px; margin-top: 10px; border: 0; border-radius: 14px; background: linear-gradient(135deg,#FFC02E,#F5891F); color: #1a1206; font: 800 15px var(--font-sans); }
+  .cta:disabled { opacity: .4; }
+  .toast2 { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--bg-elevated); border: 1px solid var(--bg-stroke); padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; z-index: 60; display: none; }
+
+  /* D: bảng làm gọn */
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--bg-border); border-radius: 14px; scrollbar-width: none; }
+  table.t { border-collapse: separate; border-spacing: 0; font-size: 13px; min-width: 100%; }
+  .t th, .t td { height: 40px; padding: 0 6px; text-align: center; border-bottom: 1px solid var(--bg-border); white-space: nowrap; background: var(--bg-surface); }
+  .t th { font-size: 12px; color: var(--text-muted); font-weight: 700; background: var(--bg-elevated); position: sticky; top: 0; }
+  .t .name { position: sticky; left: 0; z-index: 2; text-align: left; padding: 0 10px; min-width: 104px; max-width: 104px; overflow: hidden; text-overflow: ellipsis; font-weight: 600; box-shadow: 1px 0 0 var(--bg-border); }
+  .t .owe { position: sticky; right: 0; z-index: 2; min-width: 64px; font-weight: 700; color: var(--color-accent-light); box-shadow: -1px 0 0 var(--bg-border); }
+  .t .owe.ok { color: var(--color-success); }
+  .t th.name, .t th.owe { z-index: 3; color: var(--text-muted); }
+  .t td.m { min-width: 34px; cursor: pointer; }
+  .t .cur { background: rgba(255,192,46,.08); }
+  .t th.cur { color: var(--color-primary); }
+  .ic { display: inline-flex; width: 22px; height: 22px; border-radius: 7px; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
+  .ic.s1 { color: var(--color-success); background: rgba(46,204,113,.14); }
+  .ic.s0 { color: var(--color-accent-light); background: rgba(224,57,44,.14); }
+  .ic.s2 { color: var(--text-muted); }
+  .ic.f { color: var(--bg-stroke); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Thu hàng tháng</h1>
+  <div class="lead">4 phương án thay cho bảng 12 cột hiện tại. Dữ liệu thật năm 2026 (23 thành viên, tháng hiện tại T11, 200.000đ/tháng). Bấm thử — các phương án dùng chung dữ liệu nên chỉnh ở tab này sẽ thấy ở tab khác.</div>
+  <div class="opts" id="opts">
+    <button data-p="A" class="on">A · Theo tháng</button>
+    <button data-p="B">B · Theo người</button>
+    <button data-p="C">C · Thu tiền nhanh</button>
+    <button data-p="D">D · Bảng làm gọn</button>
+  </div>
+
+  <!-- A -->
+  <section class="pane on" id="pane-A">
+    <div class="pane__title">A · Theo tháng</div>
+    <div class="pane__why">Chọn tháng ở hàng chip (mặc định tháng hiện tại, chấm đỏ là số người còn nợ tháng đó). Mỗi người một dòng với nút Đóng / Chưa / Miễn.</div>
+    <div class="pros"><b>+</b> Khớp việc làm nhiều nhất: tick đóng quỹ đầu tháng · <b>+</b> Lọc nhanh người chưa đóng · <i>−</i> Không thấy cả năm của 1 người</div>
+    <div class="months" id="monthsA"></div>
+    <div class="sum"><div><span>Đã đóng</span><b class="num" id="aPaid">0</b></div><div><span>Còn thiếu</span><b class="num" id="aDue" style="color:var(--color-accent-light)">0</b></div></div>
+    <div class="bar"><i id="aBar"></i></div>
+    <div class="filters" id="filtersA">
+      <button data-f="all" class="on">Tất cả</button><button data-f="0">Chưa đóng</button><button data-f="1">Đã đóng</button><button data-f="2">Miễn</button>
+    </div>
+    <div class="list" id="listA"></div>
+    <button class="bulk" id="bulkA">✓ Đánh dấu tất cả người “Chưa” là đã đóng</button>
+  </section>
+
+  <!-- B -->
+  <section class="pane" id="pane-B">
+    <div class="pane__title">B · Theo người</div>
+    <div class="pane__why">Danh sách xếp theo số nợ (nhiều nhất lên đầu). 12 chấm là 12 tháng. Chạm vào người để mở bảng tháng của người đó và chỉnh.</div>
+    <div class="pros"><b>+</b> Thấy ngay ai nợ, nợ bao nhiêu — tiện đòi nợ · <b>+</b> Thấy cả năm trong 1 dòng · <i>−</i> Tick cả đội 1 tháng phải mở từng người</div>
+    <div class="legend"><span><i class="dot s1"></i>Đã đóng</span><span><i class="dot s0"></i>Nợ</span><span><i class="dot s2"></i>Miễn</span><span><i class="dot f"></i>Chưa tới</span></div>
+    <div class="list" id="listB"></div>
+  </section>
+
+  <!-- C -->
+  <section class="pane" id="pane-C">
+    <div class="pane__title">C · Thu tiền nhanh</div>
+    <div class="pane__why">Khi ai đó chuyển khoản: chọn người → chọn các tháng họ trả (gợi ý sẵn các tháng đang nợ) → app tự tính tiền → ghi nhận.</div>
+    <div class="pros"><b>+</b> Đúng tình huống thật “chuyển 600k trả 3 tháng” · <b>+</b> Ít chạm, không sợ nhầm ô · <i>−</i> Chỉ là luồng phụ, vẫn cần A hoặc B để xem tổng thể</div>
+    <div class="step-t">1. Ai đóng tiền?</div>
+    <input class="search" id="searchC" placeholder="Tìm thành viên…">
+    <div class="pick" id="pickC"></div>
+    <div class="step-t">2. Trả cho tháng nào? <span style="font-weight:500;color:var(--text-muted)">(đỏ = đang nợ, gạch = đã đóng)</span></div>
+    <div class="mpick" id="mpickC"></div>
+    <div class="total"><span style="font-size:13px;color:var(--text-secondary)" id="totalLabel">Chưa chọn</span><b class="num" id="totalC">0</b></div>
+    <button class="cta" id="ctaC" disabled>Ghi nhận đã đóng</button>
+  </section>
+
+  <!-- D -->
+  <section class="pane" id="pane-D">
+    <div class="pane__title">D · Giữ bảng, làm gọn</div>
+    <div class="pane__why">Vẫn là bảng cả năm nhưng: tự cuộn tới tháng hiện tại và tô nổi cột đó, cột tên và cột Nợ dính 2 bên, ô dùng ký hiệu nhỏ thay vì tô kín màu, “miễn” màu xám. Chạm ô để đổi trạng thái.</div>
+    <div class="pros"><b>+</b> Ít thay đổi thói quen · <b>+</b> Thấy cả năm, luôn thấy cột Nợ · <i>−</i> Vẫn phải cuộn ngang, ô nhỏ hơn A/B</div>
+    <div class="tbl-wrap" id="tblD"></div>
+    <div class="hint">✓ đã đóng · ✕ nợ · – miễn · · chưa tới</div>
+  </section>
+</div>
+
+<div class="sheet-bg" id="sheetB"><div class="sheet2">
+  <div class="sheet2__head"><b id="sheetName"></b><button class="x" onclick="closeSheet()" aria-label="Đóng">×</button></div>
+  <div class="mgrid" id="sheetGrid"></div>
+  <div class="hint">Chạm tháng để đổi: Nợ → Đã đóng → Miễn. Tháng mờ là chưa tới.</div>
+</div></div>
+<div class="toast2" id="toast2"></div>
+
+<script>
+  const FEE = 200000, CUR = 10; // tháng hiện tại: T11 (chỉ số 10)
+  // Dữ liệu thật năm 2026: 0 nợ/chưa đóng, 1 đã đóng, 2 miễn
+  const DATA = [["Bình Phương",[1,2,1,1,2,1,1,0,2,0,0,0]],["Chắt",[1,2,1,1,2,1,1,1,2,1,1,0]],["Cường Buồn",[1,2,1,1,2,1,0,0,2,0,0,0]],["Duy",[1,2,1,1,2,2,2,2,2,2,2,0]],["Hinh",[1,2,2,2,2,1,1,1,2,0,0,0]],["Hiếu",[1,2,1,1,2,0,0,0,2,0,0,0]],["Hưởng 88",[1,2,2,2,2,1,2,2,2,1,1,0]],["Hưởng Mobile",[2,2,2,1,2,1,1,1,2,0,0,0]],["Hội",[1,2,1,1,2,1,1,1,2,0,0,0]],["Liêm",[2,2,2,2,2,1,1,1,2,1,1,0]],["Long",[1,2,1,1,2,1,1,0,2,0,0,0]],["Luân",[1,2,1,2,2,1,1,1,2,2,1,0]],["Lý",[2,2,1,1,2,1,1,1,2,1,1,0]],["Minh",[2,2,1,1,2,1,2,1,2,1,0,0]],["Phúc",[1,2,1,1,2,1,1,1,2,1,0,0]],["Quyền",[1,2,2,2,2,2,2,2,2,2,2,2]],["Thái",[1,2,1,1,2,1,1,0,2,0,0,0]],["Trường Cap",[1,2,1,1,2,1,1,1,2,1,1,0]],["Trường Xẻ",[1,2,1,1,2,1,1,1,2,1,1,0]],["Tấn",[1,2,1,1,2,1,1,1,2,1,0,0]],["Tặng",[1,2,1,1,2,1,1,0,2,0,0,0]],["Vĩ",[2,2,2,2,2,1,1,1,2,1,1,0]],["Đức Trần",[1,2,1,1,2,1,1,1,2,1,0,0]]];
+  const M = DATA.map(([name, a]) => ({ name, a: a.slice() }));
+  const fmt = n => new Intl.NumberFormat('vi-VN').format(n);
+  const owedMonths = m => m.a.filter((v, i) => v === 0 && i <= CUR).length;
+  let pane = 'A', monthA = CUR, filterA = 'all', who = null, pickMonths = new Set(), sheetIdx = -1;
+
+  function toast(t) { const el = document.getElementById('toast2'); el.textContent = t; el.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => el.style.display = 'none', 1800); }
+
+  // ── A ──
+  function renderA() {
+    monthsA.innerHTML = Array.from({ length: 12 }, (_, i) => {
+      const due = i <= CUR ? M.filter(m => m.a[i] === 0).length : 0;
+      return `<button class="${i === monthA ? 'on' : ''} ${i > CUR ? 'future' : ''}" onclick="monthA=${i};renderA()">T${i + 1}${due ? `<span class="badge">${due}</span>` : ''}</button>`;
+    }).join('');
+    const need = M.filter(m => m.a[monthA] !== 2), paid = need.filter(m => m.a[monthA] === 1);
+    aPaid.textContent = `${paid.length}/${need.length} người`;
+    aDue.textContent = fmt((need.length - paid.length) * FEE) + 'đ';
+    aBar.style.width = (need.length ? paid.length / need.length * 100 : 0) + '%';
+    const list = M.map((m, i) => ({ m, i })).filter(({ m }) => filterA === 'all' || String(m.a[monthA]) === filterA);
+    listA.innerHTML = list.map(({ m, i }) => {
+      const v = m.a[monthA];
+      return `<div class="row"><span class="row__name">${m.name}</span><div class="seg">
+        <button class="${v === 1 ? 's1' : ''}" onclick="setM(${i},${monthA},1)">Đóng</button>
+        <button class="${v === 0 ? 's0' : ''}" onclick="setM(${i},${monthA},0)">Chưa</button>
+        <button class="${v === 2 ? 's2' : ''}" onclick="setM(${i},${monthA},2)">Miễn</button></div></div>`;
+    }).join('') || '<div class="row"><span class="row__name" style="color:var(--text-muted);font-weight:500">Không có ai</span></div>';
+  }
+  filtersA.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; filterA = b.dataset.f; filtersA.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); renderA(); });
+  bulkA.onclick = () => { let n = 0; M.forEach(m => { if (m.a[monthA] === 0) { m.a[monthA] = 1; n++; } }); render(); toast(n ? `Đã đánh dấu ${n} người đóng T${monthA + 1}` : 'Không còn ai chưa đóng'); };
+
+  // ── B ──
+  function renderB() {
+    const list = M.map((m, i) => ({ m, i, o: owedMonths(m) })).sort((a, b) => b.o - a.o || a.m.name.localeCompare(b.m.name, 'vi'));
+    listB.innerHTML = list.map(({ m, i, o }) => `<div class="row tap" onclick="openSheet(${i})">
+      <span class="row__name">${m.name}<span class="dots">${m.a.map((v, k) => `<i class="dot ${k > CUR && v !== 1 ? 'f' : 's' + v}"></i>`).join('')}</span></span>
+      <span class="debt">${o ? `<b class="num">${fmt(o * FEE)}</b><span>Nợ ${o} tháng</span>` : `<b class="ok">✓</b><span>Đã đủ</span>`}</span></div>`).join('');
+  }
+  function openSheet(i) { sheetIdx = i; renderSheet(); sheetB.classList.add('on'); }
+  function closeSheet() { sheetB.classList.remove('on'); render(); }
+  sheetB.addEventListener('click', e => { if (e.target === sheetB) closeSheet(); });
+  const LBL = { 0: 'Nợ', 1: 'Đã đóng', 2: 'Miễn' };
+  function renderSheet() {
+    const m = M[sheetIdx]; sheetName.textContent = `${m.name} · nợ ${owedMonths(m)} tháng`;
+    sheetGrid.innerHTML = m.a.map((v, k) => `<button class="mcell s${v} ${k > CUR ? 'f' : ''}" onclick="cycleSheet(${k})">T${k + 1}<small>${k > CUR && v === 0 ? 'Chưa tới' : LBL[v]}</small></button>`).join('');
+  }
+  function cycleSheet(k) { const m = M[sheetIdx]; m.a[k] = { 0: 1, 1: 2, 2: 0 }[m.a[k]]; renderSheet(); }
+
+  // ── C ──
+  let qC = '';
+  function renderC() {
+    pickC.innerHTML = M.map((m, i) => ({ m, i, o: owedMonths(m) })).filter(({ m }) => m.name.toLowerCase().includes(qC))
+      .sort((a, b) => b.o - a.o).map(({ m, i, o }) => `<button class="${who === i ? 'on' : ''}" onclick="pickWho(${i})">${m.name}${o ? `<small>${o}</small>` : ''}</button>`).join('');
+    if (who === null) { mpickC.innerHTML = '<span style="grid-column:1/-1;font-size:13px;color:var(--text-muted)">Chọn người trước</span>'; }
+    else {
+      const m = M[who];
+      mpickC.innerHTML = m.a.map((v, k) => `<button class="${v === 1 ? 'paid' : v === 0 && k <= CUR ? 'due' : ''} ${pickMonths.has(k) ? 'on' : ''}" ${v === 1 ? 'disabled' : ''} onclick="toggleMonth(${k})">T${k + 1}</button>`).join('');
+    }
+    const n = pickMonths.size;
+    totalC.textContent = fmt(n * FEE) + 'đ';
+    totalLabel.textContent = who === null ? 'Chưa chọn' : n ? `${M[who].name} · ${n} tháng × 200.000` : 'Chọn tháng';
+    ctaC.disabled = !n;
+  }
+  function pickWho(i) { who = i; const m = M[i]; pickMonths = new Set(m.a.map((v, k) => v === 0 && k <= CUR ? k : -1).filter(k => k >= 0)); renderC(); }
+  function toggleMonth(k) { pickMonths.has(k) ? pickMonths.delete(k) : pickMonths.add(k); renderC(); }
+  searchC.oninput = e => { qC = e.target.value.trim().toLowerCase(); renderC(); };
+  ctaC.onclick = () => { const m = M[who], n = pickMonths.size; pickMonths.forEach(k => m.a[k] = 1); toast(`Đã ghi ${m.name} đóng ${n} tháng · ${fmt(n * FEE)}đ`); pickMonths = new Set(); render(); };
+
+  // ── D ──
+  const SYM = { 0: '✕', 1: '✓', 2: '–' };
+  function renderD(scroll) {
+    tblD.innerHTML = `<table class="t"><thead><tr><th class="name">Thành viên</th>${Array.from({ length: 12 }, (_, k) => `<th class="${k === CUR ? 'cur' : ''}">T${k + 1}</th>`).join('')}<th class="owe">Nợ</th></tr></thead><tbody>
+      ${M.map((m, i) => { const o = owedMonths(m); return `<tr><td class="name">${m.name}</td>${m.a.map((v, k) => {
+        const fut = k > CUR && v === 0; return `<td class="m ${k === CUR ? 'cur' : ''}" onclick="cycleD(${i},${k})"><span class="ic ${fut ? 'f' : 's' + v}">${fut ? '·' : SYM[v]}</span></td>`; }).join('')}
+        <td class="owe ${o ? '' : 'ok'} num">${o ? fmt(o * FEE / 1000) + 'k' : '✓'}</td></tr>`; }).join('')}</tbody></table>`;
+    if (scroll) { const th = tblD.querySelector('th.cur'); tblD.scrollLeft = th.offsetLeft - 104 - 34 * 2; }
+  }
+  function cycleD(i, k) { const keep = tblD.scrollLeft; M[i].a[k] = { 0: 1, 1: 2, 2: 0 }[M[i].a[k]]; renderD(false); tblD.scrollLeft = keep; }
+
+  function setM(i, k, v) { M[i].a[k] = v; render(); }
+  function render() { ({ A: renderA, B: renderB, C: renderC, D: () => renderD(true) })[pane](); }
+  opts.addEventListener('click', e => {
+    const b = e.target.closest('button[data-p]'); if (!b) return; pane = b.dataset.p;
+    opts.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'pane-' + pane));
+    render();
+  });
+  render();
+  // cuộn hàng chip tới tháng hiện tại
+  monthsA.querySelector('.on')?.scrollIntoView({ inline: 'center', block: 'nearest' });
+</script>
+</body>
+</html>
