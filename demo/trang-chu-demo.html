@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FC Sunday — Demo giao diện Matchday</title>
+<link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════════════════
+   FC Sunday — hướng giao diện "Matchday" (Đêm thi đấu)
+   Ý tưởng: sân cỏ dưới đèn pha, bảng tỉ số LED, số áo cầu thủ.
+   Màu vàng lấy từ logo rồng 88, xanh cỏ cho số dương, đỏ thẻ cho nợ.
+   ════════════════════════════════════════════════════════════ */
+:root {
+  --pitch-950: #06100B;   /* nền trang: cỏ đêm */
+  --pitch-900: #0B1711;   /* bề mặt thẻ */
+  --pitch-850: #102019;   /* bề mặt nổi */
+  --pitch-line: #1E3329;  /* viền, vạch kẻ */
+  --chalk:     #F1F5EF;   /* chữ chính: vôi kẻ sân */
+  --chalk-2:   #A9B8AE;   /* chữ phụ */
+  --chalk-3:   #6D8075;   /* chữ mờ */
+  --gold:      #FFC02E;   /* vàng logo */
+  --gold-deep: #F08A1C;
+  --grass:     #2BD46F;   /* số dương, đã đóng */
+  --card-red:  #FF4D4F;   /* nợ, thẻ đỏ */
+  --card-yel:  #FFD43B;
+  --radius:    18px;
+  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-body: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+* { scrollbar-width: none; } *::-webkit-scrollbar { display: none; }
+body {
+  font-family: var(--font-body);
+  background: var(--pitch-950);
+  color: var(--chalk);
+  min-height: 100vh;
+  /* Sọc cỏ cắt xen kẽ, rất mờ */
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.012) 0 80px, transparent 80px 160px),
+    radial-gradient(1200px 500px at 50% -120px, rgba(43,212,111,.10), transparent 70%);
+  padding-bottom: calc(76px + env(safe-area-inset-bottom));
+}
+.num { font-family: var(--font-display); font-weight: 800; letter-spacing: .01em; font-variant-numeric: tabular-nums; }
+.muted { color: var(--chalk-3); }
+
+/* ── Header ── */
+.top {
+  position: sticky; top: 0; z-index: 20;
+  background: rgba(6,16,11,.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--pitch-line);
+  padding-top: env(safe-area-inset-top);
+}
+.top__in { max-width: 1120px; margin: 0 auto; height: 60px; display: flex; align-items: center; gap: 12px; padding: 0 16px; }
+.crest { width: 40px; height: 40px; border-radius: 12px; object-fit: cover; box-shadow: 0 0 0 2px rgba(255,192,46,.35); }
+.brand { line-height: 1.05; }
+.brand b { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: .02em; }
+.brand span { display: block; font-size: 12px; color: var(--chalk-3); }
+.top__act { margin-left: auto; display: flex; gap: 6px; }
+.icon-btn { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: var(--chalk-2); background: transparent; border: 1px solid transparent; cursor: pointer; }
+.icon-btn:hover { background: var(--pitch-850); border-color: var(--pitch-line); color: var(--chalk); }
+.icon-btn svg { width: 20px; height: 20px; }
+
+/* ── Bố cục ── */
+.wrap { max-width: 1120px; margin: 0 auto; padding: 20px 16px 8px; display: grid; gap: 16px; }
+@media (min-width: 960px) {
+  .wrap { grid-template-columns: 1.35fr 1fr; align-items: start; gap: 20px; padding-top: 28px; }
+  .span-2 { grid-column: 1 / -1; }
+  .col { display: grid; gap: 20px; }
+}
+.card { background: var(--pitch-900); border: 1px solid var(--pitch-line); border-radius: var(--radius); padding: 18px; }
+.card__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 12px; }
+.card__title { font-size: 16px; font-weight: 700; }
+.card__link { font-size: 13px; color: var(--gold); text-decoration: none; font-weight: 600; white-space: nowrap; }
+
+/* ── Bảng tỉ số: tổng quỹ ── */
+.board {
+  position: relative; overflow: hidden;
+  background:
+    radial-gradient(600px 260px at 50% 0%, rgba(255,192,46,.16), transparent 70%),
+    linear-gradient(180deg, #0F2219 0%, #0A1610 100%);
+  border: 1px solid #24402F; border-radius: 22px; padding: 22px 18px 18px;
+}
+.board__pitch { position: absolute; inset: 0; pointer-events: none; opacity: .5; }
+.board__label { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; color: var(--chalk-2); font-weight: 600; }
+.live { width: 8px; height: 8px; border-radius: 50%; background: var(--grass); box-shadow: 0 0 0 0 rgba(43,212,111,.6); animation: pulse 2s infinite; }
+@keyframes pulse { 70% { box-shadow: 0 0 0 8px rgba(43,212,111,0); } 100% { box-shadow: 0 0 0 0 rgba(43,212,111,0); } }
+@media (prefers-reduced-motion: reduce) { .live { animation: none; } }
+.board__total { position: relative; text-align: center; font-size: clamp(56px, 13vw, 84px); line-height: .95; margin: 8px 0 4px; color: var(--gold); text-shadow: 0 0 28px rgba(255,192,46,.35); }
+.board__total small { font-size: .38em; color: var(--chalk-2); margin-left: 4px; font-weight: 700; }
+.board__sub { position: relative; margin-top: 6px; text-align: center; font-size: 13px; color: var(--chalk-3); }
+.halves { position: relative; display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); gap: 10px; margin-top: 18px; align-items: stretch; }
+.half { min-width: 0; background: rgba(6,16,11,.55); border: 1px solid var(--pitch-line); border-radius: 16px; padding: 14px; }
+@media (max-width: 520px) {
+  .halves { gap: 6px; }
+  .half { padding: 12px 10px; }
+  .half__val { font-size: 26px; }
+  .half__row { font-size: 12px; }
+  .vs { display: none; }
+  .halves { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+}
+.half__name { font-size: 14px; color: var(--chalk-2); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.dot { width: 10px; height: 10px; border-radius: 3px; }
+.half__val { font-size: 34px; line-height: 1; margin: 6px 0 10px; }
+.half__row { display: flex; justify-content: space-between; font-size: 13px; color: var(--chalk-3); padding: 2px 0; }
+.half__row b { color: var(--chalk-2); font-weight: 600; font-variant-numeric: tabular-nums; }
+.half__row.debt b { color: var(--card-red); }
+.vs { align-self: center; font-family: var(--font-display); font-weight: 800; font-size: 18px; color: var(--chalk-3); }
+
+/* ── Trận tiếp theo ── */
+.next { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; }
+.cal { width: 64px; border-radius: 14px; overflow: hidden; text-align: center; border: 1px solid var(--pitch-line); }
+.cal__m { background: var(--card-red); font-size: 12px; font-weight: 700; padding: 3px 0; }
+.cal__d { font-family: var(--font-display); font-size: 32px; font-weight: 800; padding: 2px 0 4px; background: var(--pitch-850); }
+.next__t { font-size: 17px; font-weight: 700; }
+.next__meta { font-size: 13px; color: var(--chalk-2); margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.count { display: flex; gap: 8px; margin-top: 14px; grid-column: 1 / -1; }
+.count div { flex: 1; text-align: center; background: var(--pitch-850); border: 1px solid var(--pitch-line); border-radius: 12px; padding: 8px 0; }
+.count b { display: block; font-family: var(--font-display); font-size: 26px; font-weight: 800; line-height: 1; }
+.count span { font-size: 12px; color: var(--chalk-3); }
+
+/* ── Chỉ số nhanh ── */
+.stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (min-width: 960px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+.stat { background: var(--pitch-900); border: 1px solid var(--pitch-line); border-radius: 16px; padding: 14px 16px; position: relative; overflow: hidden; }
+.stat__k { font-size: 14px; color: var(--chalk-2); font-weight: 600; }
+.stat__v { font-size: 30px; line-height: 1.1; margin-top: 4px; }
+.stat__s { font-size: 12px; color: var(--chalk-3); margin-top: 2px; }
+.stat::after { /* số áo mờ phía sau */
+  content: attr(data-no); position: absolute; right: 10px; bottom: -14px;
+  font-family: var(--font-display); font-weight: 800; font-size: 72px; color: rgba(255,255,255,.035); line-height: 1;
+}
+
+/* ── Phong độ 5 trận ── */
+.form { display: grid; gap: 8px; }
+.fx { display: grid; grid-template-columns: 54px 1fr auto; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; background: var(--pitch-850); border: 1px solid var(--pitch-line); }
+.fx__date { font-family: var(--font-display); font-weight: 700; font-size: 18px; line-height: 1; text-align: center; }
+.fx__date span { display: block; font-family: var(--font-body); font-size: 11px; color: var(--chalk-3); font-weight: 500; margin-top: 3px; }
+.fx__score { font-size: 14px; color: var(--chalk-2); }
+.fx__score b { font-family: var(--font-display); font-size: 20px; color: var(--chalk); margin: 0 4px; }
+.chip { font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
+.chip--ok { color: var(--grass); background: rgba(43,212,111,.12); }
+.chip--due { color: var(--card-red); background: rgba(255,77,79,.12); }
+
+/* ── Đóng quỹ tháng: dãy số áo ── */
+.prog { height: 10px; border-radius: 999px; background: var(--pitch-850); overflow: hidden; border: 1px solid var(--pitch-line); }
+.prog i { display: block; height: 100%; width: 38%; background: linear-gradient(90deg, var(--grass), #8BEA6A); border-radius: inherit; }
+.prog-meta { display: flex; justify-content: space-between; font-size: 13px; color: var(--chalk-2); margin: 10px 0 14px; }
+.shirts { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 8px; }
+.shirt { text-align: center; font-size: 11px; color: var(--chalk-3); }
+.shirt svg { width: 40px; height: 40px; display: block; margin: 0 auto 2px; }
+.shirt.paid svg path { fill: var(--grass); }
+.shirt.paid svg text { fill: #06100B; }
+.shirt svg path { fill: var(--pitch-850); stroke: var(--pitch-line); stroke-width: 1.5; }
+.shirt svg text { fill: var(--chalk-3); font-family: var(--font-display); font-weight: 800; font-size: 13px; }
+
+/* ── Top quả tạ: bục podium ── */
+.podium { display: grid; grid-template-columns: 1fr 1.1fr 1fr; gap: 10px; align-items: end; }
+.pod { text-align: center; }
+.pod__av { width: 56px; height: 56px; margin: 0 auto 8px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 22px; background: var(--pitch-850); border: 2px solid var(--pitch-line); }
+.pod--1 .pod__av { width: 68px; height: 68px; border-color: var(--gold); color: var(--gold); box-shadow: 0 0 24px rgba(255,192,46,.25); }
+.pod__name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pod__n { font-size: 12px; color: var(--chalk-3); margin-bottom: 8px; }
+.pod__step { border-radius: 12px 12px 4px 4px; background: linear-gradient(180deg, var(--pitch-850), var(--pitch-900)); border: 1px solid var(--pitch-line); font-family: var(--font-display); font-weight: 800; font-size: 28px; color: var(--chalk-3); display: grid; place-items: center; }
+.pod--1 .pod__step { height: 96px; color: var(--gold); border-color: rgba(255,192,46,.4); background: linear-gradient(180deg, rgba(255,192,46,.16), var(--pitch-900)); }
+.pod--2 .pod__step { height: 72px; }
+.pod--3 .pod__step { height: 56px; }
+.rest { margin-top: 12px; display: grid; gap: 6px; }
+.rest div { display: flex; justify-content: space-between; font-size: 14px; padding: 8px 12px; border-radius: 10px; background: var(--pitch-850); }
+.rest b { font-family: var(--font-display); font-size: 18px; }
+
+/* ── Chi gần nhất ── */
+.tx { display: grid; gap: 2px; }
+.tx > div { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--pitch-line); }
+.tx > div:first-child { border-top: 0; }
+.tx__ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--pitch-850); color: var(--grass); }
+.tx__ic svg { width: 20px; height: 20px; }
+.tx__t { font-size: 14px; font-weight: 600; }
+.tx__d { font-size: 12px; color: var(--chalk-3); }
+.tx__a { font-family: var(--font-display); font-weight: 700; font-size: 19px; color: var(--card-red); }
+
+/* ── Thanh điều hướng dưới ── */
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: rgba(6,16,11,.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid var(--pitch-line); padding-bottom: env(safe-area-inset-bottom); }
+.nav__in { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); }
+.nav a { height: 64px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11px; font-weight: 600; color: var(--chalk-3); text-decoration: none; position: relative; }
+.nav a svg { width: 22px; height: 22px; }
+.nav a.on { color: var(--gold); }
+.nav a.on::before { content: ''; position: absolute; top: 0; width: 28px; height: 3px; border-radius: 0 0 3px 3px; background: var(--gold); }
+
+/* Nhãn demo */
+.demo-tag { position: fixed; right: 12px; bottom: calc(78px + env(safe-area-inset-bottom)); z-index: 40; font-size: 11px; font-weight: 700; color: #06100B; background: var(--gold); padding: 4px 10px; border-radius: 999px; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top__in">
+    <img class="crest" src="../logo.jpg" alt="Logo FC Sunday">
+    <div class="brand"><b>FC SUNDAY</b><span>Mùa giải 2026</span></div>
+    <div class="top__act">
+      <button class="icon-btn" aria-label="Chia sẻ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v12M7 8l5-5 5 5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg></button>
+      <button class="icon-btn" aria-label="Cài đặt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- Bảng tỉ số: tổng quỹ -->
+  <section class="board span-2" aria-label="Tổng quỹ hiện tại">
+    <svg class="board__pitch" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g fill="none" stroke="rgba(241,245,239,.07)" stroke-width="2">
+        <rect x="20" y="20" width="760" height="260" rx="6"/>
+        <line x1="400" y1="20" x2="400" y2="280"/>
+        <circle cx="400" cy="150" r="62"/>
+        <rect x="20" y="85" width="90" height="130"/>
+        <rect x="690" y="85" width="90" height="130"/>
+      </g>
+    </svg>
+    <div class="board__label"><span class="live"></span>Tổng quỹ hiện tại</div>
+    <div class="board__total num">4.720.000<small>đ</small></div>
+    <div class="board__sub">Cập nhật 21/11/2026 · Đã đồng bộ</div>
+    <div class="halves">
+      <div class="half">
+        <div class="half__name"><span class="dot" style="background:var(--grass)"></span>Quỹ tháng</div>
+        <div class="half__val num">2.530.000</div>
+        <div class="half__row"><span>Thu</span><b>31.700.000</b></div>
+        <div class="half__row"><span>Chi</span><b>29.170.000</b></div>
+        <div class="half__row debt"><span>Còn nợ</span><b>6.200.000</b></div>
+      </div>
+      <div class="vs">–</div>
+      <div class="half">
+        <div class="half__name"><span class="dot" style="background:var(--gold)"></span>Quỹ bia</div>
+        <div class="half__val num">2.190.000</div>
+        <div class="half__row"><span>Thu</span><b>11.610.000</b></div>
+        <div class="half__row"><span>Chi</span><b>9.420.000</b></div>
+        <div class="half__row debt"><span>Còn nợ</span><b>3.050.000</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chỉ số nhanh -->
+  <section class="stats span-2" aria-label="Chỉ số nhanh">
+    <div class="stat" data-no="37"><div class="stat__k">Số trận đã đá</div><div class="stat__v num">37</div><div class="stat__s">Trong năm 2026</div></div>
+    <div class="stat" data-no="21"><div class="stat__k">Đang hoạt động</div><div class="stat__v num">21</div><div class="stat__s">/ 27 thành viên</div></div>
+    <div class="stat" data-no="$"><div class="stat__k">Tổng thu</div><div class="stat__v num" style="color:var(--gold)">43.310.000</div><div class="stat__s">Quỹ tháng + quỹ bia</div></div>
+    <div class="stat" data-no="!"><div class="stat__k">Tổng còn nợ</div><div class="stat__v num" style="color:var(--card-red)">9.250.000</div><div class="stat__s">Tháng + bia</div></div>
+  </section>
+
+  <div class="col">
+    <!-- Trận tiếp theo -->
+    <section class="card" aria-label="Trận tiếp theo">
+      <div class="card__head"><div class="card__title">Trận tiếp theo</div><a class="card__link" href="#">Thêm trận</a></div>
+      <div class="next">
+        <div class="cal"><div class="cal__m">TH 11</div><div class="cal__d">27</div></div>
+        <div>
+          <div class="next__t">Thứ Sáu · Đá giao hữu nội bộ</div>
+          <div class="next__meta"><span>⏱ 19:30</span><span>📍 Sân Hướng Mai</span><span>💸 Thua 50k/người</span></div>
+        </div>
+        <div class="count" id="countdown" aria-live="polite">
+          <div><b id="cd-d">0</b><span>ngày</span></div>
+          <div><b id="cd-h">00</b><span>giờ</span></div>
+          <div><b id="cd-m">00</b><span>phút</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Phong độ -->
+    <section class="card" aria-label="5 trận gần nhất">
+      <div class="card__head"><div class="card__title">5 trận gần nhất</div><a class="card__link" href="#">Xem quỹ bia</a></div>
+      <div class="form">
+        <div class="fx"><div class="fx__date">20/11<span>Thứ 6</span></div><div class="fx__score">Thắng <b>8</b>–<b>8</b> Thua</div><span class="chip chip--due">8 chưa trả</span></div>
+        <div class="fx"><div class="fx__date">13/11<span>Thứ 6</span></div><div class="fx__score">Thắng <b>7</b>–<b>8</b> Thua</div><span class="chip chip--due">4 chưa trả</span></div>
+        <div class="fx"><div class="fx__date">05/11<span>Thứ 5</span></div><div class="fx__score">Thắng <b>7</b>–<b>6</b> Thua</div><span class="chip chip--due">4 chưa trả</span></div>
+        <div class="fx"><div class="fx__date">30/10<span>Thứ 6</span></div><div class="fx__score">Thắng <b>6</b>–<b>8</b> Thua</div><span class="chip chip--due">6 chưa trả</span></div>
+        <div class="fx"><div class="fx__date">23/10<span>Thứ 6</span></div><div class="fx__score">Thắng <b>9</b>–<b>7</b> Thua</div><span class="chip chip--ok">Đã thu đủ</span></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="col">
+    <!-- Đóng quỹ tháng -->
+    <section class="card" aria-label="Đóng quỹ tháng 11">
+      <div class="card__head"><div class="card__title">Đóng quỹ tháng 11</div><a class="card__link" href="#">Chi tiết</a></div>
+      <div class="prog" role="progressbar" aria-valuenow="8" aria-valuemin="0" aria-valuemax="21"><i></i></div>
+      <div class="prog-meta"><span><b style="color:var(--grass)">8</b> / 21 người đã đóng</span><span class="muted">200.000đ/người</span></div>
+      <div class="shirts" id="shirts"></div>
+    </section>
+
+    <!-- Top quả tạ -->
+    <section class="card" aria-label="Top quả tạ">
+      <div class="card__head"><div class="card__title">Top quả tạ 🏋️</div><a class="card__link" href="#">Bảng xếp hạng</a></div>
+      <div class="podium">
+        <div class="pod pod--2"><div class="pod__av">P</div><div class="pod__name">Phúc</div><div class="pod__n">16 trận thua</div><div class="pod__step">2</div></div>
+        <div class="pod pod--1"><div class="pod__av">BP</div><div class="pod__name">Bình Phương</div><div class="pod__n">18 trận thua</div><div class="pod__step">1</div></div>
+        <div class="pod pod--3"><div class="pod__av">ĐT</div><div class="pod__name">Đức Trần</div><div class="pod__n">15 trận thua</div><div class="pod__step">3</div></div>
+      </div>
+      <div class="rest">
+        <div><span>4 · Cường Buồn</span><b>15</b></div>
+        <div><span>5 · Long</span><b>15</b></div>
+      </div>
+    </section>
+
+    <!-- Chi gần nhất -->
+    <section class="card" aria-label="Chi tiêu gần nhất">
+      <div class="card__head"><div class="card__title">Chi tiêu gần nhất</div><a class="card__link" href="#">Tất cả</a></div>
+      <div class="tx">
+        <div><span class="tx__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14M3 9h3v6H3M21 9h-3v6h3"/><circle cx="12" cy="12" r="2.2"/></svg></span><span><div class="tx__t">Tiền sân Hướng Mai</div><div class="tx__d">20/11 · Quỹ tháng</div></span><span class="tx__a">−580.000</span></div>
+        <div><span class="tx__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14M3 9h3v6H3M21 9h-3v6h3"/><circle cx="12" cy="12" r="2.2"/></svg></span><span><div class="tx__t">Tiền sân Hướng Mai</div><div class="tx__d">13/11 · Quỹ tháng</div></span><span class="tx__a">−640.000</span></div>
+        <div><span class="tx__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14M3 9h3v6H3M21 9h-3v6h3"/><circle cx="12" cy="12" r="2.2"/></svg></span><span><div class="tx__t">Tiền sân Hướng Mai</div><div class="tx__d">06/11 · Quỹ tháng</div></span><span class="tx__a">−630.000</span></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<nav class="nav" aria-label="Điều hướng chính">
+  <div class="nav__in">
+    <a class="on" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 4.5h-5L8 10z"/></svg>Tổng quan</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/></svg>Thu tháng</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8h10v10a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3zM16 10h2a2 2 0 0 1 0 4h-2M6 8a3 3 0 0 1 5-3 3 3 0 0 1 5 3"/></svg>Quỹ bia</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h10l2 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7z"/><path d="M9 11h6M9 15h4"/></svg>Chi tiêu</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a5.5 5.5 0 0 1 3.5 6"/></svg>Thành viên</a>
+  </div>
+</nav>
+
+<div class="demo-tag">BẢN DEMO</div>
+
+<script>
+  // Dãy áo đóng quỹ tháng 11 (dữ liệu mẫu)
+  const names = ['Trường Cap','Đức Trần','Chất','Minh','Tấn','Hưởng 88','Phúc','Vĩ','Liêm','Hinh','Long','Luân','Lý','Quyền','Tặng','Thái','Trường Xè','Hiếu','Hội','Cường Buồn','Bình Phương'];
+  const paid = new Set([0,1,4,8,10,12,15,16]);
+  document.getElementById('shirts').innerHTML = names.map((n, i) => `
+    <div class="shirt ${paid.has(i) ? 'paid' : ''}" title="${n}${paid.has(i) ? ' · đã đóng' : ' · chưa đóng'}">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M13 5l-8 5 3 7 4-2v20h16V15l4 2 3-7-8-5c-1 3-4 4-7 4s-6-1-7-4z"/><text x="20" y="27" text-anchor="middle">${i + 1}</text></svg>
+      ${n.split(' ').slice(-1)[0]}
+    </div>`).join('');
+
+  // Đếm ngược tới trận tiếp theo (Thứ Sáu 27/11/2026 19:30)
+  const kickoff = new Date(2026, 10, 27, 19, 30);
+  function tick() {
+    let s = Math.max(0, Math.floor((kickoff - new Date()) / 1000));
+    const d = Math.floor(s / 86400); s %= 86400;
+    document.getElementById('cd-d').textContent = d;
+    document.getElementById('cd-h').textContent = String(Math.floor(s / 3600)).padStart(2, '0');
+    document.getElementById('cd-m').textContent = String(Math.floor(s % 3600 / 60)).padStart(2, '0');
+  }
+  tick(); setInterval(tick, 30000);
+</script>
+</body>
+</html>

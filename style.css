@@ -7,13 +7,13 @@
 /* ── TossFace Emoji Font ── */
 @font-face {
   font-family: 'TossFace';
-  src: url('TossFaceSubset.woff2') format('woff2');
+  src: url('TossFace-95830d03.woff2') format('woff2');
   font-weight: normal; font-style: normal; font-display: swap;
 }
 /* Override emoji ranges trong Inter stack → dùng TossFace */
 @font-face {
   font-family: 'Inter';
-  src: url('TossFaceSubset.woff2') format('woff2');
+  src: url('TossFace-95830d03.woff2') format('woff2');
   font-display: swap;
   unicode-range:
     U+2600-26FF, U+2700-27BF,
@@ -819,45 +819,78 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   gap: var(--space-3);
   padding: var(--space-4) 0 0 0;
 }
+/* Cột bục: nền gradient từ màu hạng (trên) về trong suốt (dưới),
+   số hạng to mờ ở góc trên bên phải. Màu hạng dùng bộ màu sẵn có:
+   vàng --color-primary, bạc #C0C0C0, đồng #CD7F32. */
 .podium-card {
+  --podium-rgb: 192,192,192;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-1);
+  padding: var(--space-5) var(--space-2) var(--space-4);
   border-radius: var(--radius-lg);
-  background: var(--bg-elevated);
-  border: 1px solid var(--bg-border);
+  background: linear-gradient(180deg, rgba(var(--podium-rgb), .30) 0%, rgba(var(--podium-rgb), 0) 100%);
+  border: 0;
   text-align: center;
-  transition: border-color .15s;
+}
+.podium-card::before {
+  /* Sát mép trên và mép phải: bù khoảng trống sẵn có của chữ số
+     (phía trên đầu số và lề phải của nét chữ) bằng em âm */
+  position: absolute;
+  top: -.16em;
+  right: -.06em;
+  z-index: -1;
+  font-size: 113px;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: rgba(var(--podium-rgb), .08);
+  pointer-events: none;
+}
+/* Viền 1px gradient: cùng màu hạng, đậm ở trên, trong suốt ở đáy.
+   Vẽ bằng lớp phủ có mask chỉ chừa lại dải 1px quanh mép. */
+.podium-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(var(--podium-rgb), .28) 0%, rgba(var(--podium-rgb), 0) calc(100% - 10px));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
 }
 .podium-medal { font-size: 32px; line-height: 1; }
-.podium-name  { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.podium-name  { max-width: 100%; font-size: 13px; font-weight: 700; line-height: 1.3; color: var(--text-primary); overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .podium-losses { font-size: 12px; color: var(--text-secondary); }
 
-/* Hạng 1 — nổi bật nhất, cao hơn */
-.podium-card--1 {
-  background: radial-gradient(ellipse at 50% 0%, rgba(255,192,46,.12) 0%, transparent 70%), var(--bg-elevated);
-  border-color: rgba(255,192,46,.35);
-  padding-top: var(--space-4);
-  padding-left: 8px;
-  padding-right: 8px;
-}
+/* Hạng 1 — vàng, cột cao nhất */
+.podium-card--1 { --podium-rgb: 255,192,46; padding-top: calc(var(--space-6) + var(--space-4)); }
+.podium-card--1::before { content: '1'; font-size: 140px; top: calc(-.16em - 2px); right: calc(-.06em - 17px); }
 .podium-card--1 .podium-name  { color: var(--color-primary); font-size: 14px; }
 .podium-card--1 .podium-medal { font-size: 40px; }
 
-/* Hạng 2 */
-.podium-card--2 { border-color: rgba(192,192,192,.25); }
+/* Hạng 2 — bạc */
+.podium-card--2 { --podium-rgb: 192,192,192; padding-top: calc(var(--space-6) + var(--space-1)); }
+.podium-card--2::before { content: '2'; top: calc(-.16em - 2px); right: calc(-.06em - 6px); }
 
-/* Hạng 3 */
-.podium-card--3 { border-color: rgba(205,127,50,.25); }
+/* Hạng 3 — đồng, cột thấp nhất */
+.podium-card--3 { --podium-rgb: 205,127,50; }
+.podium-card--3::before { content: '3'; top: calc(-.16em - 2px); right: calc(-.06em - 6px); }
 
 /* ── Leaderboard ── */
 .leaderboard-list { display: flex; flex-direction: column; }
 .leaderboard-item {
   display: flex; align-items: center; gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-4) var(--space-3) 10px; /* trái nhỏ hơn để ô số thứ tự sát mép */
   background: var(--bg-elevated);
   border: 1px solid var(--bg-border);
   border-radius: var(--radius-lg);
@@ -3203,3 +3236,11 @@ body[data-active="thanh-vien"] .member-sticky.is-stuck {
   body[data-active="thanh-vien"] .member-sticky .member-filter-tabs { flex: none; margin-bottom: 0; }
   body[data-active="thanh-vien"] .member-sticky .member-toolbar { flex: 1; min-width: 0; margin-bottom: 0; }
 }
+
+/* ── Quỹ bia: chuỗi thắng / chuỗi thua (dùng chung podium + leaderboard) ── */
+.streak-range { font-size: 12px; font-weight: 500; color: var(--text-muted); margin-top: 2px; }
+.podium-card .streak-range { margin-top: -4px; font-size: 11px; white-space: nowrap; }
+.streak-live { font-weight: 700; white-space: nowrap; }
+.streak-live::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: currentColor; margin-right: 4px; vertical-align: middle; position: relative; top: -1px; }
+.streak-live--W { color: var(--color-success); }
+.streak-live--L { color: var(--color-accent-light); }

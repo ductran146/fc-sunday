@@ -1,7 +1,7 @@
 // FC Sunday V2 — Service Worker
 // Đủ điều kiện PWA install, cache shell assets để load nhanh
 
-const CACHE_NAME = 'fc-sunday-v2-v9';
+const CACHE_NAME = 'fc-sunday-v2-v10';
 const SHELL_ASSETS = [
   './',
   './index.html',
@@ -18,7 +18,7 @@ const SHELL_ASSETS = [
   './icon-192.png',
   './icon-256.png',
   './icon-512.png',
-  './TossFaceSubset.woff2',
+  './TossFace-95830d03.woff2',
   './components/header.html',
   './components/bottom-nav.html',
   './components/sidebar.html',
@@ -66,8 +66,9 @@ self.addEventListener('fetch', (e) => {
     return; // browser xử lý bình thường
   }
 
-  // Font emoji không đổi: lấy từ cache trước, khỏi hỏi mạng mỗi lần.
-  // Khi đổi font thì đổi tên file.
+  // Font emoji: lấy từ cache trước, khỏi hỏi mạng mỗi lần. Tên file mang mã
+  // băm nội dung (TossFace-<hash>.woff2): cắt lại font thì tên đổi theo, trình
+  // duyệt tải bản mới. Nhớ cập nhật tên trong style.css và SHELL_ASSETS.
   if (url.pathname.endsWith('.woff2')) {
     e.respondWith(
       caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {

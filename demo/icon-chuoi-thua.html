@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chọn icon chuỗi thua</title>
+<link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png">
+<link rel="stylesheet" href="../style.css">
+<style>
+  /* Demo dùng font TossFace đầy đủ để xem mọi phương án */
+  @font-face { font-family: 'TossFaceFull'; src: url('../TossFaceFontWeb.otf') format('opentype'); font-display: block; }
+  body { padding: 24px 16px 48px; }
+  .demo { max-width: 960px; margin: 0 auto; }
+  .demo h1 { font-size: 22px; margin-bottom: 6px; }
+  .demo p { color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .opt { position: relative; }
+  .opt__id { position: absolute; top: 10px; right: 14px; font-size: 13px; font-weight: 800; color: var(--text-muted); }
+  .opt .ranking-heading__emoji { font-family: 'TossFaceFull', sans-serif; font-size: 34px; }
+  .opt__why { margin-top: 10px; font-size: 13px; color: var(--text-secondary); line-height: 1.45; }
+  .pair { margin-top: 10px; display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--text-muted); }
+  .pair span { font-family: 'TossFaceFull', sans-serif; font-size: 22px; }
+</style>
+</head>
+<body>
+<div class="demo">
+  <h1>Chọn icon cho thẻ “Chuỗi thua dài nhất”</h1>
+  <p>Tất cả icon lấy từ bộ TossFace. Dòng dưới mỗi phương án là cặp đôi với 🔥 của thẻ chuỗi thắng.</p>
+  <div class="grid" id="grid"></div>
+</div>
+<script>
+  const opts = [
+    ['📉', 'Biểu đồ đi xuống', 'Đang dùng. Nghĩa rõ “phong độ sa sút”, hơi giống báo cáo tài chính.'],
+    ['🥶', 'Mặt lạnh cóng', '“Cold streak” – đối lập trực tiếp với 🔥 “hot streak”, vui và có cảm xúc.'],
+    ['🧊', 'Cục đá', 'Cũng là “cold streak” nhưng không có mặt người, khó hiểu hơn 🥶.'],
+    ['😭', 'Khóc to', 'Hài hước, hợp không khí đội phủi, nhìn là biết đang “ôm hận”.'],
+    ['😵', 'Choáng váng', 'Thua liên tục tới chóng mặt.'],
+    ['🫠', 'Tan chảy', 'Kiểu “tan nát” vui vẻ, hợp giới trẻ.'],
+    ['💀', 'Đầu lâu', 'Mạnh, giống kiểu “toang”. Trang Quỹ bia đã dùng 💀 ở chỗ khác.'],
+    ['🐌', 'Con ốc sên', 'Chậm chạp, phong độ ì ạch.'],
+    ['🪫', 'Pin cạn', 'Hết pin – phong độ cạn kiệt, hiện đại và dễ hiểu.'],
+    ['⛈️', 'Mưa giông', 'Chuỗi ngày u ám, đối lập nắng/lửa.'],
+    ['🥀', 'Hoa héo', 'Phong độ héo úa, nhẹ nhàng.'],
+    ['👎', 'Ngón cái xuống', 'Đơn giản, ai cũng hiểu, nhưng hơi “chê” trực diện.'],
+  ];
+  document.getElementById('grid').innerHTML = opts.map(([e, name, why], i) => `
+    <div class="card opt">
+      <div class="opt__id">${String.fromCharCode(65 + i)}</div>
+      <div class="ranking-heading">
+        <span class="ranking-heading__emoji" aria-hidden="true">${e}</span>
+        <div><div class="section-overline" style="margin-bottom:0">Phong độ</div><div class="section-title" style="font-size:16px">Chuỗi thua dài nhất</div></div>
+      </div>
+      <div class="opt__why"><b style="color:var(--text-primary)">${name}.</b> ${why}</div>
+      <div class="pair">Cặp với chuỗi thắng: <span>🔥</span><span>${e}</span></div>
+    </div>`).join('');
+</script>
+</body>
+</html>
