@@ -52,13 +52,13 @@
       position: sticky; top: calc(var(--space-5) * -1); z-index: 5;
       display: flex; align-items: center; justify-content: space-between;
       margin: calc(var(--space-5) * -1) calc(var(--space-6) * -1) 20px;
-      padding: var(--space-5) var(--space-6) 12px;
+      padding: 16px var(--space-6); /* trên = dưới để tiêu đề và nút đóng nằm giữa thanh */
       background: var(--bg-surface);
       transition: box-shadow .15s;
     }
     .sheet-head.is-stuck { box-shadow: 0 1px 0 var(--bg-border); }
     @media (min-width: 768px) { /* desktop: .sheet đệm 24px mọi phía */
-      .sheet-head { top: calc(var(--space-6) * -1); margin-top: calc(var(--space-6) * -1); padding-top: var(--space-6); }
+      .sheet-head { top: calc(var(--space-6) * -1); margin-top: calc(var(--space-6) * -1); }
     }
     /* ── Chia đội (form thêm/sửa trận) ──
        Chạm ô đội để chọn đội đang thêm, chạm tên ở "Chưa xếp đội" để đưa vào.
