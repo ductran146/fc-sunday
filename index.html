@@ -15,6 +15,7 @@
   <meta http-equiv="Expires" content="0">
   <meta name="theme-color" content="#0C0C0F">
   <title>FC Sunday — Tổng quan</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <!-- Mở sẵn kết nối tới máy chủ đăng nhập và database của Firebase -->
   <link rel="preconnect" href="https://securetoken.googleapis.com" crossorigin>
@@ -608,7 +609,7 @@
             const rank = podiumRanks[pi] + 1; // 1, 2, 3
             return `<div class="podium-card podium-card--${rank}">
               <div class="podium-medal">${medals[rank-1]}</div>
-              <div class="podium-name">${r.member.name}</div>
+              <div class="podium-name" title="${r.member.name}">${r.member.name}</div>
               <div class="podium-losses">${r.n} trận</div>
             </div>`;
           }).join('')}
@@ -647,7 +648,7 @@
       const order = podium.length === 1 ? [podium[0]] : podium.length === 2 ? [podium[1], podium[0]] : [podium[1], podium[0], podium[2]];
       const ranks = podium.length === 1 ? [0] : podium.length === 2 ? [1, 0] : [1, 0, 2];
       const medals = ['🥇','🥈','🥉'];
-      winList.innerHTML = `<div class="podium-wrap">${order.map((r, i) => { const rank = ranks[i] + 1; return `<div class="podium-card podium-card--${rank}"><div class="podium-medal">${medals[rank-1]}</div><div class="podium-name">${r.member.name}</div><div class="podium-losses">${r.n} trận</div></div>`; }).join('')}</div>`
+      winList.innerHTML = `<div class="podium-wrap">${order.map((r, i) => { const rank = ranks[i] + 1; return `<div class="podium-card podium-card--${rank}"><div class="podium-medal">${medals[rank-1]}</div><div class="podium-name" title="${r.member.name}">${r.member.name}</div><div class="podium-losses">${r.n} trận</div></div>`; }).join('')}</div>`
         + (rest.length ? `<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">${rest.map((r, i) => `<div class="leaderboard-item"><div class="leaderboard-item__rank">${i+4}</div><div class="leaderboard-item__name">${r.member.name}</div><div class="leaderboard-item__losses">${r.n} trận</div></div>`).join('')}</div>` : '');
     }
 

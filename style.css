@@ -833,7 +833,7 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   flex-direction: column;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-5) var(--space-2) var(--space-4);
+  padding: var(--space-4) var(--space-2) var(--space-4); /* huy chương cách mép trên 16px */
   border-radius: var(--radius-lg);
   background: linear-gradient(180deg, rgba(var(--podium-rgb), .30) 0%, rgba(var(--podium-rgb), 0) 100%);
   border: 0;
@@ -868,18 +868,28 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
           mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
   pointer-events: none;
 }
-.podium-medal { font-size: 32px; line-height: 1; }
-.podium-name  { max-width: 100%; font-size: 13px; font-weight: 700; line-height: 1.3; color: var(--text-primary); overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+/* Ô huy chương cao như nhau ở mọi cột để chiều cao cột chỉ khác nhau do padding-bottom */
+.podium-medal { font-size: 32px; line-height: 1; height: 40px; display: flex; align-items: flex-start; justify-content: center; }
+/* Tên 1 dòng, cao cố định 18px (cỡ chữ khác nhau không làm lệch chiều cao cột) */
+.podium-name  { max-width: 100%; font-size: 13px; font-weight: 700; line-height: 18px; height: 18px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .podium-losses { font-size: 12px; color: var(--text-secondary); }
 
 /* Hạng 1 — vàng, cột cao nhất */
-.podium-card--1 { --podium-rgb: 255,192,46; padding-top: calc(var(--space-6) + var(--space-4)); }
+.podium-card--1 { --podium-rgb: 255,192,46; }
+/* Cột cao hơn nhau 10px: khoảng trống nằm giữa huy chương và tên, để tên /
+   kết quả / thời gian bám đáy cột và thẳng hàng giữa 3 cột */
+/* Hạng 1: tên cách huy chương 16px (8px margin + 8px gap). Hạng 2, 3 giảm 10px
+   mỗi bậc để giữ bậc thang 10px mà chữ vẫn thẳng hàng. */
+.podium-card--1 .podium-medal { margin-bottom: 8px; }
+.podium-card--2 .podium-medal { margin-bottom: -2px; }
+.podium-card--3 .podium-medal { margin-bottom: -12px; }
 .podium-card--1::before { content: '1'; font-size: 140px; top: calc(-.16em - 2px); right: calc(-.06em - 17px); }
 .podium-card--1 .podium-name  { color: var(--color-primary); font-size: 14px; }
 .podium-card--1 .podium-medal { font-size: 40px; }
+@media (max-width: 767px) { .podium-card .podium-name, .podium-card--1 .podium-name { font-size: 12px; } }
 
 /* Hạng 2 — bạc */
-.podium-card--2 { --podium-rgb: 192,192,192; padding-top: calc(var(--space-6) + var(--space-1)); }
+.podium-card--2 { --podium-rgb: 192,192,192; }
 .podium-card--2::before { content: '2'; top: calc(-.16em - 2px); right: calc(-.06em - 6px); }
 
 /* Hạng 3 — đồng, cột thấp nhất */
