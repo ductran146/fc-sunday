@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chọn thắng thua – demo UX</title>
+<link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png">
+<link rel="stylesheet" href="../style.css">
+<style>
+  body { padding: 0 0 120px; }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 20px; margin: 4px 0 4px; }
+  .lead { font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.5; }
+
+  /* Tab chọn phương án */
+  .opts { position: sticky; top: 0; z-index: 20; background: var(--bg-base); padding: 10px 16px; margin: 0 -16px 12px; display: flex; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--bg-border); }
+  .opts button { flex: none; height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--bg-border); background: var(--bg-elevated); color: var(--text-secondary); font: 600 13px var(--font-sans); cursor: pointer; }
+  .opts button.on { background: rgba(255,192,46,.14); border-color: rgba(255,192,46,.45); color: var(--color-primary); }
+  .pane { display: none; } .pane.on { display: block; }
+  .pane__title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .pane__why { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px; }
+  .pros { font-size: 12px; color: var(--text-muted); margin: -4px 0 14px; line-height: 1.6; }
+  .pros b { color: var(--color-success); font-weight: 700; } .pros i { color: var(--color-accent-light); font-style: normal; font-weight: 700; }
+
+  /* Thanh tổng kết dưới đáy */
+  .sumbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: rgba(12,12,15,.94); backdrop-filter: blur(10px); border-top: 1px solid var(--bg-border); padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); }
+  .sumbar__in { max-width: 480px; margin: 0 auto; display: flex; align-items: center; gap: 8px; }
+  .pill { font-size: 13px; font-weight: 700; padding: 6px 10px; border-radius: 999px; white-space: nowrap; }
+  .pill--w { background: rgba(46,204,113,.12); color: var(--color-success); }
+  .pill--l { background: rgba(224,57,44,.12); color: var(--color-accent-light); }
+  .pill--o { background: var(--bg-elevated); color: var(--text-muted); }
+  .sumbar .btn-save { margin-left: auto; height: 40px; padding: 0 18px; border-radius: 12px; border: 0; background: linear-gradient(135deg,#FFC02E,#F5891F); color: #1a1206; font: 800 14px var(--font-sans); }
+
+  .search { width: 100%; height: 40px; border-radius: 12px; border: 1px solid var(--bg-border); background: var(--bg-elevated); color: var(--text-primary); padding: 0 12px; font: 14px var(--font-sans); margin-bottom: 10px; }
+  .hint { font-size: 12px; color: var(--text-muted); margin: 8px 0; }
+
+  /* ── A: mỗi người một dòng, nút 3 trạng thái ── */
+  .rowlist { display: flex; flex-direction: column; border: 1px solid var(--bg-border); border-radius: 14px; overflow: hidden; }
+  .row { display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 14px; background: var(--bg-surface); border-top: 1px solid var(--bg-border); }
+  .row:first-child { border-top: 0; }
+  .row__name { flex: 1; font-size: 14px; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .seg { display: flex; background: var(--bg-elevated); border: 1px solid var(--bg-border); border-radius: 10px; padding: 2px; }
+  .seg button { height: 32px; min-width: 52px; padding: 0 8px; border: 0; border-radius: 8px; background: transparent; color: var(--text-muted); font: 700 12px var(--font-sans); cursor: pointer; }
+  .seg button.on-w { background: rgba(46,204,113,.18); color: var(--color-success); }
+  .seg button.on-l { background: rgba(224,57,44,.18); color: var(--color-accent-light); }
+  .seg button.on-o { background: var(--bg-border); color: var(--text-primary); }
+  .paid { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--bg-border); background: transparent; color: var(--text-muted); font-size: 15px; cursor: pointer; visibility: hidden; }
+  .row.is-l .paid { visibility: visible; }
+  .paid.on { background: rgba(46,204,113,.15); color: var(--color-success); border-color: rgba(46,204,113,.4); }
+
+  /* ── B: chạm để đổi trạng thái (1 danh sách) ── */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { height: 40px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--bg-border); background: var(--bg-elevated); color: var(--text-muted); font: 600 14px var(--font-sans); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .chip .ic { width: 16px; text-align: center; font-size: 13px; }
+  .chip[data-s="w"] { background: rgba(46,204,113,.14); border-color: rgba(46,204,113,.45); color: var(--color-success); }
+  .chip[data-s="l"] { background: rgba(224,57,44,.14); border-color: rgba(224,57,44,.45); color: var(--color-accent-light); }
+  .chip[data-s="lp"] { background: rgba(224,57,44,.06); border-color: rgba(46,204,113,.45); color: var(--color-accent-light); }
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+
+  /* ── C: chia đội 2 cột ── */
+  .teams { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .team { border-radius: 14px; padding: 10px; min-height: 120px; border: 1.5px dashed var(--bg-border); background: var(--bg-surface); cursor: pointer; }
+  .team.active { border-style: solid; }
+  .team--w.active { border-color: rgba(46,204,113,.6); background: rgba(46,204,113,.06); }
+  .team--l.active { border-color: rgba(224,57,44,.6); background: rgba(224,57,44,.06); }
+  .team__head { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 800; margin-bottom: 8px; }
+  .team--w .team__head { color: var(--color-success); } .team--l .team__head { color: var(--color-accent-light); }
+  .team__list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .mini { height: 30px; padding: 0 10px; border-radius: 999px; border: 0; font: 600 12px var(--font-sans); cursor: pointer; }
+  .team--w .mini { background: rgba(46,204,113,.15); color: var(--color-success); }
+  .team--l .mini { background: rgba(224,57,44,.15); color: var(--color-accent-light); }
+  .pool-title { font-size: 13px; font-weight: 700; color: var(--text-secondary); margin: 4px 0 8px; }
+
+  /* ── D: theo bước ── */
+  .steps { display: flex; gap: 6px; margin-bottom: 12px; }
+  .step { flex: 1; text-align: center; font-size: 12px; font-weight: 700; padding: 8px 4px; border-radius: 10px; background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--bg-border); }
+  .step.on { color: var(--color-primary); border-color: rgba(255,192,46,.45); background: rgba(255,192,46,.08); }
+  .step.done { color: var(--color-success); }
+  .chip[data-s="in"] { background: rgba(255,192,46,.12); border-color: rgba(255,192,46,.45); color: var(--color-primary); }
+  .stepnav { display: flex; gap: 8px; margin-top: 14px; }
+  .stepnav button { flex: 1; height: 44px; border-radius: 12px; border: 1px solid var(--bg-border); background: var(--bg-elevated); color: var(--text-primary); font: 700 14px var(--font-sans); }
+  .stepnav button.primary { background: linear-gradient(135deg,#FFC02E,#F5891F); color: #1a1206; border: 0; }
+  .autowin { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(46,204,113,.08); color: var(--color-success); font-size: 13px; line-height: 1.5; }
+  .muted { color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Chọn đội thắng / đội thua</h1>
+  <div class="lead">4 phương án thay cho 2 danh sách dài hiện tại. Bấm thử trực tiếp; thanh dưới đáy đếm số người thắng, thua, nghỉ.</div>
+
+  <div class="opts" id="opts">
+    <button data-p="A" class="on">A · Mỗi người 1 dòng</button>
+    <button data-p="B">B · Chạm đổi trạng thái</button>
+    <button data-p="C">C · Chia 2 đội</button>
+    <button data-p="D">D · Theo bước</button>
+  </div>
+
+  <!-- A -->
+  <section class="pane on" id="pane-A">
+    <div class="pane__title">A · Mỗi người một dòng, nút Nghỉ / Thắng / Thua</div>
+    <div class="pane__why">Một danh sách duy nhất, mỗi dòng có nút 3 lựa chọn. Khi chọn <b style="color:var(--color-accent-light)">Thua</b>, hiện thêm nút 💵 để đánh dấu đã đóng tiền ngay tại chỗ.</div>
+    <div class="pros"><b>+</b> Rõ ràng nhất, không thể chọn nhầm 1 người vào cả 2 đội · <b>+</b> Đánh dấu đóng tiền liền tay · <i>−</i> Danh sách dài, cần cuộn</div>
+    <input class="search" placeholder="Tìm thành viên…" oninput="filterA(this.value)">
+    <div class="rowlist" id="listA"></div>
+  </section>
+
+  <!-- B -->
+  <section class="pane" id="pane-B">
+    <div class="pane__title">B · Một danh sách, chạm để đổi trạng thái</div>
+    <div class="pane__why">Giữ kiểu chip như hiện tại nhưng gộp còn 1 danh sách. Mỗi lần chạm đổi vòng: Nghỉ → Thắng → Thua → Thua (đã đóng) → Nghỉ.</div>
+    <div class="pros"><b>+</b> Gọn nhất, thấy hết trên 1 màn · <b>+</b> Ít thay đổi so với hiện tại · <i>−</i> Phải nhớ thứ tự vòng, dễ chạm quá 1 nấc</div>
+    <div class="legend"><span>○ Nghỉ</span><span style="color:var(--color-success)">🏆 Thắng</span><span style="color:var(--color-accent-light)">✕ Thua</span><span style="color:var(--color-accent-light)">✓ Thua đã đóng</span></div>
+    <div class="chips" id="listB"></div>
+  </section>
+
+  <!-- C -->
+  <section class="pane" id="pane-C">
+    <div class="pane__title">C · Chia 2 đội như ngoài sân</div>
+    <div class="pane__why">Chạm vào ô đội để chọn đội đang thêm, rồi chạm tên ở danh sách bên dưới để đưa vào đội đó. Chạm tên trong đội để trả lại.</div>
+    <div class="pros"><b>+</b> Giống cách chia đội thật, nhìn 2 đội cạnh nhau · <b>+</b> Thấy ngay đội nào thiếu người · <i>−</i> Thêm 1 thao tác chọn đội</div>
+    <div class="teams">
+      <div class="team team--w active" id="teamW" onclick="setTeam('w')"><div class="team__head"><span>🏆 Đội thắng</span><span id="cntW">0</span></div><div class="team__list" id="listCW"></div></div>
+      <div class="team team--l" id="teamL" onclick="setTeam('l')"><div class="team__head"><span>✕ Đội thua</span><span id="cntL">0</span></div><div class="team__list" id="listCL"></div></div>
+    </div>
+    <div class="pool-title">Chưa xếp đội <span class="muted">(chạm để thêm vào <span id="activeName">đội thắng</span>)</span></div>
+    <div class="chips" id="listCP"></div>
+  </section>
+
+  <!-- D -->
+  <section class="pane" id="pane-D">
+    <div class="pane__title">D · Theo bước: ai đá → ai thua → ai đã đóng</div>
+    <div class="pane__why">Bước 1 chỉ chọn người đi đá (có thể lấy từ điểm danh/bình chọn). Bước 2 chọn đội thua trong số người đã đá — <b style="color:var(--color-success)">những người còn lại tự là đội thắng</b>. Bước 3 tick người đã đóng tiền.</div>
+    <div class="pros"><b>+</b> Mỗi bước chỉ 1 việc, ít chạm nhất · <b>+</b> Không phải chọn đội thắng · <b>+</b> Hợp nếu sau này nối với điểm danh · <i>−</i> Nhiều màn hơn</div>
+    <div class="steps"><div class="step on" id="st1">1. Ai đá</div><div class="step" id="st2">2. Ai thua</div><div class="step" id="st3">3. Đã đóng</div></div>
+    <div class="hint" id="hintD"></div>
+    <div class="chips" id="listD"></div>
+    <div class="autowin" id="autoWin" hidden></div>
+    <div class="stepnav"><button id="backD" onclick="stepD(-1)">Quay lại</button><button class="primary" id="nextD" onclick="stepD(1)">Tiếp</button></div>
+  </section>
+</div>
+
+<div class="sumbar"><div class="sumbar__in">
+  <span class="pill pill--w" id="sW">Thắng 0</span>
+  <span class="pill pill--l" id="sL">Thua 0</span>
+  <span class="pill pill--o" id="sO">Nghỉ 23</span>
+  <button class="btn-save" onclick="alert('Demo: chưa lưu dữ liệu thật')">Lưu</button>
+</div></div>
+
+<script>
+  // Thành viên đang hoạt động, xếp theo số trận đã đá (nhiều nhất lên đầu)
+  const M = ["Đức Trần","Bình Phương","Cường Buồn","Phúc","Long","Lý","Hiếu","Hội","Trường Cap","Chắt","Tặng","Trường Xẻ","Tấn","Minh","Thái","Liêm","Hinh","Hưởng 88","Vĩ","Luân","Quyền","Hưởng Mobile","Duy"];
+  // Trạng thái chung cho mọi phương án: '' nghỉ | 'w' thắng | 'l' thua | 'lp' thua đã đóng
+  const S = Object.fromEntries(M.map(n => [n, '']));
+  let pane = 'A', team = 'w', step = 1, inD = new Set();
+
+  function summary() {
+    let w = 0, l = 0;
+    if (pane === 'D') { M.forEach(n => { if (!inD.has(n)) return; S[n] === 'l' || S[n] === 'lp' ? l++ : w++; }); }
+    else M.forEach(n => { if (S[n] === 'w') w++; else if (S[n] === 'l' || S[n] === 'lp') l++; });
+    sW.textContent = 'Thắng ' + w; sL.textContent = 'Thua ' + l; sO.textContent = 'Nghỉ ' + (M.length - w - l);
+  }
+
+  // A
+  let qA = '';
+  function renderA() {
+    listA.innerHTML = M.filter(n => n.toLowerCase().includes(qA)).map(n => {
+      const s = S[n], isL = s === 'l' || s === 'lp';
+      return `<div class="row ${isL ? 'is-l' : ''}"><span class="row__name">${n}</span>
+        <div class="seg">
+          <button class="${s === '' ? 'on-o' : ''}" onclick="setS('${n}','')">Nghỉ</button>
+          <button class="${s === 'w' ? 'on-w' : ''}" onclick="setS('${n}','w')">Thắng</button>
+          <button class="${isL ? 'on-l' : ''}" onclick="setS('${n}', S['${n}']==='lp'?'lp':'l')">Thua</button>
+        </div>
+        <button class="paid ${s === 'lp' ? 'on' : ''}" title="Đã đóng tiền" onclick="setS('${n}', S['${n}']==='lp'?'l':'lp')">💵</button></div>`;
+    }).join('');
+  }
+  function filterA(v) { qA = v.trim().toLowerCase(); renderA(); }
+
+  // B
+  const CYCLE = { '': 'w', 'w': 'l', 'l': 'lp', 'lp': '' }, ICON = { '': '○', 'w': '🏆', 'l': '✕', 'lp': '✓' };
+  function renderB() {
+    listB.innerHTML = M.map(n => `<button class="chip" data-s="${S[n]}" onclick="setS('${n}', CYCLE[S['${n}']])"><span class="ic">${ICON[S[n]]}</span>${n}</button>`).join('');
+  }
+
+  // C
+  function setTeam(t) { team = t; teamW.classList.toggle('active', t === 'w'); teamL.classList.toggle('active', t === 'l'); activeName.textContent = t === 'w' ? 'đội thắng' : 'đội thua'; }
+  function renderC() {
+    const W = M.filter(n => S[n] === 'w'), L = M.filter(n => S[n] === 'l' || S[n] === 'lp'), P = M.filter(n => S[n] === '');
+    listCW.innerHTML = W.map(n => `<button class="mini" onclick="event.stopPropagation();setS('${n}','')">${n} ×</button>`).join('') || '<span class="muted" style="font-size:12px">Chưa có ai</span>';
+    listCL.innerHTML = L.map(n => `<button class="mini" onclick="event.stopPropagation();setS('${n}','')">${n} ×</button>`).join('') || '<span class="muted" style="font-size:12px">Chưa có ai</span>';
+    cntW.textContent = W.length; cntL.textContent = L.length;
+    listCP.innerHTML = P.map(n => `<button class="chip" onclick="setS('${n}', team)">${n}</button>`).join('') || '<span class="muted" style="font-size:13px">Đã xếp hết</span>';
+  }
+
+  // D
+  function renderD() {
+    [st1, st2, st3].forEach((el, i) => { el.className = 'step' + (i + 1 === step ? ' on' : i + 1 < step ? ' done' : ''); });
+    backD.style.visibility = step === 1 ? 'hidden' : 'visible';
+    nextD.textContent = step === 3 ? 'Xong' : 'Tiếp';
+    autoWin.hidden = step !== 2;
+    if (step === 1) {
+      hintD.textContent = `Chạm chọn người đi đá (${inD.size} người). Người hay đá xếp đầu danh sách.`;
+      listD.innerHTML = M.map(n => `<button class="chip" data-s="${inD.has(n) ? 'in' : ''}" onclick="toggleIn('${n}')">${inD.has(n) ? '✓ ' : ''}${n}</button>`).join('');
+    } else if (step === 2) {
+      const P = M.filter(n => inD.has(n));
+      hintD.textContent = 'Chạm chọn người thuộc đội thua.';
+      listD.innerHTML = P.map(n => { const l = S[n] === 'l' || S[n] === 'lp'; return `<button class="chip" data-s="${l ? 'l' : ''}" onclick="setS('${n}', ${l} ? '' : 'l')">${l ? '✕ ' : ''}${n}</button>`; }).join('');
+      const W = P.filter(n => !(S[n] === 'l' || S[n] === 'lp'));
+      autoWin.innerHTML = `🏆 Tự xếp đội thắng (${W.length}): ${W.join(', ') || '—'}`;
+    } else {
+      const L = M.filter(n => inD.has(n) && (S[n] === 'l' || S[n] === 'lp'));
+      hintD.textContent = 'Chạm người đã đóng 50k (có thể bỏ qua, đánh dấu sau).';
+      listD.innerHTML = L.map(n => `<button class="chip" data-s="${S[n]}" onclick="setS('${n}', S['${n}']==='lp'?'l':'lp')">${S[n] === 'lp' ? '✓ ' : '✕ '}${n}</button>`).join('') || '<span class="muted" style="font-size:13px">Chưa chọn đội thua</span>';
+    }
+  }
+  function toggleIn(n) { inD.has(n) ? (inD.delete(n), S[n] = '') : inD.add(n); renderD(); summary(); }
+  function stepD(d) { step = Math.min(3, Math.max(1, step + d)); renderD(); summary(); }
+
+  function setS(n, v) { S[n] = v; render(); }
+  function render() { ({ A: renderA, B: renderB, C: renderC, D: renderD })[pane](); summary(); }
+
+  opts.addEventListener('click', e => {
+    const b = e.target.closest('button[data-p]'); if (!b) return;
+    pane = b.dataset.p;
+    opts.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'pane-' + pane));
+    if (pane === 'D') { inD = new Set(M.filter(n => S[n])); step = 1; }
+    render();
+  });
+  render();
+</script>
+</body>
+</html>

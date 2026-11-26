@@ -4,6 +4,16 @@
    Font: Inter (default 14px / 400)
    ============================================================ */
 
+/* ── Số ở ô số liệu (metric card) và đầu trang chủ (tổng quỹ, quỹ tháng/bia):
+   DINOT Bold, chỉ 10 chữ số 0–9 ──
+   unicode-range giới hạn ở chữ số nên dấu chấm/chữ vẫn dùng font hiện tại.
+   font-weight khai báo cả dải để trình duyệt không tự làm đậm giả. */
+@font-face {
+  font-family: 'DINOT Num';
+  src: url('DINOT-Bold-so-134116cb.woff2') format('woff2');
+  font-weight: 100 900; font-style: normal; font-display: swap;
+  unicode-range: U+0030-0039;
+}
 /* ── TossFace Emoji Font ── */
 @font-face {
   font-family: 'TossFace';
@@ -368,6 +378,7 @@ body.components-ready .app-shell {
 }
 
 .kpi-card__value {
+  font-family: 'DINOT Num', var(--font-sans);
   font-size: 16px;
   font-weight: 800;
   letter-spacing: -.02em;
@@ -454,6 +465,14 @@ body.components-ready .app-shell {
 }
 .btn-icon.btn-h40 { width: 40px; height: 40px; min-height: 40px; }
 .btn-icon.btn-h32 { width: 32px; height: 32px; min-height: 32px; }
+/* Nút đóng (sheet/modal): dấu X đơn, nhỏ gọn, không nền khi rê chuột */
+.btn.btn-close {
+  width: 28px; height: 28px; min-height: 28px; padding: 0; flex-shrink: 0;
+  justify-content: center; border-radius: var(--radius-md);
+  background: transparent; color: var(--text-secondary);
+}
+.btn.btn-close:hover, .btn.btn-close:active { background: transparent; color: var(--text-primary); }
+.btn.btn-close:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
 /* Legacy aliases */
 .btn-sm { height: 32px; min-height: 32px; padding: 0 10px; font-size: 12px; border-radius: var(--radius-md); }
@@ -734,6 +753,7 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   color: rgba(0,0,0,.55);
 }
 .hero-fund__total {
+  font-family: 'DINOT Num', var(--font-sans); /* số: DINOT Bold */
   font-size: 36px; font-weight: 800;
   letter-spacing: -.03em; line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -753,7 +773,7 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   padding: var(--space-2);
 }
 .fund-split__item-label { font-size: 14px; font-weight: 500; letter-spacing: normal; text-transform: none; color: var(--text-muted); margin-bottom: var(--space-1); }
-.fund-split__item-value { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.fund-split__item-value { font-family: 'DINOT Num', var(--font-sans); font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .fund-split__item-rows  { margin-top: var(--space-1); display: flex; flex-direction: column; gap: 2px; }
 .fund-split__row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); }
 .fund-split__row span:last-child { font-weight: 600; color: var(--text-primary); }
@@ -3096,12 +3116,15 @@ body[data-active="thanh-vien"] .member-sort-chip:active {
   background: var(--bg-hover);
 }
 
-/* Chi tiêu KPI grid — 2x2 trên mọi màn hình */
+/* Chi tiêu KPI grid — điện thoại 2x2, desktop 4 ô một hàng */
 .chi-kpi-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-bottom: 24px;
+}
+@media (min-width: 768px) {
+  .chi-kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 /* Ẩn native clear button trên input (WebKit/IE) */
