@@ -15,6 +15,10 @@
   <meta http-equiv="Expires" content="0">
   <meta name="theme-color" content="#0C0C0F">
   <title>FC Sunday — Thành viên</title>
+  <!-- Mở sẵn kết nối tới máy chủ đăng nhập và database của Firebase -->
+  <link rel="preconnect" href="https://securetoken.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fc-sunday-8f932-default-rtdb.asia-southeast1.firebasedatabase.app" crossorigin>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
@@ -50,6 +54,8 @@
 
       </div>
 
+      <!-- Bộ lọc + tìm kiếm + sắp xếp: dính dưới header khi cuộn -->
+      <div class="member-sticky" id="member-sticky">
       <!-- Filter tabs -->
       <div class="member-filter-tabs">
         <button class="month-tab active" id="tab-all"      onclick="setFilter('all')">Tất cả</button>
@@ -93,6 +99,7 @@
           <iconify-icon icon="solar:sort-vertical-linear" aria-hidden="true"></iconify-icon>
         </button>
       </div>
+      </div><!-- /member-sticky -->
 
       <!-- Member list -->
       <div id="member-list" style="display:flex;flex-direction:column;gap:8px"></div>
@@ -307,14 +314,14 @@
         return `<th class="${cls}" style="text-align:${align};width:${W(px,pct)}" onclick="setMemberSort('${key}')">${label} <iconify-icon class="th-sort-icon" icon="${icon}"></iconify-icon></th>`;
       }
       el.innerHTML = `
-        <div class="table-wrap">
+        <div class="table-wrap member-table-scroll">
           <table class="fc-table member-table">
             <thead>
               <tr>
                 <th style="text-align:left;width:${W(48,7)}">STT</th>
-                ${thSort('name','Thành viên','left',145,20)}
+                ${thSort('name','Thành viên','left',145,18)}
                 <th style="text-align:left;width:${W(110,15)}">Trạng thái</th>
-                ${thSort('soTran','Thua','center',60,8)}
+                ${thSort('soTran','Thua','center',84,10)}
                 ${thSort('noThang','Nợ tháng','right',120,17)}
                 ${thSort('noBia','Nợ bia','right',110,15)}
                 ${thSort('total','Tổng nợ','right',120,18)}
@@ -622,6 +629,61 @@
     document.getElementById('member-edit-id').value = '';
     document.getElementById('add-member-modal').style.display = 'flex';
   }
+
+  // Desktop: bảng thành viên cuộn bên trong, cao vừa khoảng trống còn lại
+  // dưới header + khung bộ lọc (khi khung đã dính) và trên thanh điều hướng.
+  (function initMemberTableFit() {
+    function fit() {
+      if (window.innerWidth < 768) return;
+      const wrap = document.querySelector('.member-table-scroll');
+      if (!wrap) return;
+      const topbar = document.querySelector('.topbar')?.offsetHeight || 56;
+      const sticky = document.getElementById('member-sticky')?.offsetHeight || 0;
+      // Phần trang nằm dưới bảng (lề dưới, chỗ cho thanh điều hướng)
+      const tail = document.documentElement.scrollHeight - (wrap.getBoundingClientRect().bottom + window.scrollY);
+      const h = Math.max(240, Math.floor(window.innerHeight - topbar - sticky - tail));
+      if (wrap.style.maxHeight !== h + 'px') wrap.style.maxHeight = h + 'px';
+    }
+    window.addEventListener('resize', fit);
+    const list = document.getElementById('member-list');
+
+    // Lăn chuột trong bảng khi khung bộ lọc chưa dính: cuộn cả trang trước,
+    // đến khi bảng chạm khung bộ lọc mới cuộn trong bảng. Lăn lên thì để
+    // trình duyệt xử lý (bảng về đầu rồi mới cuộn trang).
+    list?.addEventListener('wheel', (e) => {
+      if (window.innerWidth < 768 || e.deltaY <= 0 || e.ctrlKey) return;
+      const wrap = e.target.closest?.('.member-table-scroll');
+      const sticky = document.getElementById('member-sticky');
+      if (!wrap || !sticky) return;
+      // Khoảng cách còn lại tới lúc khung bộ lọc dính vào đáy header
+      const topbarBottom = document.querySelector('.topbar')?.getBoundingClientRect().bottom || 0;
+      const gap = sticky.getBoundingClientRect().top - topbarBottom;
+      const pageLeft = document.documentElement.scrollHeight - window.innerHeight - window.scrollY;
+      const toPage = Math.min(gap, pageLeft);
+      if (toPage <= 0.5) return; // đã dính → cuộn trong bảng như thường
+      e.preventDefault();
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
+      const pageDy = Math.min(dy, toPage);
+      window.scrollBy(0, pageDy);
+      if (dy > pageDy) wrap.scrollTop += dy - pageDy;
+    }, { passive: false });
+
+    if (list && 'ResizeObserver' in window) new ResizeObserver(fit).observe(list);
+    fit();
+  })();
+
+  // Thêm viền dưới cho khung bộ lọc khi nó đang dính dưới header
+  (function initStickyShadow() {
+    const el = document.getElementById('member-sticky');
+    if (!el || !('IntersectionObserver' in window)) return;
+    const sentinel = document.createElement('div');
+    sentinel.style.height = '1px';
+    el.before(sentinel);
+    new IntersectionObserver(([e]) => {
+      const top = e.rootBounds ? e.boundingClientRect.top < e.rootBounds.top + 1 : false;
+      el.classList.toggle('is-stuck', !e.isIntersecting && top);
+    }, { rootMargin: `-${parseInt(getComputedStyle(el).top) || 56}px 0px 0px 0px` }).observe(sentinel);
+  })();
 
   window.onComponentsReady = function() {
     document.getElementById('btn-add-member')?.addEventListener('click', openAddMember);

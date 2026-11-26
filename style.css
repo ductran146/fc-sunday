@@ -7,13 +7,13 @@
 /* ── TossFace Emoji Font ── */
 @font-face {
   font-family: 'TossFace';
-  src: url('TossFaceFontWeb.otf') format('opentype');
+  src: url('TossFaceSubset.woff2') format('woff2');
   font-weight: normal; font-style: normal; font-display: swap;
 }
 /* Override emoji ranges trong Inter stack → dùng TossFace */
 @font-face {
   font-family: 'Inter';
-  src: url('TossFaceFontWeb.otf') format('opentype');
+  src: url('TossFaceSubset.woff2') format('woff2');
   font-display: swap;
   unicode-range:
     U+2600-26FF, U+2700-27BF,
@@ -139,10 +139,7 @@
 
 html {
   -webkit-text-size-adjust: 100%;
-  /* Luôn chừa chỗ thanh cuộn dọc trên desktop — tránh nội dung (bottom-nav, header
-     đã canh giữa theo max-width) bị xê dịch vài px khi trang chuyển từ ngắn (chưa
-     có scrollbar) sang dài (có scrollbar) hoặc ngược lại lúc chuyển trang. */
-  scrollbar-gutter: stable;
+  /* Thanh cuộn đã ẩn ở mọi nơi nên không cần chừa chỗ cho nó */
   overflow-y: scroll;
 }
 
@@ -162,6 +159,9 @@ body {
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; border: none; }
 input, select, textarea { font-family: inherit; font-size: inherit; }
+/* Ô mật khẩu dùng font hệ thống: 'Inter' trong dự án thực chất là font emoji
+   TossFace, Safari/iOS vẽ chấm che mật khẩu bằng font đó nên ra ô vuông lỗi. */
+input[type="password"] { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; letter-spacing: 2px; }
 img { max-width: 100%; display: block; }
 
 /* Iconify custom element chưa "upgrade" xong (đợi JS/network) sẽ không có kích thước,
@@ -360,10 +360,10 @@ body.components-ready .app-shell {
 }
 
 .kpi-card__label {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  letter-spacing: normal;
+  text-transform: none;
   color: var(--text-secondary);
 }
 
@@ -494,8 +494,8 @@ table.fc-table {
 .fc-table th {
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: .1em;
-  text-transform: uppercase;
+  letter-spacing: normal;
+  text-transform: none;
   color: var(--text-muted);
   padding: 12px 10px;
   text-align: left;
@@ -596,21 +596,9 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
 .avatar-sm { width: 28px; height: 28px; font-size: 11px; }
 .avatar-lg { width: 48px; height: 48px; font-size: 16px; }
 
-/* Hide scrollbars on mobile — vẫn scroll được */
-@media (max-width: 767px) {
-  * { scrollbar-width: none; -ms-overflow-style: none; }
-  *::-webkit-scrollbar { display: none; }
-}
-@media (display-mode: standalone) {
-  * { scrollbar-width: none; -ms-overflow-style: none; }
-  *::-webkit-scrollbar { display: none; }
-}
-
-/* ── Scrollbar (desktop) ── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--bg-stroke); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+/* Ẩn mọi thanh cuộn trên mọi thiết bị — vẫn cuộn được bằng chuột, bàn di, cảm ứng */
+* { scrollbar-width: none; -ms-overflow-style: none; }
+*::-webkit-scrollbar { display: none; width: 0; height: 0; }
 
 /* ── Utility ── */
 .flex        { display: flex; }
@@ -741,8 +729,8 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
 .hero-fund__rings { display: none; }
 .hero-fund > .hero-extra-stats { position: relative; z-index: 2; }
 .hero-fund__label {
-  font-size: 11px; font-weight: 800;
-  letter-spacing: .2em; text-transform: uppercase;
+  font-size: 14px; font-weight: 800;
+  letter-spacing: normal; text-transform: none;
   color: rgba(0,0,0,.55);
 }
 .hero-fund__total {
@@ -764,7 +752,7 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   border-radius: var(--radius-lg);
   padding: var(--space-2);
 }
-.fund-split__item-label { font-size: 12px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: var(--space-1); }
+.fund-split__item-label { font-size: 14px; font-weight: 500; letter-spacing: normal; text-transform: none; color: var(--text-muted); margin-bottom: var(--space-1); }
 .fund-split__item-value { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .fund-split__item-rows  { margin-top: var(--space-1); display: flex; flex-direction: column; gap: 2px; }
 .fund-split__row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); }
@@ -1846,9 +1834,7 @@ body[data-active="thanh-vien"] .member-kpi-grid {
   }
 
   body[data-active="thanh-vien"] .member-kpi-grid .kpi-card__label {
-    font-size: 11px;
     line-height: 1.25;
-    letter-spacing: .08em;
   }
 
   body[data-active="thanh-vien"] .member-kpi-grid .kpi-card__value {
@@ -2628,7 +2614,7 @@ body[data-active="thanh-vien"] .member-sort-chip:active {
 
 /* Actions */
 .settings-actions {
-  display: flex; align-items: center; gap: var(--space-4);
+  display: flex; align-items: center; justify-content: flex-end; gap: var(--space-4);
   margin-top: var(--space-6); padding-top: var(--space-5);
   border-top: 1px solid var(--bg-border);
 }
@@ -3150,14 +3136,70 @@ table.member-table { table-layout: fixed; width: 100%; }
   text-overflow: ellipsis;
 }
 
-/* .table-wrap có overflow-x:auto khiến overflow-y được trình duyệt tự suy ra
-   thành "auto" (theo spec CSS), biến nó thành một scroll-container riêng.
-   Hệ quả: position:sticky trên thead th không còn dính theo cửa sổ trình
-   duyệt như mong đợi — nó chỉ "dính tĩnh" trong khối table-wrap (vốn cao bằng
-   đúng nội dung, không có gì để cuộn), nên trông như dòng tiêu đề bất ngờ biến
-   mất/lệch khi cuộn trang. Bỏ sticky cho bảng thành viên để tránh hiện tượng
-   này — tiêu đề sẽ cuộn cùng nội dung một cách nhất quán, dễ đoán. */
+/* Bảng thành viên (desktop): khối .member-table-scroll là vùng cuộn riêng,
+   cao vừa phần màn hình còn lại (thanh-vien.html tính và gán max-height).
+   Danh sách cuộn bên trong bảng, dòng tiêu đề cột dính ở đầu vùng cuộn. */
+body[data-active="thanh-vien"] .member-table-scroll {
+  max-height: 70vh; /* giá trị thật do thanh-vien.html tính theo màn hình */
+  overflow-y: auto;
+}
 .member-table th {
-  position: static;
-  top: auto;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  box-shadow: inset 0 -1px 0 var(--bg-border);
+}
+
+/* ── Form thêm khoản chi (chi-tieu.html) ──
+   Mobile: 1 cột. Desktop: 2 cột (Ngày | Số tiền, Nguồn quỹ | Danh mục),
+   ghi chú và nút chiếm cả hàng — cả form vừa một màn hình. */
+.chi-add-form { display: flex; flex-direction: column; gap: 14px; }
+@media (min-width: 768px) {
+  .chi-add-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 20px;
+    align-items: end;
+  }
+  .chi-add-form__full { grid-column: 1 / -1; }
+}
+
+/* ── Thành viên: khung bộ lọc dính dưới header khi cuộn ──
+   Kéo giãn ra hết lề trang (margin âm + padding bằng lề) để nền che kín
+   danh sách cuộn bên dưới. */
+body[data-active="thanh-vien"] .member-sticky {
+  display: flow-root; /* giữ khoảng cách dưới của khối con bên trong khung (nền che kín) */
+  position: sticky;
+  top: var(--topbar-h);
+  z-index: 20;
+  background: var(--bg-base);
+  margin: calc(var(--space-3) * -1) calc(var(--space-6) * -1) 0;
+  padding: var(--space-3) var(--space-6) 0;
+  transition: box-shadow .15s ease;
+}
+body[data-active="thanh-vien"] .member-sticky.is-stuck {
+  box-shadow: 0 1px 0 var(--bg-border), 0 8px 16px -8px rgba(0,0,0,.5);
+}
+@media (max-width: 767px) {
+  body[data-active="thanh-vien"] .member-sticky {
+    top: var(--topbar-h-safe);
+    margin-left: calc(var(--space-4) * -1);
+    margin-right: calc(var(--space-4) * -1);
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+}
+@media (display-mode: standalone) {
+  body[data-active="thanh-vien"] .member-sticky { top: var(--topbar-h-safe); }
+}
+@media (min-width: 768px) {
+  /* Desktop: bộ lọc trạng thái và ô tìm kiếm + nút Thêm nằm cùng một dòng */
+  body[data-active="thanh-vien"] .member-sticky {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding-bottom: var(--space-4);
+  }
+  body[data-active="thanh-vien"] .member-sticky .member-filter-tabs { flex: none; margin-bottom: 0; }
+  body[data-active="thanh-vien"] .member-sticky .member-toolbar { flex: 1; min-width: 0; margin-bottom: 0; }
 }

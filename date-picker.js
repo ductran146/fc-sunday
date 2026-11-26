@@ -9,6 +9,7 @@
 
 window.DatePicker = (function () {
   'use strict';
+  function _ld(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
   const MONTHS_VN = [
     'Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6',
@@ -44,7 +45,7 @@ window.DatePicker = (function () {
     const firstDow   = new Date(_year, _month, 1).getDay();
     const daysInMon  = new Date(_year, _month + 1, 0).getDate();
     const today      = new Date();
-    const todayStr   = today.toISOString().slice(0, 10);
+    const todayStr   = _ld(today);
     let html = '';
 
     // Empty cells
@@ -113,7 +114,7 @@ window.DatePicker = (function () {
       ensureModal();
       _targetHiddenId  = hiddenId;
       _targetDisplayId = displayId;
-      const date = defaultDate || new Date().toISOString().slice(0, 10);
+      const date = defaultDate || _ld(new Date());
       setValue(date);
     },
 
@@ -151,7 +152,7 @@ window.DatePicker = (function () {
 
     _today() {
       const t = new Date();
-      _year = t.getFullYear(); _month = t.getMonth(); _selected = t.toISOString().slice(0,10);
+      _year = t.getFullYear(); _month = t.getMonth(); _selected = _ld(t);
       render();
     },
 

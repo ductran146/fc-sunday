@@ -20,7 +20,7 @@
     const name = el.getAttribute('data-component');
     if (!name) return;
     try {
-      const res = await fetch(`${COMPONENTS_PATH}${name}.html?v=${Date.now()}`);
+      const res = await fetch(`${COMPONENTS_PATH}${name}.html`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const html = await res.text();
       el.insertAdjacentHTML('afterend', html);
@@ -239,6 +239,26 @@
       }
     });
 
+    // Đổi mã lỗi Firebase thành câu tiếng Việt dễ hiểu
+    function loginErrorText(err) {
+      switch (err?.code) {
+        case 'auth/invalid-credential':
+        case 'auth/invalid-login-credentials':
+        case 'auth/wrong-password':
+        case 'auth/user-not-found':
+        case 'auth/invalid-email':
+          return 'Tên đăng nhập hoặc mật khẩu không đúng.';
+        case 'auth/too-many-requests':
+          return 'Đăng nhập sai quá nhiều lần. Vui lòng thử lại sau ít phút.';
+        case 'auth/user-disabled':
+          return 'Tài khoản này đã bị khoá.';
+        case 'auth/network-request-failed':
+          return 'Không kết nối được máy chủ. Vui lòng kiểm tra mạng.';
+        default:
+          return err?.code ? 'Không đăng nhập được. Vui lòng thử lại.' : (err?.message || 'Không đăng nhập được. Vui lòng thử lại.');
+      }
+    }
+
     btnSubmit?.addEventListener('click', async () => {
       const email = document.getElementById('login-email')?.value?.trim();
       const pass  = document.getElementById('login-password')?.value;
@@ -252,7 +272,7 @@
         await window._login?.(email, pass);
         closeModal();
       } catch (err) {
-        if (errBox) { errBox.style.display = 'block'; errMsg.textContent = err.message || 'Email hoặc mật khẩu không đúng.'; }
+        if (errBox) { errBox.style.display = 'block'; errMsg.textContent = loginErrorText(err); }
       } finally {
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = '<iconify-icon icon="solar:lock-unlocked-linear" style="font-size:18px"></iconify-icon>Đăng nhập';

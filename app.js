@@ -54,18 +54,47 @@
     };
   }
 
+  // ── Hiện ngay bản lưu trong máy ────────────────────────────
+  // Trang hiện dữ liệu lần trước ngay lập tức, không chờ mạng.
+  // Firebase trả về sau sẽ cập nhật lại nếu có thay đổi.
+  let _remoteLoaded = false;      // đã đọc xong Firebase lần đầu chưa
+  let _cacheWasStale = false;     // bản trong máy khác bản Firebase
+  let _remotePromise = null;      // promise của lần đọc Firebase đầu tiên
+
+  function showCached() {
+    if (_S) return true;
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (!cached) return false;
+      _S = JSON.parse(cached);
+      _dataSrc = 'local';
+      notifyDataReady();
+      updateSyncBadge('local');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   // ── Load data ──────────────────────────────────────────────
   async function loadData() {
-    // 1. Try Firebase
+    const shownJSON = _S ? JSON.stringify(_S) : null;
+
+    // 1. Firebase
     if (_db) {
       try {
         const snap = await _db.ref('/').once('value');
         const data = snap.val();
         if (data) {
-          _S = data;
+          const json = JSON.stringify(data);
+          _remoteLoaded = true;
           _dataSrc = 'firebase';
-          localStorage.setItem(CACHE_KEY, JSON.stringify(_S));
-          notifyDataReady();
+          localStorage.setItem(CACHE_KEY, json);
+          if (json !== shownJSON) {
+            if (shownJSON) _cacheWasStale = true;
+            _S = data;
+            notifyDataReady();
+          }
           updateSyncBadge('firebase');
           return;
         }
@@ -74,15 +103,20 @@
       }
     }
 
-    // 2. Try static data.json
+    // 2. data.json tĩnh (bản backup hằng tuần) — chỉ dùng khi
+    //    chưa có gì để hiện, hoặc khi nó mới hơn bản trong máy
     try {
       const res = await fetch(`./data.json?t=${Date.now()}`);
       if (res.ok) {
         const data = await res.json();
-        _S = data;
-        _dataSrc = 'static';
-        localStorage.setItem(CACHE_KEY, JSON.stringify(_S));
-        notifyDataReady();
+        const shownDate = _S?._meta?.lastUpdated || '';
+        const staticDate = data?._meta?.lastUpdated || '';
+        if (!_S || staticDate > shownDate) {
+          _S = data;
+          _dataSrc = 'static';
+          localStorage.setItem(CACHE_KEY, JSON.stringify(_S));
+          notifyDataReady();
+        }
         updateSyncBadge('offline');
         return;
       }
@@ -90,18 +124,10 @@
       // ignore
     }
 
-    // 3. Try localStorage
-    const cached = localStorage.getItem(CACHE_KEY);
-    if (cached) {
-      try {
-        _S = JSON.parse(cached);
-        _dataSrc = 'local';
-        notifyDataReady();
-        updateSyncBadge('local');
-        return;
-      } catch (e) {
-        // ignore
-      }
+    // 3. Đang hiện bản trong máy thì giữ nguyên
+    if (_S) {
+      updateSyncBadge('local');
+      return;
     }
 
     // 4. Default empty
@@ -113,6 +139,30 @@
 
   // ── Save data ──────────────────────────────────────────────
   async function saveData(S) {
+    // Trang đang cho sửa theo trạng thái đăng nhập lưu trong máy: chờ Firebase
+    // xác nhận rồi mới ghi. Phiên đã hết thì không ghi, tải lại dữ liệu thật.
+    if (!_authResolved) {
+      await Promise.race([_authPromise, new Promise(r => setTimeout(r, 10000))]);
+    }
+    if (!_user) {
+      alert('Phiên đăng nhập đã hết hạn nên thay đổi chưa được lưu. Vui lòng đăng nhập lại.');
+      refreshData();
+      return;
+    }
+
+    // Chặn ghi đè: nếu người dùng sửa trên bản trong máy trước khi
+    // Firebase kịp trả về, mà bản Firebase lại mới hơn, thì không ghi
+    // (ghi sẽ xoá thay đổi của người khác). Trang đã được vẽ lại bằng
+    // dữ liệu mới, người dùng thao tác lại.
+    if (_db && _user && !_remoteLoaded && _remotePromise) {
+      await Promise.race([_remotePromise, new Promise(r => setTimeout(r, 8000))]);
+      if (_cacheWasStale) {
+        _cacheWasStale = false;
+        alert('Dữ liệu vừa được cập nhật từ máy chủ nên thay đổi của bạn chưa được lưu. Vui lòng thao tác lại.');
+        return;
+      }
+    }
+
     if (!S._meta) S._meta = {};
     S._meta.lastUpdated = new Date().toISOString().slice(0,10);
     S._meta.updatedBy   = _user?.email || 'admin';
@@ -155,7 +205,17 @@
     if (_auth) await _auth.signOut();
   }
 
-  function isLoggedIn() { return !!_user; }
+  // Firebase cần 1–5 giây (gọi máy chủ Google kiểm tra lại phiên) mới báo
+  // trạng thái đăng nhập. Trong lúc chờ, dùng trạng thái lần trước lưu trong
+  // máy để trang hiện ngay; saveData sẽ chờ xác nhận thật trước khi ghi.
+  let _authResolved = false;
+  let _resolveAuth;
+  const _authPromise = new Promise(r => { _resolveAuth = r; });
+
+  function isLoggedIn() {
+    if (_authResolved) return !!_user;
+    try { return localStorage.getItem('fc_auth_state') === '1'; } catch (e) { return false; }
+  }
 
   // ── Notify page ────────────────────────────────────────────
   function notifyDataReady() {
@@ -192,14 +252,24 @@
     if (_auth) {
       _auth.onAuthStateChanged((user) => {
         _user = user;
+        _authResolved = true;
+        _resolveAuth();
         window.updateAuthUI?.(!!user);
         notifyAuthChange();
       });
+    } else {
+      // Không khởi tạo được Firebase → coi như chưa đăng nhập
+      _authResolved = true;
+      _resolveAuth();
+      notifyAuthChange();
     }
 
     // Load data
-    loadData();
+    _remotePromise = loadData();
   }
+
+  // Hiện bản lưu trong máy trước, rồi mới kết nối Firebase
+  showCached();
 
   // Wait for Firebase SDKs to be available
   if (window.firebase) {
@@ -306,14 +376,20 @@
   window._getTheme = getTheme;
 })();
 
-// ── SW Update: tự reload khi có version mới ──────────────
+// ── SW Update: báo có bản mới, người dùng tự bấm tải lại ──
+// Không tự reload: SW lấy HTML/CSS/JS từ mạng trước nên lần chuyển
+// trang sau đã là bản mới. Lần cài SW đầu tiên thì không báo gì.
 if ('serviceWorker' in navigator) {
+  const hadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('message', e => {
-    if (e.data?.type === 'SW_UPDATED') {
-      // Lưu flag để popup không hiện lại sau reload
-      localStorage.setItem('fc-sunday-sw-reloading', '1');
-      // Hiện toast nhỏ rồi reload
-      const toast = document.createElement('div');
+    if (e.data?.type === 'SW_UPDATED' && hadController && !document.getElementById('_sw_toast')) {
+      const toast = document.createElement('button');
+      toast.id = '_sw_toast';
+      toast.type = 'button';
+      toast.onclick = () => {
+        localStorage.setItem('fc-sunday-sw-reloading', '1'); // popup nhắc quỹ không hiện lại sau reload
+        window.location.reload();
+      };
       toast.style.cssText = [
         'position:fixed;bottom:90px;left:50%;transform:translateX(-50%)',
         'background:var(--bg-elevated)',
@@ -325,10 +401,11 @@ if ('serviceWorker' in navigator) {
         'z-index:9999',
         'box-shadow:0 4px 20px rgba(0,0,0,.4)',
         'white-space:nowrap',
+        'cursor:pointer;font-family:inherit',
       ].join(';');
-      toast.textContent = '✨ Đang cập nhật phiên bản mới…';
+      toast.textContent = '✨ Có phiên bản mới · Bấm để tải lại';
       document.body.appendChild(toast);
-      setTimeout(() => window.location.reload(), 1500);
+      setTimeout(() => toast.remove(), 10000);
     }
   });
 }
