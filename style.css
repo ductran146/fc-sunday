@@ -197,6 +197,11 @@ body:not(.components-ready) .app-shell {
 /* Không fade khi vào trang: Safari không giữ trang cũ trên màn hình lúc chuyển
    trang như Chrome (paint holding), fade làm mỗi lần đổi tab thấy chậm rõ. */
 body.components-ready .app-shell { opacity: 1; }
+body[data-active="chi-tieu"]:not(.components-ready) .app-shell { opacity: 1; pointer-events: auto; }
+body[data-active="chi-tieu"] [data-component="header"] { height: var(--topbar-h); }
+@media (max-width: 767px), (display-mode: standalone) {
+  body[data-active="chi-tieu"] [data-component="header"] { height: var(--topbar-h-safe); }
+}
 
 .app-shell {
   display: flex;

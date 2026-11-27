@@ -1,7 +1,7 @@
 // FC Sunday V2 — Service Worker
 // Đủ điều kiện PWA install, cache shell assets để load nhanh
 
-const CACHE_NAME = 'fc-sunday-v2-v65';
+const CACHE_NAME = 'fc-sunday-v2-v66';
 const SHELL_ASSETS = [
   './',
   './index.html',
@@ -14,6 +14,7 @@ const SHELL_ASSETS = [
   './thong-ke.html',
   './style.css',
   './app.js',
+  './data.json',
   './date-picker.js',
   './manifest.json',
   './icon-192.png',

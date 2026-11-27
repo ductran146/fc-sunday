@@ -23,6 +23,8 @@
   <link rel="preconnect" href="https://fc-sunday-8f932-default-rtdb.asia-southeast1.firebasedatabase.app" crossorigin>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+  <script src="components/components-loader.js" defer></script>
   <style>
     /* ── Chi tiêu card ── */
     .chi-swipe-row {
@@ -212,14 +214,14 @@
     }
   </style>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" async></script>
-  <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin>
+
 </head>
 <body data-active="chi-tieu">
 <div class="app-shell">
   <div data-component="sidebar"></div>
   <div class="main-content">
     <div data-component="header" data-title="Chi tiêu"></div>
-    <main class="page" id="page-content" style="opacity:0">
+    <main class="page" id="page-content">
 
       <div class="thu-thang-page-header">
         <div class="thu-thang-page-title">
@@ -245,7 +247,7 @@
       <div id="chi-kpi" class="chi-kpi-grid">
         <div class="kpi-card kpi-card--red">
           <div class="kpi-card__label">Tổng chi</div>
-          <div class="kpi-card__value" id="kpi-tong-chi">0</div>
+          <div class="kpi-card__value" id="kpi-tong-chi">—</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-card__label">Chi tiêu gần nhất</div>
@@ -253,11 +255,11 @@
         </div>
         <div class="kpi-card">
           <div class="kpi-card__label">Chi từ quỹ tháng</div>
-          <div class="kpi-card__value" id="kpi-chi-thang">0</div>
+          <div class="kpi-card__value" id="kpi-chi-thang">—</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-card__label">Chi từ quỹ bia</div>
-          <div class="kpi-card__value" id="kpi-chi-bia">0</div>
+          <div class="kpi-card__value" id="kpi-chi-bia">—</div>
         </div>
       </div>
 
@@ -272,7 +274,7 @@
               <canvas id="donut-chart"></canvas>
               <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;flex-direction:column">
                 <div style="font-size:12px;color:var(--text-muted)">Tổng</div>
-                <div style="font-size:20px;font-weight:800;color:var(--text-primary)" id="chart-center-val">0</div>
+                <div style="font-size:20px;font-weight:800;color:var(--text-primary)" id="chart-center-val">—</div>
               </div>
             </div>
             <div id="chart-legend" class="chart-legend" style="width:100%;justify-content:flex-start"></div>
@@ -381,8 +383,6 @@
 /* ── Inline DatePicker ── */
 window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}const MV=['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];const DOW=['CN','T2','T3','T4','T5','T6','T7'];let _y,_m,_sel,_hid,_dis;function fmtVN(d){if(!d)return'Chọn ngày';const[y,m,dd]=d.split('-');return`${parseInt(dd)} ${MV[parseInt(m)-1]}, ${y}`;}function setVal(d){const h=document.getElementById(_hid),s=document.getElementById(_dis);if(h)h.value=d;if(s){s.textContent=fmtVN(d);s.style.color=d?'var(--text-primary)':'var(--text-muted)';}}function render(){const lb=document.getElementById('_dp_label');if(lb)lb.textContent=`${MV[_m]}, ${_y}`;const g=document.getElementById('_dp_days');if(!g)return;const fd=new Date(_y,_m,1).getDay(),dim=new Date(_y,_m+1,0).getDate(),ts=_ld(new Date());let h='';for(let i=0;i<fd;i++)h+='<div></div>';for(let d=1;d<=dim;d++){const ds=`${_y}-${String(_m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const isSel=ds===_sel,isTod=ds===ts;let bg='transparent',col='var(--text-primary)',fw='500';if(isSel){bg='var(--color-primary)';col='#1a1206';fw='800';}else if(isTod){bg='rgba(255,192,46,.15)';col='var(--color-primary)';fw='700';}h+=`<button type="button" style="padding:9px 0;text-align:center;font-size:13px;font-weight:${fw};border:none;cursor:pointer;border-radius:var(--radius-md);background:${bg};color:${col};font-family:var(--font-sans)" onclick="DatePicker._pick('${ds}')">${d}</button>`;}g.innerHTML=h;}function ensure(){if(document.getElementById('_dp_modal'))return;const el=document.createElement('div');el.className='modal-backdrop';el.id='_dp_modal';el.style.display='none';el.innerHTML=`<div class="modal fade-in" style="max-width:340px;padding:20px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><button class="btn btn-icon btn-ghost" onclick="DatePicker._prev()"><iconify-icon icon="solar:arrow-left-linear" style="font-size:18px"></iconify-icon></button><div style="font-size:15px;font-weight:700" id="_dp_label"></div><button class="btn btn-icon btn-ghost" onclick="DatePicker._next()"><iconify-icon icon="solar:arrow-right-linear" style="font-size:18px"></iconify-icon></button></div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">${DOW.map(d=>`<div style="text-align:center;font-size:11px;font-weight:700;color:var(--text-muted);padding:4px">${d}</div>`).join('')}</div><div id="_dp_days" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px"></div><div style="display:flex;justify-content:space-between;margin-top:14px"><button class="btn btn-ghost btn-sm" onclick="DatePicker._today()">Hôm nay</button><button class="btn btn-ghost btn-sm" onclick="DatePicker.close()">Đóng</button></div></div>`;el.addEventListener('click',e=>{if(e.target===el)DatePicker.close();});document.body.appendChild(el);}return{init(b,h,d,def){ensure();_hid=h;_dis=d;setVal(def||_ld(new Date()));},open(h,d){ensure();_hid=h;_dis=d;const c=document.getElementById(h)?.value;const r=c?new Date(c+'T00:00:00'):new Date();_y=r.getFullYear();_m=r.getMonth();_sel=c||'';render();document.getElementById('_dp_modal').style.display='flex';},close(){const m=document.getElementById('_dp_modal');if(m)m.style.display='none';},_pick(d){_sel=d;setVal(d);this.close();},_prev(){_m--;if(_m<0){_m=11;_y--;}render();},_next(){_m++;if(_m>11){_m=0;_y++;}render();},_today(){const t=new Date();_y=t.getFullYear();_m=t.getMonth();_sel=_ld(t);render();},getValue(h){return document.getElementById(h)?.value||'';},setValue(h,d,v){_hid=h;_dis=d;setVal(v);}};})();
 </script>
-<script src="app.js" defer></script>
-<script src="components/components-loader.js" defer></script>
 <script>
   const CATS = ['Sân bóng','Thiết bị','Liên hoan','Y tế','Phần thưởng','Khác'];
   const CAT_COLORS = ['#E0392C','#FFC02E','#2ECC71','#FF6A5E','#F5891F','#9A9AA2'];
@@ -392,7 +392,8 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
   const BASE_YEAR = 2026;
   let _year = Math.max(BASE_YEAR, new Date().getFullYear()), _S = null, _chart = null, _editingCid = null;
 
-  function fmt(n) { return new Intl.NumberFormat('vi-VN').format(Math.round(n||0)) + ''; }
+  const numberFormat = new Intl.NumberFormat('vi-VN');
+  function fmt(n) { return numberFormat.format(Math.round(n || 0)); }
 
   function setChiAmountSign(buttonId, negative) {
     const checkbox = document.getElementById(buttonId);
@@ -424,7 +425,7 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
   }
 
   // chart.js (~200KB) nạp sau khi trang đã hiện, không chặn lần vẽ đầu
-  let _chartLib = null, _chartArgs = null;
+  let _chartLib = null, _pendingChart = null;
   function loadChartLib() {
     return _chartLib || (_chartLib = new Promise((resolve, reject) => {
       const el = document.createElement('script');
@@ -434,12 +435,6 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
   }
 
   function renderChart(chiTieu) {
-    if (!window.Chart) {   // chưa có thư viện → vẽ khi tải xong (với dữ liệu mới nhất)
-      _chartArgs = chiTieu;
-      loadChartLib().then(() => _chartArgs && renderChart(_chartArgs)).catch(() => {});
-      return;
-    }
-    _chartArgs = null;
     const catTotals = {};
     chiTieu.forEach(c => { if (c.amount > 0) { const cat = normalizeCat(c.cat); catTotals[cat] = (catTotals[cat]||0) + c.amount; } });
     const labels = Object.keys(catTotals);
@@ -451,20 +446,41 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
     // Số liệu không đổi thì giữ nguyên biểu đồ; đổi thì cập nhật tại chỗ (các phần
     // chuyển dần sang giá trị mới) thay vì xoá đi vẽ lại từ đầu.
     const sig = JSON.stringify([labels, data]);
-    if (sig === _chartSig && (_chart || !total)) return;
+    if (sig === _chartSig) return;
     _chartSig = sig;
 
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const first = !_chart;
-    countCenter(total, first ? 0 : _chartTotal, reduce ? 0 : first ? 900 : 500);
+    countCenter(total, _chartTotal, reduce || !_chart ? 0 : 500);
     _chartTotal = total;
 
+    const legend = document.getElementById('chart-legend');
     if (!total) {
+      _pendingChart = null;
       if (_chart) { _chart.destroy(); _chart = null; }
-      document.getElementById('chart-legend').innerHTML = '<span style="color:var(--text-muted);font-size:13px">Chưa có dữ liệu</span>';
+      legend.innerHTML = '<span style="color:var(--text-muted);font-size:13px">Chưa có dữ liệu</span>';
       return;
     }
 
+    legend.innerHTML = labels.map((label, i) => `
+      <div class="chart-legend-item">
+        <div class="chart-legend-dot" style="background:${colors[i]}"></div>
+        ${label}: ${fmt(data[i])}
+      </div>`).join('');
+
+    if (window.Chart) {
+      drawChart(labels, data, colors, reduce);
+    } else {
+      _pendingChart = [labels, data, colors, reduce];
+      if (!_chartLib) {
+        loadChartLib().then(() => {
+          if (_pendingChart) drawChart(..._pendingChart);
+          _pendingChart = null;
+        }).catch(() => {});
+      }
+    }
+  }
+
+  function drawChart(labels, data, colors, reduce) {
     if (_chart) {
       _chart.data.labels = labels;
       Object.assign(_chart.data.datasets[0], { data, backgroundColor: colors });
@@ -482,8 +498,7 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
         options: {
           cutout: '61%',
           layout: { padding: 16 },
-          // lần đầu: xoay mở vòng + phóng nhẹ; cập nhật sau: các phần trượt sang giá trị mới
-          animation: reduce ? false : { duration: 900, easing: 'easeOutQuart', animateRotate: true, animateScale: true },
+          animation: false,
           transitions: { active: { animation: { duration: 180 } } },
           plugins: { legend: { display: false }, tooltip: {
             callbacks: { label: ctx => ` ${ctx.label}: ${fmt(ctx.raw)}` }
@@ -494,19 +509,13 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
       if (!reduce) _chart.options.animation = { duration: 500, easing: 'easeOutCubic' };
     }
 
-    const legend = document.getElementById('chart-legend');
-    legend.innerHTML = labels.map((l,i) => `
-      <div class="chart-legend-item${first && !reduce ? ' chart-legend-item--in' : ''}" style="--i:${i}">
-        <div class="chart-legend-dot" style="background:${colors[i]}"></div>
-        ${l}: ${fmt(data[i])}
-      </div>`).join('');
   }
 
   // Số tổng ở giữa vòng: đếm dần từ giá trị cũ tới giá trị mới
   let _chartSig = null, _chartTotal = 0, _countRaf = 0;
   function countCenter(to, from, ms) {
     const el = document.getElementById('chart-center-val');
-    const show = v => { el.textContent = v >= 1e6 ? (v/1e6).toFixed(1)+'M' : new Intl.NumberFormat('vi-VN').format(Math.round(v)); };
+    const show = v => { el.textContent = v >= 1e6 ? (v/1e6).toFixed(1)+'M' : fmt(v); };
     cancelAnimationFrame(_countRaf);
     if (!ms || from === to) return show(to);
     const t0 = performance.now();
@@ -515,10 +524,12 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
     _countRaf = requestAnimationFrame(step);
   }
 
+  let _renderedAsAdmin;
   function renderPage(S) {
     _S = S;
     const isAdmin = window._isLoggedIn?.();
-    let chiTieu = getChiTieu(S);
+    _renderedAsAdmin = isAdmin;
+    const chiTieu = getChiTieu(S);
     const filterFund = document.getElementById('filter-fund')?.value || '';
     const filtered = filterFund ? chiTieu.filter(c => c.fund === filterFund) : chiTieu;
 
@@ -532,13 +543,6 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
       .reduce((s,c) => s + Number(c.amount||0), 0);
     const tong = chiThang + chiBia;
 
-    // Thu thêm từ chi tiêu (amount âm)
-    const incomeThang = chiTieu
-      .filter(c => (!c.fund || c.fund === 'thang') && Number(c.amount||0) < 0)
-      .reduce((s,c) => s + Math.abs(Number(c.amount||0)), 0);
-    const incomeBia = chiTieu
-      .filter(c => c.fund === 'bia' && Number(c.amount||0) < 0)
-      .reduce((s,c) => s + Math.abs(Number(c.amount||0)), 0);
     document.getElementById('kpi-tong-chi').textContent  = fmt(tong);
     document.getElementById('kpi-chi-thang').textContent = fmt(chiThang);
     document.getElementById('kpi-chi-bia').textContent   = fmt(chiBia);
@@ -561,7 +565,6 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
     // Admin card
     // Tabs chỉ hiện khi admin; chưa login ẩn tabs
     const chiTabs = document.getElementById('chi-tabs');
-    const tabAdd  = document.getElementById('tab-add');
     if (isAdmin) {
       if (chiTabs) chiTabs.style.display = 'flex';
     } else {
@@ -823,7 +826,6 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
     ['chi-amount','edit-chi-amount'].forEach(id => {
       window._moneyInput?.attach(document.getElementById(id));
     });
-    document.getElementById('page-content').style.opacity = '1';
   };
   function setupChiSwipe() {
     const isMobile = window.matchMedia?.('(max-width:767px)').matches;
@@ -867,7 +869,9 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
   }
 
   window._onDataReady = function(S) { renderPage(S); };
-  window._onAuthChange = function() { if(_S) renderPage(_S); };
+  window._onAuthChange = function() {
+    if (_S && _renderedAsAdmin !== window._isLoggedIn?.()) renderPage(_S);
+  };
 </script>
 <!-- Sheet: Sửa khoản chi -->
 <div class="sheet-backdrop" id="edit-chi-modal" style="display:none" role="dialog" aria-modal="true" onclick="window.onEditChiBackdropClick?.(event)">

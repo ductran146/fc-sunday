@@ -76,6 +76,13 @@
     }
   }
 
+  let _initialBackup = null;
+
+  async function fetchBackup(url) {
+    const res = await fetch(url);
+    return res.ok ? res.json() : null;
+  }
+
   // ── Load data ──────────────────────────────────────────────
   async function loadData() {
     const shownJSON = _S ? JSON.stringify(_S) : null;
@@ -87,11 +94,13 @@
         const data = snap.val();
         if (data) {
           const json = JSON.stringify(data);
+          const displayedJSON = shownJSON ?? (_S ? JSON.stringify(_S) : null);
           _remoteLoaded = true;
+          _initialBackup = null;
           _dataSrc = 'firebase';
           localStorage.setItem(CACHE_KEY, json);
-          if (json !== shownJSON) {
-            if (shownJSON) _cacheWasStale = true;
+          if (json !== displayedJSON) {
+            if (displayedJSON) _cacheWasStale = true;
             _S = data;
             notifyDataReady();
           }
@@ -106,9 +115,12 @@
     // 2. data.json tĩnh (bản backup hằng tuần) — chỉ dùng khi
     //    chưa có gì để hiện, hoặc khi nó mới hơn bản trong máy
     try {
-      const res = await fetch(`./data.json?t=${Date.now()}`);
-      if (res.ok) {
-        const data = await res.json();
+      const initialBackup = _initialBackup;
+      _initialBackup = null;
+      const data = initialBackup
+        ? await initialBackup
+        : await fetchBackup(`./data.json?t=${Date.now()}`);
+      if (data) {
         const shownDate = _S?._meta?.lastUpdated || '';
         const staticDate = data?._meta?.lastUpdated || '';
         if (!_S || staticDate > shownDate) {
@@ -290,7 +302,18 @@
   // để lần vẽ đầu từ cache không bị lỗi ngầm.
   window.__fcStart = function () {
     delete window.__fcStart;
-    showCached();                 // hiện bản lưu trong máy ngay
+    if (!showCached() && document.body.dataset.active === 'chi-tieu') {
+      // Chi tiêu có thể hiện bản sao lưu trong lúc Firebase đang kết nối.
+      _initialBackup = fetchBackup('./data.json').catch(() => null);
+      _initialBackup.then(data => {
+        if (!data || _S || _remoteLoaded) return;
+        _S = data;
+        _dataSrc = 'static';
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch (e) {}
+        notifyDataReady();
+        updateSyncBadge('offline');
+      });
+    }
     loadFirebaseSdk().then(boot); // rồi mới kết nối Firebase
   };
 
