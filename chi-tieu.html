@@ -23,6 +23,7 @@
   <link rel="preconnect" href="https://fc-sunday-8f932-default-rtdb.asia-southeast1.firebasedatabase.app" crossorigin>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
+  <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin fetchpriority="low">
   <script src="app.js" defer></script>
   <script src="components/components-loader.js" defer></script>
   <style>
@@ -484,6 +485,7 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
     if (_chart) {
       _chart.data.labels = labels;
       Object.assign(_chart.data.datasets[0], { data, backgroundColor: colors });
+      _chart.options.animation = reduce ? false : { duration: 500, easing: 'easeOutCubic' };
       _chart.update();
     } else {
       const chartGapColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-surface').trim() || '#141418';
@@ -498,15 +500,13 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
         options: {
           cutout: '61%',
           layout: { padding: 16 },
-          animation: false,
+          animation: reduce ? false : { duration: 900, easing: 'easeOutQuart', animateRotate: true, animateScale: true },
           transitions: { active: { animation: { duration: 180 } } },
           plugins: { legend: { display: false }, tooltip: {
             callbacks: { label: ctx => ` ${ctx.label}: ${fmt(ctx.raw)}` }
           }}
         }
       });
-      // sau lần vẽ đầu, cập nhật dữ liệu dùng hiệu ứng ngắn hơn
-      if (!reduce) _chart.options.animation = { duration: 500, easing: 'easeOutCubic' };
     }
 
   }

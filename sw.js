@@ -1,7 +1,7 @@
 // FC Sunday V2 — Service Worker
 // Đủ điều kiện PWA install, cache shell assets để load nhanh
 
-const CACHE_NAME = 'fc-sunday-v2-v66';
+const CACHE_NAME = 'fc-sunday-v2-v67';
 const SHELL_ASSETS = [
   './',
   './index.html',
@@ -29,6 +29,17 @@ const SHELL_ASSETS = [
   './components/login-modal.html',
   './components/components-loader.js',
 ];
+
+const EXPENSES_URL = new URL('./chi-tieu.html', self.registration.scope);
+const EXPENSES_SHELL = new Set([
+  './style.css',
+  './app.js',
+  './components/header.html',
+  './components/bottom-nav.html',
+  './components/sidebar.html',
+  './components/login-modal.html',
+  './components/components-loader.js',
+].map(path => new URL(path, self.registration.scope).pathname));
 
 // Install: cache shell
 self.addEventListener('install', (e) => {
@@ -68,6 +79,22 @@ self.addEventListener('fetch', (e) => {
     e.request.method !== 'GET'
   ) {
     return; // browser xử lý bình thường
+  }
+
+  // Bản giao diện Chi tiêu đã được cài cùng service worker. Mở ngay từ cache
+  // thay vì đợi máy chủ trả HTML và các tài nguyên cần cho lần vẽ đầu.
+  const fromExpenses = e.request.referrer && new URL(e.request.referrer).pathname === EXPENSES_URL.pathname;
+  if (url.origin === EXPENSES_URL.origin &&
+      (url.pathname === EXPENSES_URL.pathname || (fromExpenses && EXPENSES_SHELL.has(url.pathname)))) {
+    const cacheKey = url.pathname === EXPENSES_URL.pathname ? EXPENSES_URL.href : e.request;
+    e.respondWith(caches.open(CACHE_NAME).then(async cache => {
+      const cached = await cache.match(cacheKey);
+      if (cached) return cached;
+      const response = await fetch(e.request);
+      if (response.ok) await cache.put(cacheKey, response.clone());
+      return response;
+    }));
+    return;
   }
 
   // Font emoji: lấy từ cache trước, khỏi hỏi mạng mỗi lần. Tên file mang mã
