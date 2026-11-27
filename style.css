@@ -194,10 +194,9 @@ body:not(.components-ready) .app-shell {
   opacity: 0;
   pointer-events: none;
 }
-body.components-ready .app-shell {
-  opacity: 1;
-  transition: opacity .15s ease;
-}
+/* Không fade khi vào trang: Safari không giữ trang cũ trên màn hình lúc chuyển
+   trang như Chrome (paint holding), fade làm mỗi lần đổi tab thấy chậm rõ. */
+body.components-ready .app-shell { opacity: 1; }
 
 .app-shell {
   display: flex;
@@ -900,9 +899,9 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   font-weight: 900;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  /* Gradient theo chiều dọc: trên 8% màu hạng, dưới mờ dần về trong suốt để hòa vào nền */
+  /* Gradient theo chiều dọc: trên 12% màu hạng, dưới mờ dần về trong suốt để hòa vào nền */
   color: transparent;
-  background: linear-gradient(180deg, rgba(var(--podium-rgb), .08) 0%, rgba(var(--podium-rgb), 0) 85%);
+  background: linear-gradient(180deg, rgba(var(--podium-rgb), .12) 0%, rgba(var(--podium-rgb), 0) 85%);
   -webkit-background-clip: text;
           background-clip: text;
   pointer-events: none;
@@ -1186,6 +1185,39 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   color: var(--text-primary);
   box-shadow: var(--shadow-sm);
 }
+
+/* ── Tab gạch chân: Thu quỹ (Quỹ tháng | Quỹ bia), dùng thẻ <a> chuyển trang ── */
+/* cùng nền topbar → liền một khối; dính ngay dưới topbar khi cuộn */
+.fund-tabs-bar { background: var(--bg-surface); position: sticky; top: var(--topbar-h); z-index: 29; }
+@media (max-width: 767px) { .fund-tabs-bar { top: var(--topbar-h-safe); } }
+@media (display-mode: standalone) { .fund-tabs-bar { top: var(--topbar-h-safe); } }
+.fund-tabs {
+  display: flex;
+  max-width: var(--max-width); margin: 0 auto;
+  padding: 0 var(--space-5);      /* thẳng lề với topbar-inner */
+}
+.fund-tab {
+  position: relative; flex: 1 1 0; min-width: 0;   /* 2 tab rộng bằng nhau */
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 60px; padding: 0 2px;
+  /* cùng cỡ tiêu đề trang (text-h1), co nhẹ trên màn hẹp để 2 tab vừa một hàng */
+  font-size: clamp(22px, 6.2vw, 28px); font-weight: 700; letter-spacing: .02em; font-family: var(--font-sans);
+  color: var(--text-muted); text-decoration: none; white-space: nowrap;
+  transition: color .15s;
+}
+.fund-tab__ic { font-size: .9em; line-height: 1; opacity: .45; filter: grayscale(.6); transition: opacity .15s, filter .15s; }
+.fund-tab:hover { color: var(--text-secondary); }
+.fund-tab.active { color: var(--text-primary); }
+.fund-tab:hover .fund-tab__ic, .fund-tab.active .fund-tab__ic { opacity: 1; filter: none; }
+/* Gạch vàng chỉ rộng bằng icon + chữ */
+.fund-tab__in { position: relative; height: 100%; display: inline-flex; align-items: center; gap: 8px; }
+.fund-tab.active .fund-tab__in::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+  height: 3px; border-radius: 3px 3px 0 0; background: var(--color-primary);
+}
+
+/* Ẩn khỏi màn hình nhưng trình đọc màn hình vẫn đọc */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
 /* ── Empty state ── */
 .empty-state {
@@ -1769,7 +1801,7 @@ body[data-active="thu-thang"] .thu-thang-table .cell-btn {
 }
 
 /* ── Thu tháng: header year selector without arrows ── */
-body[data-active="thu-thang"] .thu-thang-page-header, body[data-active="thu-phat"] .thu-thang-page-header, body[data-active="chi-tieu"] .thu-thang-page-header {
+body[data-active="thu-thang"] .thu-thang-page-header, body[data-active="thu-phat"] .thu-thang-page-header, body[data-active="chi-tieu"] .thu-thang-page-header, body[data-active="thong-ke"] .thu-thang-page-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1777,7 +1809,7 @@ body[data-active="thu-thang"] .thu-thang-page-header, body[data-active="thu-phat
   margin-bottom: var(--space-6);
 }
 
-body[data-active="thu-thang"] .thu-thang-page-title, body[data-active="thu-phat"] .thu-thang-page-title, body[data-active="chi-tieu"] .thu-thang-page-title {
+body[data-active="thu-thang"] .thu-thang-page-title, body[data-active="thu-phat"] .thu-thang-page-title, body[data-active="chi-tieu"] .thu-thang-page-title, body[data-active="thong-ke"] .thu-thang-page-title {
   min-width: 0;
   flex: 1 1 auto;
 }
@@ -1786,20 +1818,20 @@ body[data-active="thu-thang"] .thu-thang-page-title, body[data-active="thu-phat"
   margin-top: var(--space-2);
 }
 
-body[data-active="thu-thang"] .thu-thang-page-subtitle, body[data-active="thu-phat"] .thu-thang-page-subtitle, body[data-active="chi-tieu"] .thu-thang-page-subtitle {
+body[data-active="thu-thang"] .thu-thang-page-subtitle, body[data-active="thu-phat"] .thu-thang-page-subtitle, body[data-active="chi-tieu"] .thu-thang-page-subtitle, body[data-active="thong-ke"] .thu-thang-page-subtitle {
   margin-top: var(--space-1);
   font-size: 14px;
   font-weight: 400;
   color: var(--text-secondary);
 }
 
-body[data-active="thu-thang"] .thu-thang-year-selector, body[data-active="thu-phat"] .thu-thang-year-selector, body[data-active="chi-tieu"] .thu-thang-year-selector {
+body[data-active="thu-thang"] .thu-thang-year-selector, body[data-active="thu-phat"] .thu-thang-year-selector, body[data-active="chi-tieu"] .thu-thang-year-selector, body[data-active="thong-ke"] .thu-thang-year-selector {
   flex: 0 0 auto;
   min-width: 108px;
 }
 
 @media (max-width: 767px) {
-  body[data-active="thu-thang"] .thu-thang-page-header, body[data-active="thu-phat"] .thu-thang-page-header, body[data-active="chi-tieu"] .thu-thang-page-header {
+  body[data-active="thu-thang"] .thu-thang-page-header, body[data-active="thu-phat"] .thu-thang-page-header, body[data-active="chi-tieu"] .thu-thang-page-header, body[data-active="thong-ke"] .thu-thang-page-header {
     align-items: center;
     flex-wrap: nowrap;
     gap: var(--space-3);
@@ -1810,12 +1842,12 @@ body[data-active="thu-thang"] .thu-thang-year-selector, body[data-active="thu-ph
     line-height: 1.12;
   }
 
-  body[data-active="thu-thang"] .thu-thang-page-subtitle, body[data-active="thu-phat"] .thu-thang-page-subtitle, body[data-active="chi-tieu"] .thu-thang-page-subtitle {
+  body[data-active="thu-thang"] .thu-thang-page-subtitle, body[data-active="thu-phat"] .thu-thang-page-subtitle, body[data-active="chi-tieu"] .thu-thang-page-subtitle, body[data-active="thong-ke"] .thu-thang-page-subtitle {
     font-size: 14px;
     line-height: 1.35;
   }
 
-  body[data-active="thu-thang"] .thu-thang-year-selector, body[data-active="thu-phat"] .thu-thang-year-selector, body[data-active="chi-tieu"] .thu-thang-year-selector {
+  body[data-active="thu-thang"] .thu-thang-year-selector, body[data-active="thu-phat"] .thu-thang-year-selector, body[data-active="chi-tieu"] .thu-thang-year-selector, body[data-active="thong-ke"] .thu-thang-year-selector {
     min-width: 96px;
     padding-left: 10px;
     padding-right: 28px;
@@ -1827,7 +1859,7 @@ body[data-active="thu-thang"] .thu-thang-year-selector, body[data-active="thu-ph
     font-size: 22px;
   }
 
-  body[data-active="thu-thang"] .thu-thang-year-selector, body[data-active="thu-phat"] .thu-thang-year-selector, body[data-active="chi-tieu"] .thu-thang-year-selector {
+  body[data-active="thu-thang"] .thu-thang-year-selector, body[data-active="thu-phat"] .thu-thang-year-selector, body[data-active="chi-tieu"] .thu-thang-year-selector, body[data-active="thong-ke"] .thu-thang-year-selector {
     min-width: 88px;
   }
 }
@@ -2676,6 +2708,14 @@ body[data-active="thanh-vien"] .member-sort-chip:active {
 }
 
 /* Year badge */
+/* Ô chọn năm chỉ có một năm: khoá (không mở danh sách) nhưng giữ nguyên dáng */
+.year-selector:disabled { opacity: 1; cursor: default; color: var(--text-primary); }
+.settings-year-note {
+  margin: -4px 0 16px; padding: 10px 12px; border-radius: var(--radius-md);
+  background: var(--bg-elevated); border: 1px solid var(--bg-border);
+  font-size: 13px; line-height: 1.5; color: var(--text-secondary);
+}
+.input.is-readonly, .settings-money-field .input.is-readonly { color: var(--text-secondary); background: transparent; border-style: dashed; cursor: default; }
 .settings-badge {
   display: inline-flex; align-items: center;
   background: var(--bg-elevated);

@@ -23,17 +23,14 @@
   <link rel="preconnect" href="https://fc-sunday-8f932-default-rtdb.asia-southeast1.firebasedatabase.app" crossorigin>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
-  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js" defer></script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" async></script>
 </head>
 <body data-active="thanh-vien">
 <div class="app-shell">
   <div data-component="sidebar"></div>
   <div class="main-content">
     <div data-component="header" data-title="Thành viên"></div>
-    <main class="page" id="page-content" style="opacity:0;transition:opacity .2s">
+    <main class="page" id="page-content" style="opacity:0">
 
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:12px;flex-wrap:wrap">
         <div>
@@ -165,7 +162,7 @@
 <script src="components/components-loader.js" defer></script>
 <script>
   const FEE = 200000, FINE = 50000, BASE_YEAR = 2026;
-  let _year = BASE_YEAR, _S = null, _filter = 'all', _query = '', _sortKey = 'name', _sortDir = 'asc';
+  let _year = Math.max(BASE_YEAR, new Date().getFullYear()), _S = null, _filter = 'all', _query = '', _sortKey = 'name', _sortDir = 'asc';
 
   function fmt(n) { return new Intl.NumberFormat('vi-VN').format(Math.round(n||0)); }
   function fmtK(n) {
@@ -243,18 +240,15 @@
     // Chỉ tính nợ các tháng đã đến hạn.
     // Các tháng tương lai vẫn có thể đánh dấu đóng trước ở trang Thu tháng,
     // nhưng trạng thái chưa đóng của tháng tương lai không được cộng vào nợ.
-    const noThang = arr.reduce((sum, v, monthIdx) => {
-      return sum + (v === 0 && isMonthCountedForDebt(monthIdx) ? FEE : 0);
-    }, 0);
+    // Nợ cộng dồn: nợ năm đang xem + nợ các năm trước chưa trả (xem _fcFinance trong app.js)
+    const debt = window._fcFinance.memberDebt(S, member.id, _year);
+    const noThang = debt.noThang;
 
     const matches = (S.matches||[]).filter(m => {
       const yr = _year === BASE_YEAR ? (!m.year || m.year === BASE_YEAR) : m.year === _year;
       return yr;
     });
-    const noBia = matches.reduce((s, m) => {
-      const l = (m.losers||[]).find(l => l.memberId == member.id);
-      return s + (l && !l.paid ? FINE : 0);
-    }, 0);
+    const noBia = debt.noBia;
 
     const soTran = matches.filter(m => (m.losers||[]).some(l=>l.memberId==member.id)).length;
 
@@ -722,7 +716,7 @@
           if (status === 'left' && prevStatus !== 'left') {
             // 1. Quỹ tháng: tháng đã đóng (1) giữ nguyên, tháng chưa đóng (0) → miễn đóng (2)
             if (!_S.thuThang) _S.thuThang = {};
-            const yearKey = String(m.id); // BASE_YEAR
+            const yearKey = _year === BASE_YEAR ? String(m.id) : `${m.id}_${_year}`; // năm đang xem (mặc định năm hiện tại)
             const arr = (_S.thuThang[yearKey] || Array(12).fill(0)).slice(0, 12);
             while (arr.length < 12) arr.push(0);
             _S.thuThang[yearKey] = arr.map(v => v === 0 ? 2 : v);
@@ -861,11 +855,12 @@
     const MONTHS_LABEL = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
     const yearKey = _year === BASE_YEAR ? String(member.id) : `${member.id}_${_year}`;
     const arr = (_S.thuThang?.[yearKey] || Array(12).fill(0)).slice(0, 12);
-    const debtMonths = arr.map((v, mi) => ({ v, mi })).filter(({ v, mi }) => v === 0 && isMonthCountedForDebt(mi));
+    const F = window._fcFinance;
+    const debtMonths = F.owedMonths(_S, member.id, _year); // cộng dồn cả các năm trước
     const noThang = debtMonths.length * FEE;
 
     const matches = (_S.matches || []).filter(m => _year === BASE_YEAR ? (!m.year || m.year === BASE_YEAR) : m.year === _year);
-    const unpaidMatches = matches.filter(m => (m.losers || []).some(l => l.memberId == id && !l.paid));
+    const unpaidMatches = F.owedMatches(_S, id, _year).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
     const noBia = unpaidMatches.length * FINE;
 
     const total = noThang + noBia;
@@ -888,7 +883,7 @@
             <div class="num-dinot" style="font-size:18px;font-weight:800;color:var(--color-primary)">${fmt(noThang)}</div>
           </div>
           <div style="font-size:12px;color:var(--text-secondary)">
-            Còn thiếu ${debtMonths.length} tháng × ${fmt(FEE)}: ${debtMonths.map(({ mi }) => MONTHS_LABEL[mi]).join(', ')}
+            Còn thiếu ${debtMonths.length} tháng × ${fmt(FEE)}: ${debtMonths.map(o => F.monthLabel(o, _year)).join(', ')}
           </div>
         </div>`;
     }
@@ -935,24 +930,20 @@
     btn.innerHTML = '<iconify-icon icon="solar:spinner-linear" style="font-size:18px"></iconify-icon>Đang lưu…';
 
     // 1. Update quỹ tháng: đánh dấu các tháng nợ → 1 (đã đóng)
-    const yearKey = _year === BASE_YEAR ? String(id) : `${id}_${_year}`;
-    const arr = (_S.thuThang?.[yearKey] || Array(12).fill(0)).slice(0, 12);
-    let changed = false;
-    arr.forEach((v, mi) => {
-      if (v === 0 && isMonthCountedForDebt(mi)) { arr[mi] = 1; changed = true; }
+    // Gạch nợ cộng dồn: mỗi tháng còn nợ (kể cả năm trước) → đã đóng, ghi vào đúng năm
+    const F = window._fcFinance;
+    if (!_S.thuThang) _S.thuThang = {};
+    F.owedMonths(_S, id, _year).forEach(({ year, mi }) => {
+      const key = F.monthKey(id, year);
+      const arr = (_S.thuThang[key] || Array(12).fill(0)).slice(0, 12);
+      while (arr.length < 12) arr.push(0);
+      arr[mi] = 1;
+      _S.thuThang[key] = arr;
     });
-    if (changed) {
-      if (!_S.thuThang) _S.thuThang = {};
-      _S.thuThang[yearKey] = arr;
-    }
 
     // 2. Update quỹ bia: đánh dấu paid = true
-    (_S.matches || []).forEach(m => {
-      const yr = _year === BASE_YEAR ? (!m.year || m.year === BASE_YEAR) : m.year === _year;
-      if (!yr) return;
-      (m.losers || []).forEach(l => {
-        if (l.memberId == id && !l.paid) l.paid = true;
-      });
+    F.owedMatches(_S, id, _year).forEach(m => {
+      (m.losers || []).forEach(l => { if (l.memberId == id && !l.paid) l.paid = true; });
     });
 
     await window._saveS?.(_S);

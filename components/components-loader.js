@@ -16,13 +16,35 @@
   const COMPONENTS_PATH = 'components/';
 
   // ── Inject HTML into placeholder ──────────────────────────
+  // Mỗi lần chuyển trang trước đây phải fetch lại 4 mảnh HTML (header, sidebar,
+  // bottom-nav, login-modal) rồi mới hiện khung. Giờ giữ bản đã tải trong
+  // localStorage để chèn ngay, đồng thời tải lại ngầm cho lần sau.
+  // Sửa nội dung thư mục components/ thì tăng FRAG_VERSION để bỏ bản cũ.
+  const FRAG_VERSION = '2';
+  const fragKey = name => `fc-frag-${FRAG_VERSION}-${name}`;
+
+  function fetchFragment(name) {
+    return fetch(`${COMPONENTS_PATH}${name}.html`).then(res => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.text();
+    }).then(html => {
+      try { localStorage.setItem(fragKey(name), html); } catch (e) {}
+      return html;
+    });
+  }
+
   async function loadComponent(el) {
     const name = el.getAttribute('data-component');
     if (!name) return;
+    let html = null;
+    try { html = localStorage.getItem(fragKey(name)); } catch (e) {}
     try {
-      const res = await fetch(`${COMPONENTS_PATH}${name}.html`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const html = await res.text();
+      if (html) {
+        // làm mới ngầm, mỗi phiên một lần là đủ (đổi nội dung thì đã có FRAG_VERSION)
+        let fresh = false; try { fresh = sessionStorage.getItem(fragKey(name)) === '1'; } catch (e) {}
+        if (!fresh) fetchFragment(name).then(() => { try { sessionStorage.setItem(fragKey(name), '1'); } catch (e) {} }).catch(() => {});
+      }
+      else html = await fetchFragment(name);
       el.insertAdjacentHTML('afterend', html);
       el.remove();
     } catch (e) {
@@ -30,16 +52,23 @@
     }
   }
 
+  // Dọn bản cache của phiên bản cũ
+  try {
+    Object.keys(localStorage).forEach(k => { if (k.startsWith('fc-frag-') && !k.startsWith(`fc-frag-${FRAG_VERSION}-`)) localStorage.removeItem(k); });
+  } catch (e) {}
+
   // ── Update active nav item ─────────────────────────────────
   function updateActiveNav(activeKey) {
     if (!activeKey) return;
     // Sidebar nav
+    // data-nav có thể chứa nhiều trang, cách nhau dấu cách (vd. "thu-thang thu-phat")
+    const isActive = item => item.dataset.nav.split(/\s+/).includes(activeKey);
     document.querySelectorAll('.sidebar-nav-item[data-nav]').forEach(item => {
-      item.classList.toggle('active', item.dataset.nav === activeKey);
+      item.classList.toggle('active', isActive(item));
     });
     // Bottom nav
     document.querySelectorAll('.bottom-nav-item[data-nav]').forEach(item => {
-      item.classList.toggle('active', item.dataset.nav === activeKey);
+      item.classList.toggle('active', isActive(item));
     });
   }
 

@@ -23,10 +23,7 @@
   <link rel="preconnect" href="https://fc-sunday-8f932-default-rtdb.asia-southeast1.firebasedatabase.app" crossorigin>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
-  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js" defer></script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" async></script>
   <style>
     .thu-thang-table td, .thu-thang-table th { min-width: 52px; text-align: center; }
     .thu-thang-table th.month-col, .thu-thang-table td.month-col { width: 42px; min-width: 40px; max-width: 60px; }
@@ -60,13 +57,19 @@
   <div data-component="sidebar"></div>
   <div class="main-content">
     <div data-component="header" data-title="Thu hàng tháng"></div>
-    <main class="page" id="page-content" style="opacity:0;transition:opacity .2s">
+    <!-- Thu quỹ: 2 tab Quỹ tháng / Quỹ bia (mỗi tab là một trang), nền liền với header -->
+    <div class="fund-tabs-bar">
+      <nav class="fund-tabs" aria-label="Thu quỹ">
+        <a class="fund-tab active" href="thu-thang.html" aria-current="page"><span class="fund-tab__in"><span class="fund-tab__ic tf" aria-hidden="true">💰</span>Quỹ tháng</span></a>
+        <a class="fund-tab" href="thu-phat.html"><span class="fund-tab__in"><span class="fund-tab__ic tf" aria-hidden="true">🍺</span>Quỹ bia</span></a>
+      </nav>
+    </div>
+    <main class="page" id="page-content" style="opacity:0">
 
       <!-- Header row -->
       <div class="thu-thang-page-header">
         <div class="thu-thang-page-title">
-          <div class="section-overline">Quỹ tháng</div>
-          <h1 class="text-h1">Thu hàng tháng</h1>
+          <h1 class="sr-only">Quỹ tháng</h1>
           <div class="thu-thang-page-subtitle" style="font-size:12px;color:var(--text-muted)">200.000 / người / tháng</div>
         </div>
         <select class="year-selector thu-thang-year-selector" id="year-select">
@@ -132,7 +135,7 @@
 <script>
   const MONTHS = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
   const FEE = 200000, BASE_YEAR = 2026;
-  let _year = BASE_YEAR, _S = null, _lastSavedS = null, _hasMonthlyChanges = false;
+  let _year = Math.max(BASE_YEAR, new Date().getFullYear()), _S = null, _lastSavedS = null, _hasMonthlyChanges = false;
   const curMonth = new Date().getMonth(); // 0-based
   const curYear  = new Date().getFullYear();
 
@@ -192,6 +195,9 @@
         return `<td class="month-col"><button class="cell-btn ${cls}" ${clickAttr} title="${title}" data-mid="${m.id}" data-mi="${mi}">${label}</button></td>`;
       }).join('');
 
+      // Cộng thêm nợ các năm trước chưa trả (nợ cộng dồn)
+      const prevNo = window._fcFinance.owedMonths(S, m.id, _year).filter(o => o.year < _year).length * FEE;
+      memberNo += prevNo;
       totalDaThu += memberDaThu;
       totalConNo += memberNo;
       if (m.status === 'active') totalObligated += arr.filter(v => v !== 2 && !arr[12]).length * FEE; // simplified
@@ -201,7 +207,7 @@
         <td class="sticky-col stt-col stt-cell">${index + 1}</td>
         <td class="sticky-col name-col member-name-cell"><span>${m.name}</span></td>
         ${cells}
-        <td style="${noColor};font-weight:700">${memberNo > 0 ? fmt(memberNo) : '✓'}</td>
+        <td style="${noColor};font-weight:700">${memberNo > 0 ? fmt(memberNo) : '✓'}${prevNo > 0 ? `<div style="font-size:11px;font-weight:600;opacity:.8;white-space:nowrap">gồm ${fmt(prevNo)} năm trước</div>` : ''}</td>
       </tr>`;
     }).join('');
 
@@ -298,7 +304,7 @@
     if (sel) {
       const curY = new Date().getFullYear();
       const minY = BASE_YEAR;
-      const maxY = Math.max(curY + 1, BASE_YEAR);
+      const maxY = Math.max(curY, BASE_YEAR); // tới năm hiện tại, không +1
       sel.innerHTML = '';
       for (let y = maxY; y >= minY; y--) {
         const opt = document.createElement('option');
@@ -307,6 +313,7 @@
         if (y === _year) opt.selected = true;
         sel.appendChild(opt);
       }
+      sel.disabled = sel.options.length <= 1; // chỉ một năm thì không mở danh sách
     }
     window._currentYear = _year;
   }

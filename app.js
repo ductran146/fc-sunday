@@ -163,6 +163,10 @@
       }
     }
 
+    // Firebase trả thuThang dạng mảng (vị trí = mã thành viên). Dữ liệu các năm sau lưu
+    // bằng khoá chữ "id_năm" — gắn vào mảng thì JSON/Firebase bỏ mất khi lưu.
+    // Có khoá chữ thì chuyển sang object (giữ nguyên mọi khoá) trước khi lưu.
+    window._fcFinance?.normalizeThuThang(S);
     if (!S._meta) S._meta = {};
     S._meta.lastUpdated = new Date().toISOString().slice(0,10);
     S._meta.updatedBy   = _user?.email || 'admin';
@@ -268,23 +272,27 @@
     _remotePromise = loadData();
   }
 
-  // Hiện bản lưu trong máy trước, rồi mới kết nối Firebase
-  showCached();
-
-  // Wait for Firebase SDKs to be available
-  if (window.firebase) {
-    boot();
-  } else {
-    // Firebase loaded with defer, poll briefly
-    let attempts = 0;
-    const interval = setInterval(() => {
-      attempts++;
-      if (window.firebase || attempts > 20) {
-        clearInterval(interval);
-        boot();
-      }
-    }, 150);
+  // ── Tải Firebase SDK sau khi trang đã hiện ─────────────────
+  // SDK nặng (~300KB). Trước đây nạp bằng <script defer> trong <head> nên trang phải
+  // chờ tải + chạy xong SDK mới vẽ được. Giờ vẽ bản cache trước, SDK nạp song song.
+  const FIREBASE_SDK = ['app', 'auth', 'database'].map(n => `https://www.gstatic.com/firebasejs/10.12.0/firebase-${n}-compat.js`);
+  function loadFirebaseSdk() {
+    if (window.firebase?.database) return Promise.resolve();
+    return Promise.all(FIREBASE_SDK.map(src => new Promise(resolve => {
+      const el = document.createElement('script');
+      el.src = src; el.async = false;           // giữ đúng thứ tự app → auth → database
+      el.onload = el.onerror = resolve;
+      document.head.appendChild(el);
+    })));
   }
+
+  // Gọi ở cuối app.js, sau khi mọi phần dùng chung (_fcFinance…) đã khai báo,
+  // để lần vẽ đầu từ cache không bị lỗi ngầm.
+  window.__fcStart = function () {
+    delete window.__fcStart;
+    showCached();                 // hiện bản lưu trong máy ngay
+    loadFirebaseSdk().then(boot); // rồi mới kết nối Firebase
+  };
 
 })();
 
@@ -846,3 +854,94 @@ if ('serviceWorker' in navigator) {
     obs.observe(document.body, { childList: true, subtree: true });
   }
 })();
+
+// ── Tài chính & nợ dùng chung (Cài đặt, Thành viên, Tổng quan, Quỹ bia, share) ──
+// Năm gốc 2026: số dư đầu kỳ nhập tay ở Cài đặt (tồn quỹ ban đầu).
+// Các năm sau: số dư đầu kỳ = tồn quỹ cuối năm liền trước (tự cuốn chiếu).
+// Nợ cộng dồn: nợ năm đang xem + nợ các năm trước chưa trả.
+window._fcFinance = (function () {
+  'use strict';
+  const BASE_YEAR = 2026, FEE = 200000, FINE = 50000;
+
+  const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
+  const isOpeningEntry = c => { const t = norm([c.cat, c.note, c.title, c.desc].filter(Boolean).join(' ')); return t.includes('tien dau ky') || t.includes('so du dau ky') || t.includes('dau ky'); };
+  const fundOf = c => (!c.fund || c.fund === 'bong') ? 'thang' : c.fund;
+  const monthKey = (id, y) => y === BASE_YEAR ? String(id) : `${id}_${y}`;
+  const matchYear = m => m.year || BASE_YEAR;
+  const winnerIds = m => { const raw = m?.winners; const list = Array.isArray(raw) ? raw : Object.values(raw || {}); return list.map(w => Number(typeof w === 'object' ? w.memberId : w)).filter(Number.isFinite); };
+  // Firebase có thể trả mảng dưới dạng object → luôn quy về mảng
+  const arr = v => Array.isArray(v) ? v : Object.values(v || {});
+  const yearMatches = (S, y) => arr(S.matches).filter(m => m && matchYear(m) === y);
+
+  function legacyOpening(S, fund) {
+    return arr(S.chiTieu).reduce((s, c) => (c && fundOf(c) === fund && isOpeningEntry(c)) ? s + Math.abs(Number(c.amount || 0)) : s, 0);
+  }
+  // Số dư đầu kỳ (tồn quỹ ban đầu) do người quản lý nhập ở Cài đặt — chỉ áp cho năm gốc
+  function baseOpening(S, fund) {
+    const explicit = S?.settings?.openingBalances?.[fund];
+    const has = explicit !== undefined && explicit !== null && explicit !== '';
+    const v = Number(explicit) || 0;
+    if (has && v !== 0) return v;
+    const legacy = legacyOpening(S, fund);
+    return legacy !== 0 ? legacy : v;
+  }
+  function opening(S, fund, year) {
+    if (year > BASE_YEAR) { const p = totals(S, year - 1); return fund === 'bia' ? p.tonBia : p.tonThang; }
+    return baseOpening(S, fund);
+  }
+  // Thu/chi/tồn quỹ của MỘT năm (giống computeFundTotals ở trang Tổng quan)
+  function totals(S, year) {
+    const chi = arr(S.chiTieu).filter(c => c && String(c.date?.substring(0, 4)) === String(year) && !isOpeningEntry(c));
+    const openingThang = opening(S, 'thang', year), openingBia = opening(S, 'bia', year);
+    let thuThang = 0;
+    arr(S.members).forEach(m => m && arr(S.thuThang?.[monthKey(m.id, year)]).forEach(v => { if (v === 1) thuThang += FEE; }));
+    let thuBia = 0;
+    yearMatches(S, year).forEach(m => { arr(m.losers).forEach(l => { if (l.paid) thuBia += FINE; }); thuBia += (m.thuThem || 0); });
+    const sum = (arr, f) => arr.reduce((s, c) => s + f(c), 0);
+    const incThang = sum(chi.filter(c => fundOf(c) === 'thang' && Number(c.amount) < 0), c => Math.abs(Number(c.amount)));
+    const incBia = sum(chi.filter(c => c.fund === 'bia' && Number(c.amount) < 0), c => Math.abs(Number(c.amount)));
+    const chiThang = sum(chi.filter(c => fundOf(c) === 'thang' && Number(c.amount) > 0), c => Number(c.amount));
+    const chiBia = sum(chi.filter(c => c.fund === 'bia' && Number(c.amount) > 0), c => Number(c.amount));
+    const thuThangDisplay = openingThang + thuThang + incThang, thuBiaDisplay = openingBia + thuBia + incBia;
+    return { openingThang, openingBia, thuThangDisplay, thuBiaDisplay, chiThang, chiBia, tonThang: thuThangDisplay - chiThang, tonBia: thuBiaDisplay - chiBia };
+  }
+
+  // Tháng cuối cùng đã đến hạn của một năm (-1 = chưa có tháng nào)
+  function lastDueMonth(y) { const now = new Date(), cy = now.getFullYear(); return y < cy ? 11 : y === cy ? now.getMonth() : -1; }
+  // Các tháng còn nợ quỹ tháng của một người, từ năm gốc tới năm `upto`.
+  // Năm trước không có dữ liệu của người đó (chưa vào đội) thì bỏ qua; riêng năm đang xem
+  // không có dữ liệu thì coi như chưa đóng tháng nào (giống cách tính cũ).
+  function owedMonths(S, id, upto) {
+    const out = [];
+    for (let y = BASE_YEAR; y <= upto; y++) {
+      const raw = S.thuThang?.[monthKey(id, y)];
+      if (!raw && y < upto) continue;
+      const a = arr(raw);
+      for (let mi = 0; mi <= lastDueMonth(y); mi++) if ((a[mi] || 0) === 0) out.push({ year: y, mi });
+    }
+    return out;
+  }
+  // Các trận còn nợ quỹ bia của một người, từ năm gốc tới năm `upto`
+  function owedMatches(S, id, upto) {
+    return arr(S.matches).filter(m => m && matchYear(m) <= upto && arr(m.losers).some(l => l.memberId == id && !l.paid));
+  }
+  function memberDebt(S, id, upto) {
+    const months = owedMonths(S, id, upto), matches = owedMatches(S, id, upto);
+    return { months, matches, noThang: months.length * FEE, noBia: matches.length * FINE, total: months.length * FEE + matches.length * FINE };
+  }
+  // thuThang dạng mảng mà có khoá chữ ("id_năm") → chuyển sang object để không mất khi lưu
+  function normalizeThuThang(S) {
+    if (Array.isArray(S.thuThang) && Object.keys(S.thuThang).some(k => !/^\d+$/.test(k))) {
+      const o = {};
+      Object.keys(S.thuThang).forEach(k => { if (S.thuThang[k] != null) o[k] = S.thuThang[k]; });
+      S.thuThang = o;
+    }
+    return S;
+  }
+  const monthLabel = (o, viewYear) => `T${o.mi + 1}${o.year !== viewYear ? '/' + o.year : ''}`;
+
+  return { BASE_YEAR, FEE, FINE, arr, monthKey, matchYear, winnerIds, yearMatches, baseOpening, opening, totals, lastDueMonth, owedMonths, owedMatches, memberDebt, monthLabel, normalizeThuThang };
+})();
+
+// Khởi động: hiện dữ liệu cache rồi kết nối Firebase (xem __fcStart ở trên)
+window.__fcStart?.();

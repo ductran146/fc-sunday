@@ -211,18 +211,15 @@
       height: 100% !important;
     }
   </style>
-  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" async></script>
+  <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin>
 </head>
 <body data-active="chi-tieu">
 <div class="app-shell">
   <div data-component="sidebar"></div>
   <div class="main-content">
     <div data-component="header" data-title="Chi tiêu"></div>
-    <main class="page" id="page-content" style="opacity:0;transition:opacity .2s">
+    <main class="page" id="page-content" style="opacity:0">
 
       <div class="thu-thang-page-header">
         <div class="thu-thang-page-title">
@@ -393,7 +390,7 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
   const CAT_ALIASES = { 'Tiệc / Liên hoan': 'Liên hoan', 'Tiệc/ Liên hoan': 'Liên hoan', 'Tiệc/Liên hoan': 'Liên hoan' };
   function normalizeCat(cat) { return CAT_ALIASES[String(cat||'').trim()] || cat; }
   const BASE_YEAR = 2026;
-  let _year = BASE_YEAR, _S = null, _chart = null, _editingCid = null;
+  let _year = Math.max(BASE_YEAR, new Date().getFullYear()), _S = null, _chart = null, _editingCid = null;
 
   function fmt(n) { return new Intl.NumberFormat('vi-VN').format(Math.round(n||0)) + ''; }
 
@@ -426,7 +423,23 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
     });
   }
 
+  // chart.js (~200KB) nạp sau khi trang đã hiện, không chặn lần vẽ đầu
+  let _chartLib = null, _chartArgs = null;
+  function loadChartLib() {
+    return _chartLib || (_chartLib = new Promise((resolve, reject) => {
+      const el = document.createElement('script');
+      el.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js'; el.crossOrigin = 'anonymous';
+      el.onload = resolve; el.onerror = reject; document.head.appendChild(el);
+    }));
+  }
+
   function renderChart(chiTieu) {
+    if (!window.Chart) {   // chưa có thư viện → vẽ khi tải xong (với dữ liệu mới nhất)
+      _chartArgs = chiTieu;
+      loadChartLib().then(() => _chartArgs && renderChart(_chartArgs)).catch(() => {});
+      return;
+    }
+    _chartArgs = null;
     const catTotals = {};
     chiTieu.forEach(c => { if (c.amount > 0) { const cat = normalizeCat(c.cat); catTotals[cat] = (catTotals[cat]||0) + c.amount; } });
     const labels = Object.keys(catTotals);
@@ -710,7 +723,7 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
     const sel = document.getElementById('year-select');
     if (sel) {
       const curY = new Date().getFullYear();
-      const minY = BASE_YEAR, maxY = Math.max(curY + 1, BASE_YEAR);
+      const minY = BASE_YEAR, maxY = Math.max(curY, BASE_YEAR); // tới năm hiện tại, không +1
       sel.innerHTML = '';
       for (let y = maxY; y >= minY; y--) {
         const opt = document.createElement('option');
@@ -718,6 +731,7 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
         if (y === _year) opt.selected = true;
         sel.appendChild(opt);
       }
+      sel.disabled = sel.options.length <= 1; // chỉ một năm thì không mở danh sách
     }
     window._currentYear = _year;
   }

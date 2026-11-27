@@ -19,16 +19,13 @@
   <link rel="preconnect" href="https://fc-sunday-8f932-default-rtdb.asia-southeast1.firebasedatabase.app" crossorigin>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
-  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js" defer></script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" async></script>
 </head>
 <body data-active="share">
 <div class="app-shell">
   <div data-component="sidebar"></div>
   <div class="main-content">
-    <main class="page" id="page-content" style="opacity:0;transition:opacity .2s">
+    <main class="page" id="page-content" style="opacity:0">
 
       <!-- Header -->
       <div style="margin-bottom:24px;display:flex;justify-content:center">
@@ -193,13 +190,14 @@
 
   function renderShare(S) {
     const now = new Date();
-    const YEAR = BASE_YEAR;
+    const YEAR = Math.max(BASE_YEAR, new Date().getFullYear()); // năm hiện tại
     const curMonthIdx = now.getMonth();
 
     // toArr() bắt buộc vì Firebase lưu array thành object
     const allMembers = toArr(S.members);
     const members    = allMembers.filter(m => m && m.status !== 'left');
-    const matches    = toArr(S.matches).filter(m => m && (!m.year || m.year === YEAR));
+    const F = window._fcFinance;
+    const matches    = F.yearMatches(S, YEAR); // chỉ trận của năm hiện tại (trận cũ không ghi năm thuộc năm gốc)
     const chiTieuAll = toArr(S.chiTieu).filter(c => {
       if (!c) return false;
       const d = c.date?.substring(0, 4);
@@ -220,16 +218,11 @@
     const tonTotal = tonThang + tonBia;
 
     // Nợ tháng / nợ bia — không ảnh hưởng số dư quỹ
+    // Nợ cộng dồn: năm hiện tại + các năm trước chưa trả
     let noThang = 0;
-    allMembers.forEach(m => {
-      const key = String(m.id);
-      const arr = S.thuThang?.[key] || Array(12).fill(0);
-      arr.forEach((v, mi) => {
-        if (v === 0 && mi <= curMonthIdx && m.status !== 'left') noThang += FEE;
-      });
-    });
+    allMembers.forEach(m => { if (m && m.status !== 'left') noThang += F.owedMonths(S, m.id, YEAR).length * FEE; });
     let noBia = 0;
-    matches.forEach(match => {
+    toArr(S.matches).filter(m => m && F.matchYear(m) <= YEAR).forEach(match => {
       toArr(match.losers).forEach(l => { if (!l.paid) noBia += FINE; });
     });
 
@@ -257,14 +250,7 @@
 
     const debtMap = {};
     members.forEach(m => {
-      let debt = 0;
-      const arr = S.thuThang?.[String(m.id)] || Array(12).fill(0);
-      const a = Array.isArray(arr) ? arr : Object.values(arr);
-      a.forEach((v, mi) => { if (v === 0 && mi <= curMonthIdx && m.status !== 'left') debt += FEE; });
-      matches.forEach(match => {
-        toArr(match.losers).forEach(l => { if (l.memberId == m.id && !l.paid) debt += FINE; });
-      });
-      debtMap[m.id] = debt;
+      debtMap[m.id] = F.memberDebt(S, m.id, YEAR).total; // nợ cộng dồn (tháng + bia)
     });
 
     const sorted = [...members].sort((a,b) => (debtMap[b.id]||0) - (debtMap[a.id]||0));

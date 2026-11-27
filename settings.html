@@ -23,10 +23,7 @@
   <link rel="preconnect" href="https://fc-sunday-8f932-default-rtdb.asia-southeast1.firebasedatabase.app" crossorigin>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
-  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js" defer></script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" async></script>
 </head>
 <body data-active="settings">
 
@@ -36,7 +33,7 @@
   <div class="main-content">
     <div data-component="header" data-title="Cài đặt"></div>
 
-    <main class="page settings-page" id="page-content" style="opacity:0;transition:opacity .2s">
+    <main class="page settings-page" id="page-content" style="opacity:0">
       <div class="settings-hero">
         <div class="settings-hero__icon">
           <iconify-icon icon="solar:settings-linear"></iconify-icon>
@@ -54,8 +51,10 @@
             <div class="section-overline">Số dư đầu kỳ</div>
             <div class="section-title">Quỹ đội bóng</div>
           </div>
-          <span class="settings-badge">Năm 2026</span>
+          <select class="year-selector" id="settings-year" aria-label="Chọn năm"></select>
         </div>
+
+        <div class="settings-year-note" id="settings-year-note" hidden></div>
 
         <div class="settings-form-grid">
           <div class="field">
@@ -185,10 +184,26 @@
     document.getElementById('settings-form-card').style.display = logged ? 'block' : 'none';
     if (!logged || !_S) return;
 
-    const thang = getOpeningBalance(_S, 'thang');
-    const bia = getOpeningBalance(_S, 'bia');
-    document.getElementById('opening-thang').value = thang ? fmt(thang) : '';
-    document.getElementById('opening-bia').value = bia ? fmt(bia) : '';
+    // Chọn năm: 2026 = tồn quỹ ban đầu (nhập được); các năm sau = tồn quỹ cuối năm trước (chỉ xem)
+    const F = window._fcFinance, BASE = F.BASE_YEAR;
+    const sel = document.getElementById('settings-year');
+    const curY = Math.max(BASE, new Date().getFullYear());
+    if (!sel.options.length) {
+      for (let y = curY; y >= BASE; y--) sel.add(new Option(String(y), y));
+      sel.value = curY;
+      sel.disabled = sel.options.length <= 1; // chỉ một năm thì không mở danh sách
+    }
+    const year = parseInt(sel.value, 10) || curY;
+    const isBase = year === BASE;
+    const thang = isBase ? getOpeningBalance(_S, 'thang') : F.opening(_S, 'thang', year);
+    const bia = isBase ? getOpeningBalance(_S, 'bia') : F.opening(_S, 'bia', year);
+    ['opening-thang', 'opening-bia'].forEach(id => { const el = document.getElementById(id); el.readOnly = !isBase; el.classList.toggle('is-readonly', !isBase); });
+    document.getElementById('opening-thang').value = thang ? fmt(thang) : (isBase ? '' : '0');
+    document.getElementById('opening-bia').value = bia ? fmt(bia) : (isBase ? '' : '0');
+    const note = document.getElementById('settings-year-note');
+    note.hidden = isBase;
+    note.textContent = isBase ? '' : `Tự tính bằng tồn quỹ cuối năm ${year - 1}, không sửa được. Chỉ số dư đầu kỳ năm ${BASE} (tồn quỹ ban đầu) là nhập tay.`;
+    document.querySelector('.settings-actions').style.display = isBase ? '' : 'none';
     updatePreview();
   }
 
@@ -211,6 +226,7 @@
   }
 
   window.onComponentsReady = function () {
+    document.getElementById('settings-year')?.addEventListener('change', renderSettings);
     updateThemeUI();
     document.getElementById('btn-settings-login')?.addEventListener('click', () => document.getElementById('btn-login')?.click());
     ['opening-thang', 'opening-bia'].forEach(id => {
