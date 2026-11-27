@@ -355,7 +355,7 @@
     const nav = [...document.querySelectorAll('.fund-tabs')].find(n => n.getClientRects().length) || document.querySelector('.fund-tabs');
     const tabs = nav ? [...nav.querySelectorAll('.fund-tab')] : [];
     if (tabs.length < 2) return;
-    const cur = tabs.findIndex(t => t.classList.contains('active'));
+    let cur = -1, drag = 0, target = null;
     let x0 = 0, y0 = 0, t0 = 0, on = false, sx = null, sxLeft = 0;
 
     // vùng cuộn ngang gần nhất chứa điểm chạm (vd. bảng Quỹ tháng)
@@ -379,6 +379,7 @@
     document.addEventListener('touchstart', e => {
       on = false; drag = 0; target = null;
       if (e.touches.length !== 1) return;
+      cur = tabs.findIndex(tab => tab.classList.contains('active'));
       const t = e.target;
       if (t.closest('input, textarea, select, .sheet-backdrop, .modal, .sheet, [role="dialog"]')) return;
       x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now(); on = true;
@@ -404,7 +405,8 @@
       const next = tabs[cur + (dx < 0 ? 1 : -1)];
       if (drag === 1 && next === target &&
           (Math.abs(dx) >= 80 || (Math.abs(dx) >= 40 && elapsed < 300))) {
-        location.assign(next.href);
+        if (window._switchFundTab) window._switchFundTab(next.href);
+        else location.assign(next.href);
       }
     }, { passive: true });
 

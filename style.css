@@ -1258,54 +1258,8 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   .fund-tabs--inline .fund-tab__in { padding-bottom: var(--space-2); }   /* gạch vàng cách chữ 8px */
 }
 
-/* Chỉ nội dung thu quỹ trượt. Header và điều hướng giữ ảnh cũ tại chỗ
-   trong lúc trình duyệt chuyển tài liệu. */
-body:is([data-active="thu-thang"], [data-active="thu-phat"]) {
-  & .main-content { overflow-x: clip; }
-  &:not(.components-ready) .app-shell { opacity: 1; }
-  & [data-component="header"] { height: var(--topbar-h); }
-  & .topbar { view-transition-name: fund-header; }
-  & .bottom-nav { view-transition-name: fund-bottom-nav; }
-  & :is(.fund-tabs-bar, .fund-desktop-tabs) { view-transition-name: fund-tabs; }
-  & #page-content { view-transition-name: fund-content; }
-}
-@media (max-width: 767px), (display-mode: standalone) {
-  body:is([data-active="thu-thang"], [data-active="thu-phat"]) [data-component="header"] {
-    height: var(--topbar-h-safe);
-  }
-}
-
-html:has(body[data-active="thu-thang"]) { --fund-slide-in: -100vw; --fund-slide-out: 100vw; }
-html:has(body[data-active="thu-phat"]) { --fund-slide-in: 100vw; --fund-slide-out: -100vw; }
-
-::view-transition-group(*) { animation: none; }
-::view-transition-old(root),
-::view-transition-old(fund-tabs) { display: none; }
-::view-transition-new(root),
-::view-transition-new(fund-tabs),
-::view-transition-old(fund-header),
-::view-transition-new(fund-header),
-::view-transition-old(fund-bottom-nav),
-::view-transition-new(fund-bottom-nav) { animation: none; mix-blend-mode: normal; }
-
-::view-transition-group(fund-header) { z-index: 3; }
-::view-transition-group(fund-tabs),
-::view-transition-group(fund-bottom-nav) { z-index: 2; }
-::view-transition-group(fund-content) { z-index: 1; }
-::view-transition-image-pair(fund-content) { isolation: isolate; }
-::view-transition-old(fund-content),
-::view-transition-new(fund-content) { mix-blend-mode: normal; }
-
-@media (prefers-reduced-motion: no-preference) {
-  ::view-transition-old(fund-content) { animation: fund-slide-out .3s cubic-bezier(.2,.8,.2,1) both; }
-  ::view-transition-new(fund-content) { animation: fund-slide-in .3s cubic-bezier(.2,.8,.2,1) both; }
-  @keyframes fund-slide-out { to { transform: translateX(var(--fund-slide-out)); } }
-  @keyframes fund-slide-in { from { transform: translateX(var(--fund-slide-in)); } }
-}
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(fund-content) { display: none; }
-  ::view-transition-new(fund-content) { animation: none; }
-}
+/* Giữ phần trượt bên trong khung nội dung thu quỹ. */
+body:is([data-active="thu-thang"], [data-active="thu-phat"]) .main-content { overflow-x: clip; }
 
 /* ── Quỹ tháng: ô tìm kiếm + dòng tiêu đề cột dính ngay dưới thanh tab ──
    Kéo giãn ra hết lề trang để nền che kín bảng cuộn bên dưới. */
