@@ -943,5 +943,19 @@ window._fcFinance = (function () {
   return { BASE_YEAR, FEE, FINE, arr, monthKey, matchYear, winnerIds, yearMatches, baseOpening, opening, totals, lastDueMonth, owedMonths, owedMatches, memberDebt, monthLabel, normalizeThuThang };
 })();
 
+// Avatar chữ cái đầu cho bục xếp hạng (thay huy chương):
+// tên 1 chữ → 1 ký tự ("Phúc" → P); nhiều chữ → chữ đầu + chữ cuối ("Bình Phương" → BP)
+// Chỉ lấy chữ cái, bỏ số ("Hưởng 88" → H)
+window.fcInitials = function (name) {
+  const w = String(name || '').trim().split(/\s+/).filter(x => /\p{L}/u.test(x));
+  if (!w.length) return '?';
+  const first = s => (s.match(/\p{L}/u) || [''])[0];
+  return (first(w[0]) + (w.length > 1 ? first(w[w.length - 1]) : '')).toLocaleUpperCase('vi');
+};
+window.fcPodiumAvatar = function (name) {
+  const esc = String(name || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  return `<span class="podium-avatar" aria-hidden="true" title="${esc}">${window.fcInitials(name)}</span>`;
+};
+
 // Khởi động: hiện dữ liệu cache rồi kết nối Firebase (xem __fcStart ở trên)
 window.__fcStart?.();

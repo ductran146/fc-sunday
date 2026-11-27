@@ -346,6 +346,65 @@
     if (el) el.textContent = window._currentYear || new Date().getFullYear();
   }
 
+  // ── Vuốt ngang để đổi tab (Thu quỹ: Quỹ tháng ⇄ Quỹ bia) ─────
+  // Vuốt sang trái → tab sau, sang phải → tab trước. Bỏ qua khi:
+  //  - vuốt bắt đầu trong vùng cuộn ngang còn cuộn được theo hướng đó (bảng Quỹ tháng)
+  //  - đang mở popup/bảng trượt, hoặc vuốt trong ô nhập
+  function initTabSwipe() {
+    const tabs = [...document.querySelectorAll('.fund-tabs .fund-tab')];
+    if (tabs.length < 2) return;
+    const cur = tabs.findIndex(t => t.classList.contains('active'));
+    let x0 = 0, y0 = 0, t0 = 0, on = false, sx = null, sxLeft = 0;
+
+    // vùng cuộn ngang gần nhất chứa điểm chạm (vd. bảng Quỹ tháng)
+    function scrollerX(el) {
+      for (; el && el !== document.body; el = el.parentElement) {
+        // phần tử chuyển thao tác kéo sang vùng cuộn khác (dòng tiêu đề Quỹ tháng → bảng)
+        if (el.dataset?.scrollProxy) return document.querySelector(el.dataset.scrollProxy);
+        if (el.scrollWidth <= el.clientWidth + 1) continue;
+        const ox = getComputedStyle(el).overflowX;
+        if (ox === 'auto' || ox === 'scroll') return el;
+      }
+      return null;
+    }
+
+    document.addEventListener('touchstart', e => {
+      on = false;
+      if (e.touches.length !== 1) return;
+      const t = e.target;
+      if (t.closest('input, textarea, select, .sheet-backdrop, .modal, .sheet, [role="dialog"]')) return;
+      x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now(); on = true;
+      sx = scrollerX(t); sxLeft = sx ? sx.scrollLeft : 0;   // ghi vị trí lúc bắt đầu vuốt
+    }, { passive: true });
+
+    document.addEventListener('touchend', e => {
+      if (!on) return; on = false;
+      const p = e.changedTouches[0], dx = p.clientX - x0, dy = p.clientY - y0;
+      if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.8 || Date.now() - t0 > 700) return;
+      // bảng còn cuộn được theo hướng vuốt (tính từ lúc bắt đầu) → để bảng cuộn, không đổi tab
+      if (sx) { const max = sx.scrollWidth - sx.clientWidth; if (dx < 0 ? sxLeft < max - 1 : sxLeft > 1) return; }
+      const next = tabs[cur + (dx < 0 ? 1 : -1)];
+      if (next) location.href = next.getAttribute('href');
+    }, { passive: true });
+  }
+
+  // ── Vị trí các khối dính theo chiều cao thật ─────────────────
+  // topbar (dính top 0) → thanh tab Thu quỹ → khung tìm kiếm Quỹ tháng. Đo bằng
+  // getBoundingClientRect (cả phần lẻ pixel, cả tai thỏ) để các khối nối khít nhau.
+  function initStickOffsets() {
+    const topbar = document.querySelector('.topbar'), tabs = document.querySelector('.fund-tabs-bar');
+    if (!topbar || !tabs) return;
+    const root = document.documentElement.style;
+    const set = () => {
+      const a = topbar.getBoundingClientRect().height, b = tabs.getBoundingClientRect().height;
+      root.setProperty('--stick-tabs', a + 'px');
+      root.setProperty('--stick-tt', (a + b) + 'px');
+    };
+    set();
+    window.addEventListener('resize', set);
+    if ('ResizeObserver' in window) { const ro = new ResizeObserver(set); ro.observe(topbar); ro.observe(tabs); }
+  }
+
   // ── Main init ──────────────────────────────────────────────
   async function init() {
     // Find all component placeholders
@@ -374,6 +433,8 @@
     initThemeBtn();
     initLoginModal();
     initInstallBtn();
+    initTabSwipe();
+    initStickOffsets();
 
     // Hide install section in PWA mode
     if (isPWA()) {

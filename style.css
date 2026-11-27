@@ -923,6 +923,16 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
 }
 /* Ô huy chương cao như nhau ở mọi cột để chiều cao cột chỉ khác nhau do padding-bottom */
 .podium-medal { font-size: 32px; line-height: 1; height: 40px; display: flex; align-items: flex-start; justify-content: center; }
+/* Avatar chữ cái đầu thay huy chương: vòng tròn màu hạng (vàng / bạc / đồng) */
+.podium-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; letter-spacing: .02em; line-height: 1;
+  color: rgb(var(--podium-rgb));
+  background: rgba(var(--podium-rgb), .16);
+  box-shadow: inset 0 0 0 1.5px rgba(var(--podium-rgb), .55);
+}
+.podium-card--1 .podium-avatar { width: 40px; height: 40px; font-size: 15px; }
 /* Tên 1 dòng, cao cố định 18px (cỡ chữ khác nhau không làm lệch chiều cao cột) */
 .podium-name  { max-width: 100%; font-size: 13px; font-weight: 700; line-height: 18px; height: 18px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .podium-losses { font-size: 12px; color: var(--text-secondary); }
@@ -1188,9 +1198,17 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
 
 /* ── Tab gạch chân: Thu quỹ (Quỹ tháng | Quỹ bia), dùng thẻ <a> chuyển trang ── */
 /* cùng nền topbar → liền một khối; dính ngay dưới topbar khi cuộn */
-.fund-tabs-bar { background: var(--bg-surface); position: sticky; top: var(--topbar-h); z-index: 29; }
-@media (max-width: 767px) { .fund-tabs-bar { top: var(--topbar-h-safe); } }
-@media (display-mode: standalone) { .fund-tabs-bar { top: var(--topbar-h-safe); } }
+.fund-tabs-bar { background: var(--bg-surface); position: sticky; top: var(--stick-tabs, var(--topbar-h)); z-index: 29; }
+@media (max-width: 767px) { .fund-tabs-bar { top: var(--stick-tabs, var(--topbar-h-safe)); } }
+@media (display-mode: standalone) { .fund-tabs-bar { top: var(--stick-tabs, var(--topbar-h-safe)); } }
+/* Các khối dính xếp sát nhau (khoảng cách 0). --stick-tabs / --stick-tt do components-loader
+   đo chiều cao thật gán vào; thêm dải nền nhỏ phía trên mỗi khối (nằm dưới khối trên) để che
+   khe lệch nửa pixel — nội dung cuộn không lọt qua (như "clip content" trong Figma).
+   Khung tìm kiếm chỉ có dải này khi đang dính (.is-stuck), để không che nội dung phía trên. */
+.fund-tabs-bar::before, .tt-sticky.is-stuck::before {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 8px;
+  background: var(--bg-surface); pointer-events: none;
+}
 .fund-tabs {
   display: flex;
   max-width: var(--max-width); margin: 0 auto;
@@ -1219,6 +1237,29 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
 /* Ẩn khỏi màn hình nhưng trình đọc màn hình vẫn đọc */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
+/* ── Quỹ tháng: ô tìm kiếm + dòng tiêu đề cột dính ngay dưới thanh tab ──
+   Kéo giãn ra hết lề trang để nền che kín bảng cuộn bên dưới. */
+:root { --fund-tabs-h: 60px; }   /* = chiều cao .fund-tab */
+.tt-sticky {
+  position: sticky; top: var(--stick-tt, calc(var(--topbar-h) + var(--fund-tabs-h))); z-index: 20;
+  background: var(--bg-base);
+  margin: calc(var(--space-3) * -1) calc(var(--space-6) * -1) 0;
+  padding: var(--space-3) var(--space-6) 0;
+}
+@media (max-width: 767px) {
+  .tt-sticky { top: var(--stick-tt, calc(var(--topbar-h-safe) + var(--fund-tabs-h))); margin-left: calc(var(--space-4) * -1); margin-right: calc(var(--space-4) * -1); padding-left: var(--space-4); padding-right: var(--space-4); }
+}
+@media (display-mode: standalone) { .tt-sticky { top: var(--stick-tt, calc(var(--topbar-h-safe) + var(--fund-tabs-h))); } }
+/* Bản sao thead: cùng khung viền với .table-wrap, ẩn thanh cuộn ngang */
+.tt-head {
+  overflow: hidden;   /* chỉ cuộn theo bảng (JS gán scrollLeft), không tự cuộn */
+  border: 1px solid var(--bg-border); border-bottom: 0;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--bg-elevated);
+}
+.tt-head table { table-layout: fixed; }
+.tt-head:empty, .tt-head table:empty { display: none; }
+
 /* ── Empty state ── */
 .empty-state {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -1242,6 +1283,12 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   font-size: 12px; color: var(--text-secondary);
 }
 .chart-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* Chú thích biểu đồ Chi tiêu: hiện dần lần lượt ở lần vẽ đầu */
+@media (prefers-reduced-motion: no-preference) {
+  .chart-legend-item--in { opacity: 0; animation: legendIn .35s ease-out forwards; animation-delay: calc(450ms + var(--i, 0) * 60ms); }
+  @keyframes legendIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+}
 
 /* ── Animation ── */
 @media (prefers-reduced-motion: no-preference) {
@@ -1757,6 +1804,10 @@ body[data-active="thu-thang"] .thu-thang-kpi-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/* Viền tách rời (không collapse): ô dính (cột tên) giữ đúng đường kẻ dòng của nó,
+   khớp với các ô khác khi cuộn ngang */
+body[data-active="thu-thang"] table.thu-thang-table { border-collapse: separate; border-spacing: 0; }
+
 body[data-active="thu-thang"] .thu-thang-table th,
 body[data-active="thu-thang"] .thu-thang-table td {
   height: 40px;
@@ -1931,12 +1982,19 @@ body[data-active="thu-thang"] .thu-thang-table .stt-col {
   min-width: 44px;
   max-width: 44px;
   text-align: center;
-  left: 0;
+  left: auto; /* th vốn sticky (dọc) — không để STT dính ngang, cuộn theo số thứ tự */
 }
 
+/* Cuộn ngang: chỉ cột tên dính bên trái, cột STT cuộn đi bình thường (chui dưới cột tên) */
 body[data-active="thu-thang"] .thu-thang-table .name-col {
-  left: 44px;
+  left: 0;
+  border-right-color: transparent;   /* chưa cuộn ngang: không có đường kẻ sau cột tên */
 }
+body[data-active="thu-thang"] .is-scrolled-x .thu-thang-table .name-col { border-right-color: var(--bg-border); }
+
+/* STT không còn dính nhưng giữ cùng màu nền với cột tên */
+body[data-active="thu-thang"] .thu-thang-table td.stt-col { background: var(--bg-surface); }
+body[data-active="thu-thang"] .thu-thang-table tr:hover td.stt-col { background: var(--bg-hover); }
 
 body[data-active="thu-thang"] .thu-thang-table .stt-cell {
   color: var(--text-muted);
@@ -2674,10 +2732,14 @@ body[data-active="thanh-vien"] .member-sort-chip:active {
   }
 
   body[data-active="thanh-vien"] .member-sort-chip {
-    min-height: 36px;
-    padding: 8px 0;
+    min-height: 32px;
+    padding: 4px 0;
     font-size: 12px;
   }
+  /* Hàng sắp xếp sát danh sách (cả khi khung dính) */
+  body[data-active="thanh-vien"] .member-sort-bar { margin-bottom: var(--space-1); }
+  /* và sát ô tìm kiếm phía trên */
+  body[data-active="thanh-vien"] .member-toolbar { margin-bottom: var(--space-1); }
 }
 
 /* ── Settings Page ── */

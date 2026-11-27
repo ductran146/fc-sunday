@@ -89,19 +89,17 @@
         </div>
       </div>
 
-      <!-- Search box -->
-      <div style="position:relative;margin-bottom:14px">
-        <iconify-icon icon="solar:magnifer-linear" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-secondary);z-index:1;pointer-events:none"></iconify-icon>
-        <input id="thu-thang-search" class="input" type="text" placeholder="Tìm thành viên..."
-          style="width:100%;height:40px;padding:0 12px 0 36px;border-radius:var(--radius-lg);border:1px solid var(--bg-stroke);background:var(--bg-elevated);color:var(--text-primary);font-family:inherit;font-size:16px;box-sizing:border-box;outline:none"
-          oninput="filterThuThangTable(this.value)">
+      <!-- Khung dính dưới tab khi cuộn: ô tìm kiếm + dòng tiêu đề cột (bản sao của thead, cuộn ngang theo bảng) -->
+      <div class="tt-sticky" id="tt-sticky">
+        <!-- Search box -->
+        <div style="position:relative;margin-bottom:12px">
+          <iconify-icon icon="solar:magnifer-linear" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-secondary);z-index:1;pointer-events:none"></iconify-icon>
+          <input id="thu-thang-search" class="input" type="text" placeholder="Tìm thành viên..."
+            style="width:100%;height:40px;padding:0 12px 0 36px;border-radius:var(--radius-lg);border:1px solid var(--bg-stroke);background:var(--bg-elevated);color:var(--text-primary);font-family:inherit;font-size:16px;box-sizing:border-box;outline:none"
+            oninput="filterThuThangTable(this.value)">
+        </div>
+        <div class="tt-head" id="tt-head" aria-hidden="true" data-scroll-proxy="#tt-wrap"><table class="fc-table thu-thang-table"></table></div>
       </div>
-
-      <!-- Legend -->
-      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px;font-size:12px">
-        <div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:4px;background:#2ECC71;display:inline-block"></span><span style="color:var(--text-secondary)">Đã đóng</span></div>
-        <div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:4px;background:#E0392C;display:inline-block"></span><span style="color:var(--text-secondary)">Chưa đóng</span></div>
-        <div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:4px;background:#FFC02E;display:inline-block"></span><span style="color:var(--text-secondary)">Miễn</span></div>
 
       <div class="save-bar" id="thu-thang-save-bar" hidden>
         <button class="save-bar__btn btn-cancel" id="thu-thang-cancel-btn" type="button" onclick="cancelMonthlyChanges()">Huỷ</button>
@@ -109,11 +107,11 @@
       </div>
 
       <!-- Table -->
-      <div class="table-wrap">
+      <div class="table-wrap" id="tt-wrap">
         <table class="fc-table thu-thang-table" id="thu-thang-table">
           <thead>
             <tr id="thu-thang-head">
-              <th class="sticky-col stt-col">STT</th>
+              <th class="stt-col">STT</th>
               <th class="sticky-col name-col">Thành viên</th>
               <!-- months injected by JS -->
               <th>Tổng nợ</th>
@@ -123,6 +121,13 @@
             <tr><td colspan="15" style="text-align:center;color:var(--text-muted);padding:32px">Đang tải…</td></tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Chú thích (cuối bảng) -->
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;font-size:12px">
+        <div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:4px;background:#2ECC71;display:inline-block"></span><span style="color:var(--text-secondary)">Đã đóng</span></div>
+        <div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:4px;background:#E0392C;display:inline-block"></span><span style="color:var(--text-secondary)">Chưa đóng</span></div>
+        <div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:4px;background:#FFC02E;display:inline-block"></span><span style="color:var(--text-secondary)">Miễn</span></div>
       </div>
 
     </main>
@@ -156,7 +161,7 @@
 
     // Build month headers
     const head = document.getElementById('thu-thang-head');
-    head.innerHTML = `<th class="sticky-col stt-col">STT</th><th class="sticky-col name-col">Thành viên</th>` +
+    head.innerHTML = `<th class="stt-col">STT</th><th class="sticky-col name-col">Thành viên</th>` +
       MONTHS.map((m,i) => `<th class="month-col">${m}</th>`).join('') +
       `<th>Tổng nợ</th>`;
 
@@ -204,7 +209,7 @@
 
       const noColor = memberNo > 0 ? 'color:var(--color-accent-light)' : 'color:var(--color-success)';
       return `<tr>
-        <td class="sticky-col stt-col stt-cell">${index + 1}</td>
+        <td class="stt-col stt-cell">${index + 1}</td>
         <td class="sticky-col name-col member-name-cell"><span>${m.name}</span></td>
         ${cells}
         <td style="${noColor};font-weight:700">${memberNo > 0 ? fmt(memberNo) : '✓'}${prevNo > 0 ? `<div style="font-size:11px;font-weight:600;opacity:.8;white-space:nowrap">gồm ${fmt(prevNo)} năm trước</div>` : ''}</td>
@@ -216,7 +221,7 @@
 
     document.getElementById('thu-thang-tbody').innerHTML = rows +
       `<tr class="summary-row">
-        <td class="sticky-col stt-col"></td>
+        <td class="stt-col"></td>
         <td class="sticky-col name-col" style="font-weight:800">Tổng thu</td>
         ${emptyMonths}
         <td style="font-weight:800;color:var(--color-primary)">${fmt(totalDaThu)}</td>
@@ -257,6 +262,79 @@
     setMonthlyPending(true);
     renderTable(_S);
   };
+
+  // Dòng tiêu đề cột dính: bảng cuộn ngang trong .table-wrap nên thead gốc không dính
+  // theo trang được. Dùng bản sao thead trong khung dính (.tt-sticky), đặt đè đúng chỗ
+  // thead gốc, cùng độ rộng từng cột và cuộn ngang cùng bảng.
+  (function initStickyHead() {
+    const src = document.getElementById('thu-thang-table');
+    const wrap = src?.parentElement, head = document.getElementById('tt-head');
+    if (!src || !wrap || !head) return;
+    const clone = head.querySelector('table');
+    let raf = 0;
+    function sync() {
+      raf = 0;
+      if (!src.tHead) return;
+      const c = src.tHead.cloneNode(true);
+      c.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+      const ths = src.tHead.querySelectorAll('th'), cths = c.querySelectorAll('th');
+      ths.forEach((th, i) => { const w = th.getBoundingClientRect().width + 'px'; Object.assign(cths[i].style, { width: w, minWidth: w, maxWidth: w }); });
+      clone.replaceChildren(c);
+      clone.style.width = src.getBoundingClientRect().width + 'px';
+      // kéo bảng lên để thead gốc nằm ngay dưới bản sao (bù cả viền trên 1px)
+      wrap.style.marginTop = -(src.tHead.getBoundingClientRect().height + 1) + 'px';
+      autoScroll();
+      head.scrollLeft = wrap.scrollLeft;
+      markScrolled();
+    }
+    // Mặc định cuộn để tháng gần nhất (tháng hiện tại; năm cũ là T12) nằm ở mép phải.
+    // Chỉ làm một lần mỗi năm được chọn, không giật lại khi bảng vẽ lại sau khi bấm ô.
+    let autoYear = null;
+    function autoScroll() {
+      if (autoYear === _year) return;
+      const months = src.tHead.querySelectorAll('th.month-col');
+      if (months.length < 12 || src.tBodies[0]?.rows.length < 2) return;   // chưa có dữ liệu
+      const mi = _year < curYear ? 11 : _year > curYear ? 0 : curMonth;
+      const th = months[mi];
+      wrap.scrollLeft = Math.max(0, th.offsetLeft + th.offsetWidth - wrap.clientWidth);
+      autoYear = _year;
+    }
+    // Đường kẻ dọc sau cột tên chỉ hiện khi bảng đã cuộn ngang
+    function markScrolled() {
+      const on = wrap.scrollLeft > 0;
+      wrap.classList.toggle('is-scrolled-x', on); head.classList.toggle('is-scrolled-x', on);
+    }
+    const schedule = () => { if (!raf) raf = requestAnimationFrame(sync); };
+    new MutationObserver(schedule).observe(src, { childList: true, subtree: true, characterData: true });
+    if ('ResizeObserver' in window) new ResizeObserver(schedule).observe(src);
+    window.addEventListener('resize', schedule);
+    document.fonts?.ready.then(schedule);
+    // Cuộn ngang MỘT chiều: chỉ bảng điều khiển tiêu đề (tiêu đề overflow:hidden, không tự cuộn).
+    // Đồng bộ hai chiều làm sự kiện cuộn trễ của tiêu đề kéo ngược bảng → đứt quán tính, giật.
+    wrap.addEventListener('scroll', () => { head.scrollLeft = wrap.scrollLeft; markScrolled(); }, { passive: true });
+    // Lăn chuột / kéo ngang trên dòng tiêu đề → chuyển sang cuộn bảng
+    head.addEventListener('wheel', e => {
+      const dx = e.deltaX || (e.shiftKey ? e.deltaY : 0);
+      if (!dx) return;
+      e.preventDefault(); wrap.scrollLeft += dx;
+    }, { passive: false });
+    let tx = null, tl = 0;
+    head.addEventListener('touchstart', e => { tx = e.touches[0].clientX; tl = wrap.scrollLeft; }, { passive: true });
+    head.addEventListener('touchmove', e => { if (tx !== null) wrap.scrollLeft = tl - (e.touches[0].clientX - tx); }, { passive: true });
+    head.addEventListener('touchend', () => { tx = null; }, { passive: true });
+    schedule();
+  })();
+
+  // Đánh dấu khung tìm kiếm đang dính (bật dải nền che khe với thanh tab)
+  (function initStuckFlag() {
+    const el = document.getElementById('tt-sticky');
+    if (!el) return;
+    let raf = 0;
+    const check = () => { raf = 0; el.classList.toggle('is-stuck', el.getBoundingClientRect().top <= parseFloat(getComputedStyle(el).top) + 0.5); };
+    window.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(check); }, { passive: true });
+    window.addEventListener('resize', check);
+    check();
+  })();
 
   window.filterThuThangTable = function(query) {
     const q = query.trim().toLowerCase();

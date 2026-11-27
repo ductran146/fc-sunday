@@ -39,6 +39,20 @@
       .rank-section--streak-win { order: 3; } .rank-section--streak-lose { order: 4; }
     }
     /* Phạm vi thống kê: theo năm / tất cả */
+    /* Bục 1-2-3 lần lượt mọc lên khi vẽ: hạng 1 trước, rồi 2, rồi 3 */
+    @media (prefers-reduced-motion: no-preference) {
+      body[data-active="thong-ke"] .podium-card { transform-origin: 50% 100%; animation: podiumRise .55s cubic-bezier(.34,1.45,.64,1) both; }
+      body[data-active="thong-ke"] .podium-card--2 { animation-delay: .16s; }
+      body[data-active="thong-ke"] .podium-card--3 { animation-delay: .32s; }
+      body[data-active="thong-ke"] .podium-card .podium-medal,
+      body[data-active="thong-ke"] .podium-card .podium-name,
+      body[data-active="thong-ke"] .podium-card .podium-losses,
+      body[data-active="thong-ke"] .podium-card .streak-range { animation: podiumText .35s ease-out both; animation-delay: inherit; }
+      body[data-active="thong-ke"] .podium-card .podium-medal { animation-name: podiumMedal; animation-duration: .45s; }
+      @keyframes podiumRise { from { opacity: 0; transform: translateY(28px) scaleY(.55); } to { opacity: 1; transform: none; } }
+      @keyframes podiumText { 0%, 40% { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+      @keyframes podiumMedal { 0%, 35% { opacity: 0; transform: scale(.4); } 75% { transform: scale(1.12); } to { opacity: 1; transform: none; } }
+    }
     /* Dòng mô tả (Năm 2026 · 37 trận) sát tiêu đề */
     body[data-active="thong-ke"] .thu-thang-page-title .text-h1 { line-height: 1.15; }
     body[data-active="thong-ke"] .thu-thang-page-title #stat-subtitle { margin-top: 2px; }
@@ -195,7 +209,7 @@
     const medals=['🥇','🥈','🥉'];
     const po=podium.length===1?[podium[0]]:podium.length===2?[podium[1],podium[0]]:[podium[1],podium[0],podium[2]];
     const pr=podium.length===1?[0]:podium.length===2?[1,0]:[1,0,2];
-    el.innerHTML=`<div class="podium-wrap">${po.map((r,pi)=>{const rank=pr[pi]+1;return`<div class="podium-card podium-card--${rank}"><div class="podium-medal">${medals[rank-1]}</div><div class="podium-name" title="${r.m.name}">${r.m.name}</div><div class="podium-losses">${r.n} trận</div></div>`;}).join('')}</div>`
+    el.innerHTML=`<div class="podium-wrap">${po.map((r,pi)=>{const rank=pr[pi]+1;return`<div class="podium-card podium-card--${rank}"><div class="podium-medal">${window.fcPodiumAvatar(r.m.name)}</div><div class="podium-name" title="${r.m.name}">${r.m.name}</div><div class="podium-losses">${r.n} trận</div></div>`;}).join('')}</div>`
       +(rest.length?`<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">${rest.map((r,i)=>`<div class="leaderboard-item"><div class="leaderboard-item__rank">${i+4}</div><div class="leaderboard-item__name">${r.m.name}</div><div class="leaderboard-item__losses">${r.n} trận</div></div>`).join('')}</div>`:'');
     }
 
@@ -209,7 +223,7 @@
       const podium=winRanking.slice(0,3),rest=winRanking.slice(3),medals=['🥇','🥈','🥉'];
       const po=podium.length===1?[podium[0]]:podium.length===2?[podium[1],podium[0]]:[podium[1],podium[0],podium[2]];
       const pr=podium.length===1?[0]:podium.length===2?[1,0]:[1,0,2];
-      winEl.innerHTML=`<div class="podium-wrap">${po.map((r,pi)=>{const rank=pr[pi]+1;return`<div class="podium-card podium-card--${rank}"><div class="podium-medal">${medals[rank-1]}</div><div class="podium-name" title="${r.m.name}">${r.m.name}</div><div class="podium-losses">${r.n} trận</div></div>`;}).join('')}</div>`+(rest.length?`<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">${rest.map((r,i)=>`<div class="leaderboard-item"><div class="leaderboard-item__rank">${i+4}</div><div class="leaderboard-item__name">${r.m.name}</div><div class="leaderboard-item__losses">${r.n} trận</div></div>`).join('')}</div>`:'');
+      winEl.innerHTML=`<div class="podium-wrap">${po.map((r,pi)=>{const rank=pr[pi]+1;return`<div class="podium-card podium-card--${rank}"><div class="podium-medal">${window.fcPodiumAvatar(r.m.name)}</div><div class="podium-name" title="${r.m.name}">${r.m.name}</div><div class="podium-losses">${r.n} trận</div></div>`;}).join('')}</div>`+(rest.length?`<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">${rest.map((r,i)=>`<div class="leaderboard-item"><div class="leaderboard-item__rank">${i+4}</div><div class="leaderboard-item__name">${r.m.name}</div><div class="leaderboard-item__losses">${r.n} trận</div></div>`).join('')}</div>`:'');
     }
   }
 
@@ -269,7 +283,7 @@
       const pr = podium.length === 1 ? [0] : podium.length === 2 ? [1, 0] : [1, 0, 2];
       el.innerHTML = `<div class="podium-wrap">${po.map((x, pi) => { const rank = pr[pi] + 1; return `
           <div class="podium-card podium-card--${rank}">
-            <div class="podium-medal">${medals[rank - 1]}</div>
+            <div class="podium-medal">${window.fcPodiumAvatar(x.m.name)}</div>
             <div class="podium-name" title="${x.m.name}">${x.m.name}</div>
             <div class="podium-losses">${x.s.n} trận</div>
             <div class="streak-range">${range(x)}</div>
@@ -292,10 +306,16 @@
     return _scope === 'all' ? all : all.filter(m => window._fcFinance.matchYear(m) === _year);
   }
 
+  // Trang được báo vẽ lại nhiều lần khi mở (bản cache → đăng nhập → dữ liệu Firebase).
+  // Số liệu không đổi thì bỏ qua — để hiệu ứng bục 1-2-3 chỉ chạy một lần, không giật lại.
+  let _renderSig = null;
   function renderPage(S) {
     _S = S;
     const members = window._fcFinance.arr(S.members).filter(m => m && m.status !== 'left');
     const matches = scopeMatches(S);
+    const sig = JSON.stringify([_scope, _year, members, matches]);
+    if (sig === _renderSig) return;
+    _renderSig = sig;
     document.getElementById('stat-subtitle').textContent = (_scope === 'all' ? 'Tất cả các năm' : `Năm ${_year}`) + ` · ${matches.length} trận`;
     renderLeaderboard(matches, members);
     renderStreaks(matches, members);

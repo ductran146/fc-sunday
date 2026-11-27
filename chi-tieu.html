@@ -445,47 +445,74 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
     const labels = Object.keys(catTotals);
     const data   = Object.values(catTotals);
     const total  = data.reduce((s,v) => s+v, 0);
+    const colors = labels.map(l => CAT_COLORS[CATS.indexOf(l)] || '#5D5D66');
 
-    document.getElementById('chart-center-val').textContent =
-      total >= 1e6 ? (total/1e6).toFixed(1)+'M' : new Intl.NumberFormat('vi-VN').format(total);
+    // Trang vẽ lại nhiều lần khi mở (bản cache → Firebase báo đăng nhập → dữ liệu mới).
+    // Số liệu không đổi thì giữ nguyên biểu đồ; đổi thì cập nhật tại chỗ (các phần
+    // chuyển dần sang giá trị mới) thay vì xoá đi vẽ lại từ đầu.
+    const sig = JSON.stringify([labels, data]);
+    if (sig === _chartSig && (_chart || !total)) return;
+    _chartSig = sig;
 
-    const ctx = document.getElementById('donut-chart').getContext('2d');
-    if (_chart) _chart.destroy();
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const first = !_chart;
+    countCenter(total, first ? 0 : _chartTotal, reduce ? 0 : first ? 900 : 500);
+    _chartTotal = total;
+
     if (!total) {
+      if (_chart) { _chart.destroy(); _chart = null; }
       document.getElementById('chart-legend').innerHTML = '<span style="color:var(--text-muted);font-size:13px">Chưa có dữ liệu</span>';
       return;
     }
-    const chartGapColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-surface').trim() || '#141418';
-    _chart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels,
-        datasets: [{ data, backgroundColor: labels.map(l => CAT_COLORS[CATS.indexOf(l)] || '#5D5D66'),
-          borderColor: chartGapColor,
-          hoverBorderColor: chartGapColor,
-          borderWidth: 2,
-          hoverBorderWidth: 2,
-          borderRadius: 4,
-          spacing: 0,
-          hoverOffset: 12
-        }]
-      },
-      options: {
-        cutout: '61%',
-        layout: { padding: 16 },
-        animation: { duration: 260 },
-        hover: { animationDuration: 180 },
-        plugins: { legend: { display: false }, tooltip: {
-          callbacks: { label: ctx => ` ${ctx.label}: ${fmt(ctx.raw)}` }
-        }}
-      }
-    });
 
-    document.getElementById('chart-legend').innerHTML = labels.map((l,i) => `
-      <div class="chart-legend-item">
-        <div class="chart-legend-dot" style="background:${CAT_COLORS[CATS.indexOf(l)]||'#5D5D66'}"></div>
+    if (_chart) {
+      _chart.data.labels = labels;
+      Object.assign(_chart.data.datasets[0], { data, backgroundColor: colors });
+      _chart.update();
+    } else {
+      const chartGapColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-surface').trim() || '#141418';
+      _chart = new Chart(document.getElementById('donut-chart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{ data, backgroundColor: colors,
+            borderColor: chartGapColor, hoverBorderColor: chartGapColor,
+            borderWidth: 2, hoverBorderWidth: 2, borderRadius: 4, spacing: 0, hoverOffset: 12 }]
+        },
+        options: {
+          cutout: '61%',
+          layout: { padding: 16 },
+          // lần đầu: xoay mở vòng + phóng nhẹ; cập nhật sau: các phần trượt sang giá trị mới
+          animation: reduce ? false : { duration: 900, easing: 'easeOutQuart', animateRotate: true, animateScale: true },
+          transitions: { active: { animation: { duration: 180 } } },
+          plugins: { legend: { display: false }, tooltip: {
+            callbacks: { label: ctx => ` ${ctx.label}: ${fmt(ctx.raw)}` }
+          }}
+        }
+      });
+      // sau lần vẽ đầu, cập nhật dữ liệu dùng hiệu ứng ngắn hơn
+      if (!reduce) _chart.options.animation = { duration: 500, easing: 'easeOutCubic' };
+    }
+
+    const legend = document.getElementById('chart-legend');
+    legend.innerHTML = labels.map((l,i) => `
+      <div class="chart-legend-item${first && !reduce ? ' chart-legend-item--in' : ''}" style="--i:${i}">
+        <div class="chart-legend-dot" style="background:${colors[i]}"></div>
         ${l}: ${fmt(data[i])}
       </div>`).join('');
+  }
+
+  // Số tổng ở giữa vòng: đếm dần từ giá trị cũ tới giá trị mới
+  let _chartSig = null, _chartTotal = 0, _countRaf = 0;
+  function countCenter(to, from, ms) {
+    const el = document.getElementById('chart-center-val');
+    const show = v => { el.textContent = v >= 1e6 ? (v/1e6).toFixed(1)+'M' : new Intl.NumberFormat('vi-VN').format(Math.round(v)); };
+    cancelAnimationFrame(_countRaf);
+    if (!ms || from === to) return show(to);
+    const t0 = performance.now();
+    const step = now => { const k = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - k, 4);
+      show(from + (to - from) * e); if (k < 1) _countRaf = requestAnimationFrame(step); };
+    _countRaf = requestAnimationFrame(step);
   }
 
   function renderPage(S) {

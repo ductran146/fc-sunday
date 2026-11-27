@@ -588,7 +588,7 @@
           ${podiumOrder.map((r, pi) => {
             const rank = podiumRanks[pi] + 1; // 1, 2, 3
             return `<div class="podium-card podium-card--${rank}">
-              <div class="podium-medal">${medals[rank-1]}</div>
+              <div class="podium-medal">${window.fcPodiumAvatar(r.member.name)}</div>
               <div class="podium-name" title="${r.member.name}">${r.member.name}</div>
               <div class="podium-losses">${r.n} trận</div>
             </div>`;
@@ -628,7 +628,7 @@
       const order = podium.length === 1 ? [podium[0]] : podium.length === 2 ? [podium[1], podium[0]] : [podium[1], podium[0], podium[2]];
       const ranks = podium.length === 1 ? [0] : podium.length === 2 ? [1, 0] : [1, 0, 2];
       const medals = ['🥇','🥈','🥉'];
-      winList.innerHTML = `<div class="podium-wrap">${order.map((r, i) => { const rank = ranks[i] + 1; return `<div class="podium-card podium-card--${rank}"><div class="podium-medal">${medals[rank-1]}</div><div class="podium-name" title="${r.member.name}">${r.member.name}</div><div class="podium-losses">${r.n} trận</div></div>`; }).join('')}</div>`
+      winList.innerHTML = `<div class="podium-wrap">${order.map((r, i) => { const rank = ranks[i] + 1; return `<div class="podium-card podium-card--${rank}"><div class="podium-medal">${window.fcPodiumAvatar(r.member.name)}</div><div class="podium-name" title="${r.member.name}">${r.member.name}</div><div class="podium-losses">${r.n} trận</div></div>`; }).join('')}</div>`
         + (rest.length ? `<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">${rest.map((r, i) => `<div class="leaderboard-item"><div class="leaderboard-item__rank">${i+4}</div><div class="leaderboard-item__name">${r.member.name}</div><div class="leaderboard-item__losses">${r.n} trận</div></div>`).join('')}</div>` : '');
     }
 
@@ -860,8 +860,49 @@
     document.getElementById('win-ranking-sheet').style.display = 'none';
   };
 
+  // ── Hiệu ứng chạy số ở khối tổng quỹ + metric card ─────────
+  // Chỉ số tiền, chỉ khi mở trang (lần có dữ liệu đầu tiên), không chạy khi đổi năm. Nếu trang vẽ lại
+  // giữa chừng (Firebase trả số mới) thì số tiếp tục chạy tới giá trị mới, không giật.
+  const COUNT_IDS = ['hero-total', 'fund-thang-total', 'fund-thang-thu', 'fund-thang-chi', 'fund-thang-no',
+    'fund-bia-total', 'fund-bia-thu', 'fund-bia-chi', 'fund-bia-no', 'hero-thu-them', 'hero-tong-chi',
+    'kpi-thu', 'kpi-tien-san'];   // chỉ các ô số tiền
+  const _counts = new Map(), COUNT_STEP_MS = 80;
+  let _countRaf = 0, _counted = false;
+  const parseNum = t => { const m = String(t).trim().match(/^(-?)([\d.]+)$/); return m ? (m[1] ? -1 : 1) * Number(m[2].replace(/\./g, '')) : null; };
+  const fmtNum = v => new Intl.NumberFormat('vi-VN').format(Math.round(v));
+  function countUp() {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const now = performance.now();
+    COUNT_IDS.forEach((id, i) => {
+      const el = document.getElementById(id), to = el && parseNum(el.textContent);
+      if (to === null || to === undefined || !to) return;
+      const st = { el, from: 0, to, t0: now + Math.min(i, 6) * 20, dur: 600, w: 0 };   // so le nhẹ từ trên xuống
+      st.last = el.textContent = fmtNum(0);
+      _counts.set(id, st);
+    });
+    if (!_countRaf && _counts.size) _countRaf = requestAnimationFrame(stepCounts);
+  }
+  function stepCounts(now) {
+    _counts.forEach((st, id) => {
+      if (st.el.textContent !== st.last) {          // trang vừa vẽ lại → chạy tiếp tới số mới
+        const nv = parseNum(st.el.textContent);
+        if (nv === null) { _counts.delete(id); return; }
+        const k = Math.max(0, Math.min(1, (now - st.t0) / st.dur));
+        st.from = st.from + (st.to - st.from) * (1 - Math.pow(1 - k, 4)); st.to = nv; st.t0 = now; st.dur = 500;
+      }
+      const k = Math.max(0, Math.min(1, (now - st.t0) / st.dur)), e = 1 - Math.pow(1 - k, 3);
+      // đổi số ~80ms một lần (không phải mỗi khung hình) để mắt kịp thấy từng bước
+      if (k < 1 && now - st.w < COUNT_STEP_MS) return;
+      st.w = now;
+      st.last = st.el.textContent = fmtNum(st.from + (st.to - st.from) * e);
+      if (k >= 1) _counts.delete(id);
+    });
+    _countRaf = _counts.size ? requestAnimationFrame(stepCounts) : 0;
+  }
+
   window._onDataReady = function(S) {
     renderOverview(S);
+    if (!_counted) { _counted = true; countUp(); }
   };
 </script>
 <script>
