@@ -39,6 +39,28 @@
       .rank-section--streak-win { order: 3; } .rank-section--streak-lose { order: 4; }
     }
     /* Phạm vi thống kê: theo năm / tất cả */
+    /* Bảng xếp hạng đầy đủ: điện thoại là bottom sheet gần full màn hình;
+       desktop là hộp thoại gọn ở giữa, bo đều 4 góc, danh sách cuộn bên trong */
+    .rank-sheet-backdrop { align-items: flex-end; }
+    .rank-sheet { height: calc(100dvh - 64px); max-height: calc(100dvh - 64px); overflow: hidden; display: flex; flex-direction: column; border-radius: var(--radius-xl) var(--radius-xl) 0 0; }
+    .rank-sheet__list { overflow-y: auto; padding: 0 0 32px; flex: 1; }
+    .rank-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--bg-border); }
+    .rank-row:last-child { border-bottom: 0; }
+    .rank-row__no { width: 32px; height: 32px; border-radius: var(--radius-full); background: var(--bg-elevated); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: var(--text-muted); flex-shrink: 0; }
+    .rank-row__name { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rank-row__val { font-size: 14px; font-weight: 700; }
+    .rank-row__val--lose { color: var(--color-accent-light); }
+    .rank-row__val--win { color: var(--color-success); }
+    @media (min-width: 768px) {
+      .rank-sheet-backdrop { align-items: center; }
+      .rank-sheet { height: auto; max-height: min(78vh, 680px); max-width: 420px; border-radius: var(--radius-xl); padding-bottom: var(--space-4); }
+      .rank-sheet .modal-handle { display: none; }
+      .rank-sheet__list { padding: 0; }
+      .rank-row { gap: 10px; padding: 8px 0; }
+      .rank-row__no { width: 26px; height: 26px; font-size: 12px; }
+      .rank-row__name { font-size: 14px; }
+      .rank-row__val { font-size: 13px; }
+    }
     /* Bục 1-2-3 lần lượt mọc lên khi vẽ: hạng 1 trước, rồi 2, rồi 3 */
     @media (prefers-reduced-motion: no-preference) {
       body[data-active="thong-ke"] .podium-card { transform-origin: 50% 100%; animation: podiumRise .55s cubic-bezier(.34,1.45,.64,1) both; }
@@ -141,8 +163,8 @@
 </div>
 
 <!-- Bia Loss Ranking Sheet -->
-<div class="sheet-backdrop" id="bia-ranking-sheet" style="display:none;align-items:flex-end" onclick="if(event.target===this)closeBiaRankingSheet()">
-  <div class="sheet fade-in" style="height:calc(100dvh - 64px);max-height:calc(100dvh - 64px);overflow:hidden;display:flex;flex-direction:column;border-radius:var(--radius-xl) var(--radius-xl) 0 0">
+<div class="sheet-backdrop rank-sheet-backdrop" id="bia-ranking-sheet" style="display:none" onclick="if(event.target===this)closeBiaRankingSheet()">
+  <div class="sheet fade-in rank-sheet">
     <div class="modal-handle"></div>
     <div class="dlg-head" style="padding:0 0 16px;flex-shrink:0;margin-bottom:0">
         <div class="dlg-head__text"><h2 class="dlg-head__title">Top quả tạ</h2><p class="dlg-head__desc">Bảng xếp hạng đầy đủ</p></div>
@@ -150,19 +172,19 @@
         <svg class="btn-close__ic" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       </button>
     </div>
-    <div id="bia-ranking-sheet-list" style="overflow-y:auto;padding:0 0 32px;flex:1"></div>
+    <div id="bia-ranking-sheet-list" class="rank-sheet__list"></div>
   </div>
 </div>
 
 <!-- Bia Win Ranking Sheet -->
-<div class="sheet-backdrop" id="bia-win-ranking-sheet" style="display:none;align-items:flex-end" onclick="if(event.target===this)closeBiaWinRankingSheet()">
-  <div class="sheet fade-in" style="height:calc(100dvh - 64px);max-height:calc(100dvh - 64px);overflow:hidden;display:flex;flex-direction:column;border-radius:var(--radius-xl) var(--radius-xl) 0 0">
+<div class="sheet-backdrop rank-sheet-backdrop" id="bia-win-ranking-sheet" style="display:none" onclick="if(event.target===this)closeBiaWinRankingSheet()">
+  <div class="sheet fade-in rank-sheet">
     <div class="modal-handle"></div>
     <div class="dlg-head" style="padding:0 0 16px;flex-shrink:0;margin-bottom:0">
         <div class="dlg-head__text"><h2 class="dlg-head__title">Top thắng nhiều nhất</h2><p class="dlg-head__desc">Bảng xếp hạng đầy đủ</p></div>
       <button class="btn btn-close" aria-label="Đóng" onclick="closeBiaWinRankingSheet()"><svg class="btn-close__ic" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
     </div>
-    <div id="bia-win-ranking-sheet-list" style="overflow-y:auto;padding:0 0 32px;flex:1"></div>
+    <div id="bia-win-ranking-sheet-list" class="rank-sheet__list"></div>
   </div>
 </div>
 <script>
@@ -172,14 +194,14 @@
     if(!el)return;
     el.innerHTML=list.length===0
       ?'<div class="empty-state" style="padding:32px 0"><div class="empty-state__desc">Chưa có dữ liệu</div></div>'
-      :list.map((r,i)=>`<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bg-border)"><div style="width:32px;height:32px;border-radius:var(--radius-full);background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--text-muted);flex-shrink:0">${i+1}</div><div style="flex:1;font-size:15px;font-weight:600;color:var(--text-primary)">${r.m.name}</div><div style="font-size:14px;font-weight:700;color:var(--color-accent-light)">${r.n} trận</div></div>`).join('');
+      :list.map((r,i)=>`<div class="rank-row"><div class="rank-row__no">${i+1}</div><div class="rank-row__name">${r.m.name}</div><div class="rank-row__val rank-row__val--lose">${r.n} trận</div></div>`).join('');
     document.getElementById('bia-ranking-sheet').style.display='flex';
   };
   window.closeBiaRankingSheet=function(){document.getElementById('bia-ranking-sheet').style.display='none';};
   window.openBiaWinRankingSheet=function(){
     const list=window._biaFullWinRanking||[],el=document.getElementById('bia-win-ranking-sheet-list');
     if(!el)return;
-    el.innerHTML=list.length===0?'<div class="empty-state" style="padding:32px 0"><div class="empty-state__desc">Chưa có dữ liệu người thắng</div></div>':list.map((r,i)=>`<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bg-border)"><div style="width:32px;height:32px;border-radius:var(--radius-full);background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--text-muted);flex-shrink:0">${i+1}</div><div style="flex:1;font-size:15px;font-weight:600;color:var(--text-primary)">${r.m.name}</div><div style="font-size:14px;font-weight:700;color:var(--color-success)">${r.n} trận</div></div>`).join('');
+    el.innerHTML=list.length===0?'<div class="empty-state" style="padding:32px 0"><div class="empty-state__desc">Chưa có dữ liệu người thắng</div></div>':list.map((r,i)=>`<div class="rank-row"><div class="rank-row__no">${i+1}</div><div class="rank-row__name">${r.m.name}</div><div class="rank-row__val rank-row__val--win">${r.n} trận</div></div>`).join('');
     document.getElementById('bia-win-ranking-sheet').style.display='flex';
   };
   window.closeBiaWinRankingSheet=function(){document.getElementById('bia-win-ranking-sheet').style.display='none';};

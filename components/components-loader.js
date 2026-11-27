@@ -351,7 +351,9 @@
   //  - vuốt bắt đầu trong vùng cuộn ngang còn cuộn được theo hướng đó (bảng Quỹ tháng)
   //  - đang mở popup/bảng trượt, hoặc vuốt trong ô nhập
   function initTabSwipe() {
-    const tabs = [...document.querySelectorAll('.fund-tabs .fund-tab')];
+    // Có 2 bộ tab (thanh dưới header cho điện thoại, bộ trong tiêu đề cho desktop) → lấy bộ đang hiện
+    const nav = [...document.querySelectorAll('.fund-tabs')].find(n => n.getClientRects().length) || document.querySelector('.fund-tabs');
+    const tabs = nav ? [...nav.querySelectorAll('.fund-tab')] : [];
     if (tabs.length < 2) return;
     const cur = tabs.findIndex(t => t.classList.contains('active'));
     let x0 = 0, y0 = 0, t0 = 0, on = false, sx = null, sxLeft = 0;

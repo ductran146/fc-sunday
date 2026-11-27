@@ -1237,6 +1237,17 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
 /* Ẩn khỏi màn hình nhưng trình đọc màn hình vẫn đọc */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
+/* Desktop: tab nằm ở vị trí tiêu đề trang (như tiêu đề các trang khác), lệch trái,
+   ô chọn năm bên phải; thanh tab dưới header chỉ dùng trên điện thoại */
+.fund-tabs--inline, .fund-inline-only { display: none; }
+@media (min-width: 768px) {
+  .fund-tabs-bar { display: none; }
+  .fund-inline-only { display: block; }
+  .fund-tabs--inline { display: flex; justify-content: flex-start; gap: var(--space-8); max-width: none; margin: 0 0 var(--space-1); padding: 0; }
+  .fund-tabs--inline .fund-tab { flex: 0 0 auto; height: auto; padding: 0; font-size: 28px; }
+  .fund-tabs--inline .fund-tab__in { padding-bottom: var(--space-2); }   /* gạch vàng cách chữ 8px */
+}
+
 /* ── Quỹ tháng: ô tìm kiếm + dòng tiêu đề cột dính ngay dưới thanh tab ──
    Kéo giãn ra hết lề trang để nền che kín bảng cuộn bên dưới. */
 :root { --fund-tabs-h: 60px; }   /* = chiều cao .fund-tab */
@@ -3425,3 +3436,7 @@ body[data-active="thanh-vien"] .member-sticky.is-stuck {
 .streak-live::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: currentColor; margin-right: 4px; vertical-align: middle; position: relative; top: -1px; }
 .streak-live--W { color: var(--color-success); }
 .streak-live--L { color: var(--color-accent-light); }
+
+/* Quỹ tháng / Quỹ bia: tiêu đề (tab) cùng vị trí ở cả hai trang — bỏ khoảng trên
+   mà quy tắc cũ chỉ thêm cho Quỹ tháng, để chuyển tab không bị nhảy */
+body[data-active="thu-thang"] .thu-thang-page-title { margin-top: 0; }

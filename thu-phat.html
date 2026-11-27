@@ -39,6 +39,7 @@
       font-size: 12px; font-weight: 600;
       cursor: pointer; transition: background .12s;
     }
+    .draw-chip { display: inline-flex; align-items: center; padding: 5px 12px; border-radius: var(--radius-full); font-size: 12px; font-weight: 600; background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--bg-stroke); }
     .loser-paid   { background: rgba(46,204,113,.15); color: var(--color-success); border: 1px solid rgba(46,204,113,.3); }
     .loser-unpaid { background: rgba(224,57,44,.1);  color: var(--color-accent-light); border: 1px solid rgba(224,57,44,.2); }
 
@@ -170,6 +171,34 @@
     .month-grid .month-accordion-body[data-col="last"]  { border-top-right-radius: 0; }
     .month-grid > .month-empty { grid-column: 1 / -1; }
     .month-summary-chips { padding: 12px 20px; }
+    .month-add-inline { display: none; }
+    @media (max-width: 767px) { .month-summary-chips.is-empty { display: none; } }
+    /* Desktop: 12 tháng một dòng, nhãn rút gọn "Th 1…Th 12" (điện thoại 3 cột giữ "Tháng") */
+    .month-grid .mg-short { display: none; }
+    @media (min-width: 768px) {
+      .month-grid { --mg-gap: 8px; grid-template-columns: repeat(12, minmax(0, 1fr)); }
+      .month-grid .month-accordion-header { padding: 0 4px; }
+      .month-grid .month-accordion-title { font-size: 14px; }
+      .month-grid .mg-long { display: none; }
+      .month-grid .mg-short { display: inline; }
+      /* Tháng đang chọn: viên thuốc màu vàng (như nút lọc "Tất cả"), khung chi tiết là khối riêng bên dưới */
+      .month-grid .month-accordion-card.is-open .month-accordion-header,
+      .month-grid .month-accordion-card.is-open .month-accordion-header:hover {
+        background: rgba(255,192,46,.15); border-color: rgba(255,192,46,.3);
+        border-radius: var(--radius-xl); height: 44px; padding-bottom: 0; margin-bottom: 0;
+      }
+      .month-grid .month-accordion-card.is-open .month-accordion-header::before,
+      .month-grid .month-accordion-card.is-open .month-accordion-header::after { display: none; }
+      .month-grid .month-accordion-body,
+      .month-grid .month-accordion-body[data-col="first"],
+      .month-grid .month-accordion-body[data-col="last"] { border-radius: var(--radius-xl); }
+      /* nút thêm trận lên dòng chip tóm tắt, bỏ nút ở cuối */
+      .month-summary-chips { align-items: center; }
+      .month-add-inline { display: inline-flex; margin-left: auto; gap: 6px; height: 32px; border-radius: var(--radius-full); }
+      .month-add-wrap--end { display: none; }
+      /* cách hàng tháng 20px, bằng khoảng cách giữa các khối khác (ô số liệu → hàng tháng) */
+      .month-grid .month-accordion-body { margin-top: calc(20px - var(--mg-gap)); }
+    }
     /* Điện thoại: gọn hơn */
     @media (max-width: 767px) {
       .month-grid { --mg-gap: 8px; }
@@ -241,6 +270,12 @@
       <div class="thu-thang-page-header">
         <div class="thu-thang-page-title">
           <h1 class="sr-only">Quỹ bia</h1>
+          <!-- Desktop: tab nằm ở vị trí tiêu đề trang (thanh tab dưới header chỉ dùng trên điện thoại) -->
+          <div class="section-overline fund-inline-only">Thu quỹ</div>
+          <nav class="fund-tabs fund-tabs--inline" aria-label="Thu quỹ">
+            <a class="fund-tab" href="thu-thang.html"><span class="fund-tab__in"><span class="fund-tab__ic tf" aria-hidden="true">💰</span>Quỹ tháng</span></a>
+            <a class="fund-tab active" href="thu-phat.html" aria-current="page"><span class="fund-tab__in"><span class="fund-tab__ic tf" aria-hidden="true">🍺</span>Quỹ bia</span></a>
+          </nav>
           <div class="thu-thang-page-subtitle" style="font-size:12px;color:var(--text-muted)">50.000 / người / trận thua</div>
         </div>
         <select class="year-selector thu-thang-year-selector" id="year-select">
@@ -554,11 +589,15 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
       monthMatches.forEach(m=>{(m.losers||[]).forEach(l=>{if(l.paid)thuBiaMo+=FINE;else noBiaMo+=FINE;});thuThemMo+=(m.thuThem||0);});
       const tongMo=thuBiaMo+thuThemMo;
 
-      const summaryChips=monthMatches.length?`<div class="month-summary-chips">
-        <span class="month-chip">${monthMatches.length} trận</span>
-        <span class="month-chip month-chip--total" title="Tổng thu tháng"><span class="chip-full">Σ: ${fmtK(tongMo)}</span><span class="chip-short">Σ ${chipK(tongMo)}</span></span>
+      // Desktop: nút thêm trận nằm cùng dòng chip tóm tắt (bên phải); điện thoại vẫn ở cuối danh sách
+      const addInline=isAdmin?`<button class="btn btn-outline btn-sm month-add-inline" type="button" onclick="openAddMatch(${mi})">
+          <iconify-icon icon="solar:add-circle-linear" style="font-size:16px"></iconify-icon>Thêm trận</button>`:'';
+      const summaryChips=(monthMatches.length||addInline)?`<div class="month-summary-chips${monthMatches.length?'':' is-empty'}">
+        ${monthMatches.length?`<span class="month-chip">${monthMatches.length} trận</span>`:'<span style="font-size:13px;color:var(--text-muted)">Chưa có trận nào</span>'}
+        ${monthMatches.length?`<span class="month-chip month-chip--total" title="Tổng thu tháng"><span class="chip-full">Σ: ${fmtK(tongMo)}</span><span class="chip-short">Σ ${chipK(tongMo)}</span></span>`:''}
         ${thuThemMo?`<span class="month-chip month-chip--extra" title="Thu thêm"><span class="chip-full">Thêm: +${fmtK(thuThemMo)}</span><span class="chip-short">Thêm ${chipK(thuThemMo)}</span></span>`:''}
         ${noBiaMo?`<span class="month-chip month-chip--debt" title="Còn nợ"><span class="chip-full">Nợ: ${fmtK(noBiaMo)}</span><span class="chip-short">Nợ ${chipK(noBiaMo)}</span></span>`:''}
+        ${addInline}
       </div>`:'';
 
       const matchesHTML=monthMatches.map(match=>{
@@ -574,8 +613,9 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
           const member=members.find(m=>m.id==memberId);
           return member?`<span class="winner-chip"><iconify-icon icon="solar:cup-star-linear" style="font-size:13px"></iconify-icon>${member.name}</span>`:'';
         }).join('');
+        // Không chọn ai thua và không ai thắng → trận hoà
+        const isDraw=!(match.losers||[]).length&&!winnerIds.length;
         const paidCount=(match.losers||[]).filter(l=>l.paid).length;
-        const winnerCount=winnerIds.length;
         const biaMo=paidCount*FINE;
         const noBiaTran=(match.losers||[]).filter(l=>!l.paid).length*FINE;
         const extraHTML=match.thuThem?`<div class="match-item__extra">🎁 Thu thêm: +${fmtK(match.thuThem)}${match.ghiChuThem?` — ${match.ghiChuThem}`:''}</div>`:'';
@@ -589,20 +629,23 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
             <div class="match-item__date">${fmtDate(match.date)}</div>
             ${adminBtns}
           </div>
-          <div class="match-item__team-row">
+          ${isDraw?`<div class="match-item__team-row">
+            <div class="match-item__team-label">Kết quả</div>
+            <div class="match-item__losers"><span class="draw-chip">Hoà</span></div>
+          </div>`:`<div class="match-item__team-row">
             <div class="match-item__team-label">Đội thua</div>
             <div class="match-item__losers">${losersHTML||'<span style="font-size:12px;color:var(--text-muted)">Chưa chọn</span>'}</div>
-          </div>
+          </div>`}
           ${winnersHTML?`<div class="match-item__team-row">
             <div class="match-item__team-label">Đội thắng</div>
             <div class="match-item__losers">${winnersHTML}</div>
           </div>`:''}
           ${extraHTML}
-          <div class="match-item__summary">Quỹ bia: ${fmtK(biaMo)}${winnerCount?` · Thắng: ${winnerCount} người`:''}${noBiaTran?` · <span style="color:var(--color-primary)">Nợ: ${fmtK(noBiaTran)}</span>`:''}${match.thuThem?` · Thu thêm: +${fmtK(match.thuThem)}`:''}</div>
+          ${isDraw?(match.thuThem?`<div class="match-item__summary">Thu thêm: +${fmtK(match.thuThem)}</div>`:''):`<div class="match-item__summary">Quỹ bia: ${fmtK(biaMo)}${noBiaTran?` · <span style="color:var(--color-primary)">Nợ: ${fmtK(noBiaTran)}</span>`:''}${match.thuThem?` · Thu thêm: +${fmtK(match.thuThem)}`:''}</div>`}
         </div>`;
       }).join('');
 
-      const addBtn=isAdmin?`<div class="month-add-wrap">
+      const addBtn=isAdmin?`<div class="month-add-wrap month-add-wrap--end">
         <button class="btn btn-outline w-full" onclick="openAddMatch(${mi})" style="justify-content:center;">
           <iconify-icon icon="solar:add-circle-linear" style="font-size:18px"></iconify-icon>Thêm trận ${MONTHS_FULL[mi]}
         </button>
@@ -613,7 +656,7 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
       card.dataset.mi=mi;
       card.innerHTML=`
         <div class="month-accordion-header" onclick="toggleAccordion(${mi})" role="tab" aria-selected="${isOpen}">
-          <span class="month-accordion-title">${MONTHS_FULL[mi]}</span>
+          <span class="month-accordion-title" aria-label="${MONTHS_FULL[mi]}"><span class="mg-long">Tháng</span><span class="mg-short">Th</span> ${mi+1}</span>
           <iconify-icon icon="solar:alt-arrow-down-linear" class="month-accordion-chevron"></iconify-icon>
         </div>
         <div class="month-accordion-body">
