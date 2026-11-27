@@ -5,7 +5,10 @@
 <div class="sheet-backdrop" id="login-modal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="login-title">
   <div class="sheet fade-in">
     <div class="modal-handle" style="display:block"></div>
-    <h2 class="modal-title" id="login-title">Đăng nhập</h2>
+    <div class="dlg-head">
+      <div class="dlg-head__text"><h2 class="dlg-head__title" id="login-title">Đăng nhập</h2></div>
+      <button class="btn btn-close" type="button" aria-label="Đóng" onclick="document.getElementById('btn-login-cancel')?.click()"><svg class="btn-close__ic" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    </div>
 
     <div style="display:flex;flex-direction:column;gap:16px">
       <div class="field">
@@ -28,7 +31,7 @@
           <iconify-icon icon="solar:lock-unlocked-linear" style="font-size:18px"></iconify-icon>
           Đăng nhập
         </button>
-        <button class="btn btn-ghost" id="btn-login-cancel" style="flex-shrink:0">Huỷ</button>
+        <button class="btn btn-cancel btn-ghost" id="btn-login-cancel" style="flex-shrink:0">Huỷ</button>
       </div>
     </div>
   </div>

@@ -14,6 +14,13 @@
   font-weight: 100 900; font-style: normal; font-display: swap;
   unicode-range: U+0030-0039;
 }
+/* Số mờ 1-2-3 trên bục xếp hạng: DINOT Black (chỉ chữ số) */
+@font-face {
+  font-family: 'DINOT Num Black';
+  src: url('DINOT-Black-so-a7ccefc6.woff2') format('woff2');
+  font-weight: 100 900; font-style: normal; font-display: swap;
+  unicode-range: U+0030-0039;
+}
 /* ── TossFace Emoji Font ── */
 @font-face {
   font-family: 'TossFace';
@@ -126,6 +133,7 @@
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
+  --sheet-pad-x: 20px; /* đệm trái/phải của mọi bottom sheet và popup */
   --space-8: 32px;
   --space-10: 40px;
   --space-12: 48px;
@@ -669,7 +677,7 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
 .modal {
   background: var(--bg-surface);
   border-radius: var(--radius-xl);
-  padding: var(--space-4);
+  padding: var(--space-4) var(--sheet-pad-x);
   width: 100%;
   max-width: 480px;
   max-height: 90vh;
@@ -688,7 +696,7 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   background: var(--bg-surface);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   border-top: 1px solid var(--bg-stroke);
-  padding: var(--space-5) var(--space-6) calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+  padding: var(--space-5) var(--sheet-pad-x) calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
   width: 100%;
   max-width: 640px;
   max-height: 92dvh;
@@ -700,12 +708,27 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   .sheet {
     border-radius: var(--radius-xl);
     border: 1px solid var(--bg-stroke);
-    padding: var(--space-6);
+    padding: var(--space-6) var(--sheet-pad-x);
   }
 }
 
 .modal-handle { display: none !important; }
 .modal-title { font-size: 18px; font-weight: 700; margin-bottom: var(--space-5); }
+
+/* ── Tiêu đề popup / bottom sheet dùng chung ──
+   <div class="dlg-head">
+     <div class="dlg-head__text">
+       <h2 class="dlg-head__title">Tiêu đề</h2>
+       <p class="dlg-head__desc">Mô tả (không bắt buộc)</p>
+     </div>
+     <button class="btn btn-close" aria-label="Đóng">…</button>
+   </div>
+   Nút đóng căn giữa với dòng tiêu đề (dòng 24px, nút 28px → lệch lên 2px). */
+.dlg-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.dlg-head__text { min-width: 0; }
+.dlg-head__title { margin: 0; font-size: 18px; font-weight: 700; line-height: 24px; color: var(--text-primary); }
+.dlg-head__desc { margin: 2px 0 0; font-size: 12px; line-height: 1.4; color: var(--text-muted); }
+.dlg-head > .btn-close { margin-top: -2px; }
 
 /* ── Toast / Status Badge ── */
 .sync-badge {
@@ -780,6 +803,8 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
 .fund-split__row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); }
 /* Số Thu/Chi/Còn nợ trong thẻ quỹ và Thu thêm/Tổng chi: DINOT (chỉ chữ số, nhãn giữ font cũ) */
 .fund-split__row, .hero-extra-stat__value { font-family: 'DINOT Num', var(--font-sans); }
+/* Tiện ích: số dùng DINOT (chỉ chữ số, dấu chấm/chữ giữ font cũ) */
+.num-dinot { font-family: 'DINOT Num', var(--font-sans); font-variant-numeric: tabular-nums; }
 .fund-split__row span:last-child { font-size: 14px; font-weight: 600; color: var(--text-primary); }
 .fund-split__row[onclick] { border-radius: var(--radius-sm); padding: 2px 4px; margin: 0 -4px; transition: background .12s; }
 .fund-split__row[onclick]:hover { background: var(--bg-stroke); }
@@ -868,13 +893,18 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
      (phía trên đầu số và lề phải của nét chữ) bằng em âm */
   position: absolute;
   top: -.16em;
-  right: -.06em;
+  right: -.04em;
   z-index: -1;
+  font-family: 'DINOT Num Black', var(--font-sans); /* số hạng: DINOT Black */
   font-size: 113px;
   font-weight: 900;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  color: rgba(var(--podium-rgb), .08);
+  /* Gradient theo chiều dọc: trên 8% màu hạng, dưới mờ dần về trong suốt để hòa vào nền */
+  color: transparent;
+  background: linear-gradient(180deg, rgba(var(--podium-rgb), .08) 0%, rgba(var(--podium-rgb), 0) 85%);
+  -webkit-background-clip: text;
+          background-clip: text;
   pointer-events: none;
 }
 /* Viền 1px gradient: cùng màu hạng, đậm ở trên, trong suốt ở đáy.
@@ -907,18 +937,18 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
 .podium-card--1 .podium-medal { margin-bottom: 8px; }
 .podium-card--2 .podium-medal { margin-bottom: -2px; }
 .podium-card--3 .podium-medal { margin-bottom: -12px; }
-.podium-card--1::before { content: '1'; font-size: 140px; top: calc(-.16em - 2px); right: calc(-.06em - 17px); }
+.podium-card--1::before { content: '1'; font-size: 140px; top: calc(-.16em - 2px); right: calc(-.06em - 15px); }
 .podium-card--1 .podium-name  { color: var(--color-primary); font-size: 14px; }
 .podium-card--1 .podium-medal { font-size: 40px; }
 @media (max-width: 767px) { .podium-card .podium-name, .podium-card--1 .podium-name { font-size: 12px; } }
 
 /* Hạng 2 — bạc */
 .podium-card--2 { --podium-rgb: 192,192,192; }
-.podium-card--2::before { content: '2'; top: calc(-.16em - 2px); right: calc(-.06em - 6px); }
+.podium-card--2::before { content: '2'; top: calc(-.17em - 1px); }
 
 /* Hạng 3 — đồng, cột thấp nhất */
 .podium-card--3 { --podium-rgb: 205,127,50; }
-.podium-card--3::before { content: '3'; top: calc(-.16em - 2px); right: calc(-.06em - 6px); }
+.podium-card--3::before { content: '3'; top: calc(-.15em - 2px); right: -.05em; }
 
 /* ── Leaderboard ── */
 .leaderboard-list { display: flex; flex-direction: column; }
@@ -2203,6 +2233,24 @@ body[data-active="thanh-vien"] .member-add-btn__icon {
   }
 }
 
+/* ── Nhóm nút Huỷ + Lưu/Xác nhận dùng chung ──
+   Huỷ (viền tối) bên trái : nút chính bên phải = 3 : 7, theo popup Thanh toán nợ.
+   <div class="action-row">
+     <button class="btn btn-surface action-row__cancel">Huỷ</button>
+     <button class="btn btn-gold action-row__primary">Lưu</button>
+   </div> */
+.action-row { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 7fr); align-items: center; gap: var(--space-3); }
+.action-row > .btn { justify-content: center; min-width: 0; width: 100%; }
+/* Nút Huỷ: gradient xám nhạt (bán trong suốt, trên) → tối (dưới) để khác ô nhập / ô chọn (nền phẳng) */
+.btn.btn-cancel, .save-bar__btn.btn-cancel {
+  background: linear-gradient(180deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.02) 100%), var(--bg-base);
+  border: 1px solid var(--bg-stroke);
+  color: var(--text-primary);
+}
+.btn.btn-cancel:hover, .save-bar__btn.btn-cancel:hover { background: linear-gradient(180deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,.05) 100%), var(--bg-base); }
+[data-theme="light"] .btn.btn-cancel, [data-theme="light"] .save-bar__btn.btn-cancel { background: linear-gradient(180deg, rgba(0,0,0,.08) 0%, rgba(0,0,0,.02) 100%), var(--bg-surface); }
+[data-theme="light"] .btn.btn-cancel:hover, [data-theme="light"] .save-bar__btn.btn-cancel:hover { background: linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.04) 100%), var(--bg-surface); }
+
 /* ── Modal actions: cancel left, primary action right ── */
 .modal .member-modal-actions {
   display: flex;
@@ -2680,8 +2728,7 @@ body[data-active="thanh-vien"] .member-sort-chip:active {
 .settings-preview strong.is-negative { color: var(--color-accent-light); }
 
 /* Actions */
-.settings-actions {
-  display: flex; align-items: center; justify-content: flex-end; gap: var(--space-4);
+.settings-actions { /* bố cục nút do .action-row đảm nhận */
   margin-top: var(--space-6); padding-top: var(--space-5);
   border-top: 1px solid var(--bg-border);
 }
@@ -2789,13 +2836,8 @@ body[data-active="thanh-vien"] .member-sort-chip:active {
   }
 }
 
-.save-bar__btn--cancel {
-  background: var(--bg-elevated);
-  color: var(--text-primary);
-  border: 1px solid var(--bg-stroke);
-  min-width: 96px;
-}
-.save-bar__btn--cancel:hover { background: var(--bg-stroke); }
+/* Nút Huỷ trên thanh lưu dùng component chung .btn-cancel */
+.save-bar__btn.btn-cancel { min-width: 96px; }
 
 .save-bar__btn--save {
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-end));

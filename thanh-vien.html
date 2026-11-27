@@ -115,7 +115,10 @@
 <div class="sheet-backdrop" id="add-member-modal" style="display:none">
   <div class="sheet fade-in">
     <div class="modal-handle"></div>
-    <h2 class="modal-title" id="member-modal-title">Thêm thành viên</h2>
+    <div class="dlg-head">
+      <div class="dlg-head__text"><h2 class="dlg-head__title" id="member-modal-title">Thêm thành viên</h2></div>
+      <button class="btn btn-close" type="button" aria-label="Đóng" onclick="document.getElementById('add-member-modal').style.display='none'"><svg class="btn-close__ic" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <div class="field">
         <label>Họ tên</label>
@@ -146,9 +149,9 @@
         Xoá thành viên
       </button>
 
-      <div class="member-modal-actions">
-        <button class="btn btn-ghost" id="btn-cancel-member" type="button">Huỷ</button>
-        <button class="btn btn-primary" id="btn-save-member" type="button">
+      <div class="member-modal-actions action-row">
+        <button class="btn btn-cancel btn-surface action-row__cancel" id="btn-cancel-member" type="button">Huỷ</button>
+        <button class="btn btn-primary action-row__primary" id="btn-save-member" type="button">
           <iconify-icon icon="solar:check-circle-linear" style="font-size:18px"></iconify-icon>
           Lưu
         </button>
@@ -769,7 +772,7 @@
           Lịch sử thu tháng và trận đấu vẫn được lưu lại.
         </div>
         <div style="display:flex;gap:10px">
-          <button class="btn btn-surface w-full" id="_del_m_cancel" style="justify-content:center">Huỷ</button>
+          <button class="btn btn-cancel btn-surface w-full" id="_del_m_cancel" style="justify-content:center">Huỷ</button>
           <button class="btn w-full" id="_del_m_ok" style="justify-content:center;background:var(--color-accent);color:#fff">
             <iconify-icon icon="solar:trash-bin-trash-linear" style="font-size:16px"></iconify-icon>Xoá
           </button>
@@ -800,10 +803,10 @@
 
     <!-- Header -->
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px">
-      <div>
-        <div class="section-overline" style="margin-bottom:4px">Thanh toán nợ</div>
-        <div style="font-size:20px;font-weight:800" id="pay-member-name">—</div>
-      </div>
+        <div>
+          <div class="section-overline" style="margin-bottom:4px">Thanh toán nợ</div>
+          <div style="font-size:20px;font-weight:800" id="pay-member-name">—</div>
+        </div>
       <button class="btn btn-close" aria-label="Đóng" onclick="closePayModal()">
         <svg class="btn-close__ic" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       </button>
@@ -817,7 +820,7 @@
     <!-- Tổng -->
     <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;margin-top:4px;border-top:0px solid var(--bg-stroke)">
       <span style="font-size:16px;font-weight:800">Tổng thanh toán</span>
-      <span style="font-size:22px;font-weight:900;color:var(--color-accent-light)" id="pay-total">0</span>
+      <span class="num-dinot" style="font-size:22px;font-weight:900;color:var(--color-accent-light)" id="pay-total">0</span>
     </div>
 
     <!-- Note -->
@@ -826,9 +829,9 @@
     </div>
 
     <!-- Buttons -->
-    <div style="display:flex;gap:12px">
-      <button class="btn btn-surface w-full" onclick="closePayModal()" style="justify-content:center">Huỷ</button>
-      <button class="btn btn-gold w-full" id="btn-confirm-pay" style="justify-content:center;font-size:15px;font-weight:800">
+    <div class="action-row">
+      <button class="btn btn-cancel btn-surface action-row__cancel" type="button" onclick="closePayModal()">Huỷ</button>
+      <button class="btn btn-gold action-row__primary" id="btn-confirm-pay" style="font-size:15px;font-weight:800">
         <iconify-icon icon="solar:check-circle-linear" style="font-size:18px"></iconify-icon>
         Xác nhận thanh toán
       </button>
@@ -882,7 +885,7 @@
               <iconify-icon icon="solar:wallet-linear" style="font-size:18px;color:var(--color-primary)"></iconify-icon>
               Nợ quỹ tháng
             </div>
-            <div style="font-weight:800;color:var(--color-primary)">${fmt(noThang)}</div>
+            <div class="num-dinot" style="font-size:18px;font-weight:800;color:var(--color-primary)">${fmt(noThang)}</div>
           </div>
           <div style="font-size:12px;color:var(--text-secondary)">
             Còn thiếu ${debtMonths.length} tháng × ${fmt(FEE)}: ${debtMonths.map(({ mi }) => MONTHS_LABEL[mi]).join(', ')}
@@ -902,7 +905,7 @@
               <iconify-icon icon="solar:cup-star-linear" style="font-size:18px;color:var(--color-primary)"></iconify-icon>
               Nợ quỹ bia
             </div>
-            <div style="font-weight:800;color:var(--color-primary)">${fmt(noBia)}</div>
+            <div class="num-dinot" style="font-size:18px;font-weight:800;color:var(--color-primary)">${fmt(noBia)}</div>
           </div>
           ${matchLines}
         </div>`;

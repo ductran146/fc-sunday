@@ -366,9 +366,9 @@
               <label>Ghi chú</label>
               <input type="text" class="input" id="chi-note" placeholder="Tiền sân Hướng Mai">
             </div>
-            <div class="member-modal-actions chi-add-form__full" id="chi-form-actions" style="margin-top:2px">
-              <button class="btn btn-ghost w-full" id="btn-cancel-edit-chi" type="button" style="justify-content:center;display:none">Huỷ</button>
-              <button class="btn btn-gold w-full" id="btn-add-chi" type="button" style="justify-content:center;font-size:15px">
+            <div class="action-row chi-add-form__full" id="chi-form-actions" style="margin-top:2px">
+              <button class="btn btn-cancel btn-surface action-row__cancel" id="btn-cancel-edit-chi" type="button">Huỷ</button>
+              <button class="btn btn-gold action-row__primary" id="btn-add-chi" type="button" style="font-size:15px">
                 <iconify-icon id="chi-submit-icon" icon="solar:add-circle-linear" style="font-size:18px"></iconify-icon>
                 <span id="chi-submit-label">Thêm khoản chi</span>
               </button>
@@ -611,8 +611,7 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
     _editingCid = isEdit ? item.id : null;
     document.getElementById('chi-submit-icon')?.setAttribute('icon', isEdit ? 'solar:diskette-linear' : 'solar:add-circle-linear');
     document.getElementById('chi-submit-label').textContent = isEdit ? 'Lưu thay đổi' : 'Thêm khoản chi';
-    const cancelBtn = document.getElementById('btn-cancel-edit-chi');
-    if (cancelBtn) cancelBtn.style.display = isEdit ? 'inline-flex' : 'none';
+    // Nút Huỷ luôn hiện (thêm mới: xoá form, về lịch sử; sửa: bỏ sửa)
   }
 
   function resetChiForm() {
@@ -688,7 +687,7 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
       <div style="font-size:17px;font-weight:700;margin-bottom:8px">Xoá khoản chi?</div>
       <div style="font-size:13px;color:var(--text-secondary);margin-bottom:20px"><strong style="color:var(--text-primary)">${label}</strong> sẽ bị xoá vĩnh viễn.</div>
       <div style="display:flex;gap:10px">
-        <button class="btn btn-surface w-full" id="_chi_del_cancel" style="justify-content:center">Huỷ</button>
+        <button class="btn btn-cancel btn-surface w-full" id="_chi_del_cancel" style="justify-content:center">Huỷ</button>
         <button class="btn w-full" id="_chi_del_ok" style="justify-content:center;background:var(--color-accent);color:#fff">
           <iconify-icon icon="solar:trash-bin-trash-linear" style="font-size:16px"></iconify-icon>Xoá
         </button>
@@ -832,11 +831,8 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
 <!-- Sheet: Sửa khoản chi -->
 <div class="sheet-backdrop" id="edit-chi-modal" style="display:none" role="dialog" aria-modal="true" onclick="window.onEditChiBackdropClick?.(event)">
   <div class="sheet fade-in">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-      <div>
-        <div class="section-overline" style="margin-bottom:2px">Chi tiêu</div>
-        <h2 class="modal-title" style="margin-bottom:0">Sửa khoản chi</h2>
-      </div>
+    <div class="dlg-head">
+        <div class="dlg-head__text"><h2 class="dlg-head__title">Sửa khoản chi</h2></div>
       <button class="btn btn-close" aria-label="Đóng" onclick="closeEditChi()">
         <svg class="btn-close__ic" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       </button>
@@ -889,9 +885,9 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
         <label>Ghi chú</label>
         <input type="text" class="input" id="edit-chi-note" placeholder="Mô tả khoản chi">
       </div>
-      <div style="display:flex;gap:12px;margin-top:4px">
-        <button class="btn btn-surface" onclick="closeEditChi()" style="justify-content:center;flex-shrink:0">Huỷ</button>
-        <button class="btn btn-gold w-full" id="btn-save-edit-chi" type="button" onclick="saveEditChi()" style="justify-content:center">
+      <div class="action-row" style="margin-top:4px">
+        <button class="btn btn-cancel btn-surface action-row__cancel" type="button" onclick="closeEditChi()">Huỷ</button>
+        <button class="btn btn-gold action-row__primary" id="btn-save-edit-chi" type="button" onclick="saveEditChi()">
           <iconify-icon icon="solar:check-circle-linear" style="font-size:18px"></iconify-icon>
           Lưu thay đổi
         </button>
@@ -901,6 +897,55 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
 </div>
 
 <script>
+  // Mở danh sách danh mục thì cuộn vừa đủ để thấy trọn danh sách: trong form sửa
+  // (.sheet) thì cuộn form, ngoài trang thì cuộn trang, chừa chỗ cho thanh điều hướng dưới.
+  function revealList(list) {
+    // Đo và cuộn vài lần trong nửa giây đầu: danh sách có thể cao thêm sau khi
+    // font emoji tải xong, đo một lần lúc mở sẽ thiếu.
+    const pass = () => {
+      if (list.hidden) return;
+      const r = list.getBoundingClientRect();
+      const sheet = list.closest('.sheet');
+      if (sheet) {
+        const over = r.bottom + 12 - sheet.getBoundingClientRect().bottom;
+        if (over <= 1) return;
+        if (_padHost !== sheet) {
+          sheet.dataset.padRestore = sheet.style.paddingBottom;
+          sheet.dataset.padBase = parseFloat(getComputedStyle(sheet).paddingBottom);
+          _padHost = sheet;
+        }
+        sheet.style.paddingBottom = `${+sheet.dataset.padBase + list.offsetHeight + 24}px`;
+        sheet.scrollBy({ top: over });
+        return;
+      }
+      const nav = document.querySelector('.bottom-nav');
+      // thanh điều hướng là position:fixed nên không dùng offsetParent để biết có hiện hay không
+      const navTop = nav && getComputedStyle(nav).display !== 'none' ? nav.getBoundingClientRect().top : window.innerHeight;
+      const limit = Math.min(navTop, window.innerHeight) - 12;
+      const over = r.bottom - limit;
+      if (over <= 1) return;
+      // Tạm thêm khoảng trống cuối trang bằng chiều cao danh sách + 24px để chắc chắn
+      // cuộn đủ; bỏ khi đóng danh sách.
+      const page = document.getElementById('page-content') || document.body;
+      if (_padHost !== page) {
+        page.dataset.padRestore = page.style.paddingBottom;
+        page.dataset.padBase = parseFloat(getComputedStyle(page).paddingBottom);
+        _padHost = page;
+      }
+      page.style.paddingBottom = `${+page.dataset.padBase + list.offsetHeight + 24}px`;
+      window.scrollBy({ top: over });
+    };
+    requestAnimationFrame(pass);
+    setTimeout(pass, 150);
+    setTimeout(pass, 450);
+  }
+  let _padHost = null;
+  function releaseListPad() {
+    if (!_padHost) return;
+    _padHost.style.paddingBottom = _padHost.dataset.padRestore || '';
+    delete _padHost.dataset.padRestore; delete _padHost.dataset.padBase; _padHost = null;
+  }
+
   // ── Custom category dropdown init ──
   document.querySelectorAll('.cat-select').forEach(wrap => {
     const btn = wrap.querySelector('.cat-select__btn');
@@ -929,6 +974,7 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
     function closeList() {
       list.hidden = true;
       btn.classList.remove('is-open');
+      releaseListPad();
     }
 
     btn.addEventListener('click', (e) => {
@@ -936,7 +982,8 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
       const willOpen = list.hidden;
       document.querySelectorAll('.cat-select__list').forEach(l => l.hidden = true);
       document.querySelectorAll('.cat-select__btn').forEach(b => b.classList.remove('is-open'));
-      if (willOpen) { list.hidden = false; btn.classList.add('is-open'); }
+      releaseListPad();
+      if (willOpen) { list.hidden = false; btn.classList.add('is-open'); revealList(list); }
     });
 
     items.forEach(li => {
@@ -951,6 +998,7 @@ window.DatePicker=(function(){'use strict';function _ld(d){return d.getFullYear(
   document.addEventListener('click', () => {
     document.querySelectorAll('.cat-select__list').forEach(l => l.hidden = true);
     document.querySelectorAll('.cat-select__btn').forEach(b => b.classList.remove('is-open'));
+    releaseListPad();
   });
 
   if ('serviceWorker' in navigator) {
