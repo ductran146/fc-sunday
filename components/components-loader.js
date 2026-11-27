@@ -388,12 +388,23 @@
       const dir = dx < 0 ? 'right' : 'left';   // trang mới vào từ phía đối diện hướng vuốt
       try { sessionStorage.setItem('fc-tab-enter', dir); } catch (e) {}
       if (page && !reduce) {
-        page.style.transition = 'transform .18s ease-in, opacity .18s ease-in';
-        page.style.transform = `translate3d(${dx < 0 ? '-40%' : '40%'},0,0)`;
-        page.style.opacity = '0';
-        setTimeout(() => { location.href = next.getAttribute('href'); }, 160);
+        // slide: trang cũ trượt hết chiều ngang ra theo hướng chuyển
+        page.style.transition = 'transform .2s cubic-bezier(.4,0,1,1), opacity .2s ease-in';
+        page.style.transform = `translate3d(${dx < 0 ? '-100%' : '100%'},0,0)`;
+        page.style.opacity = '.4';
+        setTimeout(() => { location.href = next.getAttribute('href'); }, 190);
       } else location.href = next.getAttribute('href');
     }
+
+    // Bấm tab cũng chuyển trang dạng slide theo vị trí tab (tab bên phải → trượt sang trái).
+    // Gắn cho cả 2 bộ tab (thanh dưới header và bộ trong tiêu đề desktop).
+    document.querySelectorAll('.fund-tabs').forEach(n => {
+      const list = [...n.querySelectorAll('.fund-tab')], ci = list.findIndex(t => t.classList.contains('active'));
+      list.forEach((t, i) => t.addEventListener('click', e => {
+        if (i === ci || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+        e.preventDefault(); go(t, i > ci ? -1 : 1);
+      }));
+    });
 
     document.addEventListener('touchstart', e => {
       on = false; drag = 0; target = null;

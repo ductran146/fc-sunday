@@ -1248,13 +1248,13 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   .fund-tabs--inline .fund-tab__in { padding-bottom: var(--space-2); }   /* gạch vàng cách chữ 8px */
 }
 
-/* ── Chuyển tab Quỹ tháng ⇄ Quỹ bia bằng vuốt: nội dung trượt vào theo chiều vuốt ── */
+/* ── Chuyển tab Quỹ tháng ⇄ Quỹ bia (bấm tab hoặc vuốt): slide theo chiều chuyển ── */
 body[data-active="thu-thang"] .main-content, body[data-active="thu-phat"] .main-content { overflow-x: clip; }   /* nội dung trượt không làm trang cuộn ngang */
 @media (prefers-reduced-motion: no-preference) {
-  .tab-enter-right { animation: tabEnterRight .26s cubic-bezier(.2,.8,.2,1) both; }
-  .tab-enter-left  { animation: tabEnterLeft  .26s cubic-bezier(.2,.8,.2,1) both; }
-  @keyframes tabEnterRight { from { transform: translate3d(40%,0,0); opacity: 0; } to { transform: none; opacity: 1; } }
-  @keyframes tabEnterLeft  { from { transform: translate3d(-40%,0,0); opacity: 0; } to { transform: none; opacity: 1; } }
+  .tab-enter-right { animation: tabEnterRight .3s cubic-bezier(.2,.8,.2,1) both; }
+  .tab-enter-left  { animation: tabEnterLeft  .3s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes tabEnterRight { from { transform: translate3d(100%,0,0); opacity: .4; } to { transform: none; opacity: 1; } }
+  @keyframes tabEnterLeft  { from { transform: translate3d(-100%,0,0); opacity: .4; } to { transform: none; opacity: 1; } }
 }
 
 /* ── Quỹ tháng: ô tìm kiếm + dòng tiêu đề cột dính ngay dưới thanh tab ──
