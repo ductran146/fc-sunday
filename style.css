@@ -1269,6 +1269,15 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   background: var(--bg-elevated);
 }
 .tt-head table { table-layout: fixed; }
+/* Tiêu đề cột cuộn theo bảng bằng scroll-driven animation (khi trình duyệt hỗ trợ):
+   cả bảng tiêu đề dịch trái đúng bằng độ cuộn của bảng (--tt-max = độ cuộn tối đa),
+   hai ô STT + Thành viên dịch ngược lại nên đứng yên như cột dính. */
+.tt-css-sync { timeline-scope: --tt-x; }
+.tt-css-sync #tt-wrap { scroll-timeline: --tt-x x; }
+.tt-css-sync .tt-head table { animation: tt-x linear both; animation-timeline: --tt-x; }
+.tt-css-sync .tt-head th.sticky-col { animation: tt-x-back linear both; animation-timeline: --tt-x; z-index: 3; }
+@keyframes tt-x { from { transform: none; } to { transform: translateX(calc(var(--tt-max, 0px) * -1)); } }
+@keyframes tt-x-back { from { transform: none; } to { transform: translateX(var(--tt-max, 0px)); } }
 .tt-head:empty, .tt-head table:empty { display: none; }
 
 /* ── Empty state ── */
@@ -1988,22 +1997,24 @@ body[data-active="thu-thang"] .cell-future-btn.cell-exempt-btn {
 
 
 /* ── Thu tháng: STT column + sorted member table ── */
+/* Cuộn ngang: cột STT và cột tên cùng dính bên trái. Cột tên đặt ngay sau STT theo độ
+   rộng đo thật (--tt-stt-w, JS gán) để không hở khe cho ô tháng lọt qua. */
 body[data-active="thu-thang"] .thu-thang-table .stt-col {
   width: 44px;
   min-width: 44px;
   max-width: 44px;
   text-align: center;
-  left: auto; /* th vốn sticky (dọc) — không để STT dính ngang, cuộn theo số thứ tự */
+  left: 0;
+  border-right: 0;
 }
 
-/* Cuộn ngang: chỉ cột tên dính bên trái, cột STT cuộn đi bình thường (chui dưới cột tên) */
 body[data-active="thu-thang"] .thu-thang-table .name-col {
-  left: 0;
+  left: var(--tt-stt-w, 44px);   /* STT rộng cố định 44px, không viền phải → nối khít, không khe */
   border-right-color: transparent;   /* chưa cuộn ngang: không có đường kẻ sau cột tên */
 }
 body[data-active="thu-thang"] .is-scrolled-x .thu-thang-table .name-col { border-right-color: var(--bg-border); }
 
-/* STT không còn dính nhưng giữ cùng màu nền với cột tên */
+/* STT cùng màu nền với cột tên */
 body[data-active="thu-thang"] .thu-thang-table td.stt-col { background: var(--bg-surface); }
 body[data-active="thu-thang"] .thu-thang-table tr:hover td.stt-col { background: var(--bg-hover); }
 

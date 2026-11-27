@@ -117,7 +117,7 @@
         <table class="fc-table thu-thang-table" id="thu-thang-table">
           <thead>
             <tr id="thu-thang-head">
-              <th class="stt-col">STT</th>
+              <th class="sticky-col stt-col">STT</th>
               <th class="sticky-col name-col">Thành viên</th>
               <!-- months injected by JS -->
               <th>Tổng nợ</th>
@@ -167,7 +167,7 @@
 
     // Build month headers
     const head = document.getElementById('thu-thang-head');
-    head.innerHTML = `<th class="stt-col">STT</th><th class="sticky-col name-col">Thành viên</th>` +
+    head.innerHTML = `<th class="sticky-col stt-col">STT</th><th class="sticky-col name-col">Thành viên</th>` +
       MONTHS.map((m,i) => `<th class="month-col">${m}</th>`).join('') +
       `<th>Tổng nợ</th>`;
 
@@ -215,7 +215,7 @@
 
       const noColor = memberNo > 0 ? 'color:var(--color-accent-light)' : 'color:var(--color-success)';
       return `<tr>
-        <td class="stt-col stt-cell">${index + 1}</td>
+        <td class="sticky-col stt-col stt-cell">${index + 1}</td>
         <td class="sticky-col name-col member-name-cell"><span>${m.name}</span></td>
         ${cells}
         <td style="${noColor};font-weight:700">${memberNo > 0 ? fmt(memberNo) : '✓'}${prevNo > 0 ? `<div style="font-size:11px;font-weight:600;opacity:.8;white-space:nowrap">gồm ${fmt(prevNo)} năm trước</div>` : ''}</td>
@@ -227,7 +227,7 @@
 
     document.getElementById('thu-thang-tbody').innerHTML = rows +
       `<tr class="summary-row">
-        <td class="stt-col"></td>
+        <td class="sticky-col stt-col"></td>
         <td class="sticky-col name-col" style="font-weight:800">Tổng thu</td>
         ${emptyMonths}
         <td style="font-weight:800;color:var(--color-primary)">${fmt(totalDaThu)}</td>
@@ -277,6 +277,12 @@
     const wrap = src?.parentElement, head = document.getElementById('tt-head');
     if (!src || !wrap || !head) return;
     const clone = head.querySelector('table');
+    const page = document.getElementById('page-content');
+    // Tiêu đề cột cuộn ngang theo bảng bằng CSS scroll-driven animation (trình duyệt tự
+    // dịch trong lúc vẽ — không trễ khi vuốt mạnh trên iPhone). Trình duyệt chưa hỗ trợ
+    // thì dùng JS gán scrollLeft theo sự kiện cuộn.
+    const cssSync = !!(window.CSS?.supports?.('timeline-scope', '--tt-x') && CSS.supports('animation-timeline', '--tt-x'));
+    page.classList.toggle('tt-css-sync', cssSync);
     let raf = 0;
     function sync() {
       raf = 0;
@@ -289,8 +295,12 @@
       clone.style.width = src.getBoundingClientRect().width + 'px';
       // kéo bảng lên để thead gốc nằm ngay dưới bản sao (bù cả viền trên 1px)
       wrap.style.marginTop = -(src.tHead.getBoundingClientRect().height + 1) + 'px';
+      // cột tên dính ngay sau cột STT: lấy độ rộng thật (cả phần lẻ pixel) để không hở khe
+      const stt = src.tHead.querySelector('th.stt-col');
+      if (stt) page.style.setProperty('--tt-stt-w', stt.getBoundingClientRect().width + 'px');
+      page.style.setProperty('--tt-max', Math.max(0, wrap.scrollWidth - wrap.clientWidth) + 'px');
       autoScroll();
-      head.scrollLeft = wrap.scrollLeft;
+      if (!cssSync) head.scrollLeft = wrap.scrollLeft;
       markScrolled();
     }
     // Mặc định cuộn để tháng gần nhất (tháng hiện tại; năm cũ là T12) nằm ở mép phải.
@@ -317,7 +327,7 @@
     document.fonts?.ready.then(schedule);
     // Cuộn ngang MỘT chiều: chỉ bảng điều khiển tiêu đề (tiêu đề overflow:hidden, không tự cuộn).
     // Đồng bộ hai chiều làm sự kiện cuộn trễ của tiêu đề kéo ngược bảng → đứt quán tính, giật.
-    wrap.addEventListener('scroll', () => { head.scrollLeft = wrap.scrollLeft; markScrolled(); }, { passive: true });
+    wrap.addEventListener('scroll', () => { if (!cssSync) head.scrollLeft = wrap.scrollLeft; markScrolled(); }, { passive: true });
     // Lăn chuột / kéo ngang trên dòng tiêu đề → chuyển sang cuộn bảng
     head.addEventListener('wheel', e => {
       const dx = e.deltaX || (e.shiftKey ? e.deltaY : 0);
@@ -335,10 +345,13 @@
   (function initStuckFlag() {
     const el = document.getElementById('tt-sticky');
     if (!el) return;
-    let raf = 0;
-    const check = () => { raf = 0; el.classList.toggle('is-stuck', el.getBoundingClientRect().top <= parseFloat(getComputedStyle(el).top) + 0.5); };
+    let raf = 0, stickTop = 0;
+    const readTop = () => { stickTop = parseFloat(getComputedStyle(el).top) || 0; };   // chỉ đọc lại khi đổi cỡ màn hình
+    const check = () => { raf = 0; el.classList.toggle('is-stuck', el.getBoundingClientRect().top <= stickTop + 0.5); };
     window.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(check); }, { passive: true });
-    window.addEventListener('resize', check);
+    window.addEventListener('resize', () => { readTop(); check(); });
+    if ('ResizeObserver' in window) new ResizeObserver(() => { readTop(); check(); }).observe(document.documentElement);
+    readTop();
     check();
   })();
 
