@@ -1223,6 +1223,7 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
   color: var(--text-muted); text-decoration: none; white-space: nowrap;
   transition: color .15s;
 }
+.fund-tab { -webkit-tap-highlight-color: transparent; }   /* bỏ ô màu nhấn khi chạm trên điện thoại */
 .fund-tab__ic { font-size: .9em; line-height: 1; opacity: .45; filter: grayscale(.6); transition: opacity .15s, filter .15s; }
 .fund-tab:hover { color: var(--text-secondary); }
 .fund-tab.active { color: var(--text-primary); }
@@ -1239,22 +1240,66 @@ select.input option { background: var(--bg-elevated); color: var(--text-primary)
 
 /* Desktop: tab nằm ở vị trí tiêu đề trang (như tiêu đề các trang khác), lệch trái,
    ô chọn năm bên phải; thanh tab dưới header chỉ dùng trên điện thoại */
-.fund-tabs--inline, .fund-inline-only { display: none; }
+.fund-desktop-tabs { display: none; }
 @media (min-width: 768px) {
   .fund-tabs-bar { display: none; }
-  .fund-inline-only { display: block; }
+  .fund-desktop-tabs {
+    display: block; width: 100%; max-width: var(--max-width);
+    margin: 0 auto; padding: var(--space-6) var(--space-6) 0;
+  }
+  .fund-desktop-tabs + .page { padding-top: 0; }
   .fund-tabs--inline { display: flex; justify-content: flex-start; gap: var(--space-8); max-width: none; margin: 0 0 var(--space-1); padding: 0; }
   .fund-tabs--inline .fund-tab { flex: 0 0 auto; height: auto; padding: 0; font-size: 28px; }
   .fund-tabs--inline .fund-tab__in { padding-bottom: var(--space-2); }   /* gạch vàng cách chữ 8px */
 }
 
-/* ── Chuyển tab Quỹ tháng ⇄ Quỹ bia (bấm tab hoặc vuốt): slide theo chiều chuyển ── */
-body[data-active="thu-thang"] .main-content, body[data-active="thu-phat"] .main-content { overflow-x: clip; }   /* nội dung trượt không làm trang cuộn ngang */
+/* Chỉ nội dung thu quỹ trượt. Header và điều hướng giữ ảnh cũ tại chỗ
+   trong lúc trình duyệt chuyển tài liệu. */
+body:is([data-active="thu-thang"], [data-active="thu-phat"]) {
+  & .main-content { overflow-x: clip; }
+  &:not(.components-ready) .app-shell { opacity: 1; }
+  & [data-component="header"] { height: var(--topbar-h); }
+  & .topbar { view-transition-name: fund-header; }
+  & .bottom-nav { view-transition-name: fund-bottom-nav; }
+  & :is(.fund-tabs-bar, .fund-desktop-tabs) { view-transition-name: fund-tabs; }
+  & #page-content { view-transition-name: fund-content; }
+}
+@media (max-width: 767px), (display-mode: standalone) {
+  body:is([data-active="thu-thang"], [data-active="thu-phat"]) [data-component="header"] {
+    height: var(--topbar-h-safe);
+  }
+}
+
+html:has(body[data-active="thu-thang"]) { --fund-slide-in: -100vw; --fund-slide-out: 100vw; }
+html:has(body[data-active="thu-phat"]) { --fund-slide-in: 100vw; --fund-slide-out: -100vw; }
+
+::view-transition-group(*) { animation: none; }
+::view-transition-old(root),
+::view-transition-old(fund-tabs) { display: none; }
+::view-transition-new(root),
+::view-transition-new(fund-tabs),
+::view-transition-old(fund-header),
+::view-transition-new(fund-header),
+::view-transition-old(fund-bottom-nav),
+::view-transition-new(fund-bottom-nav) { animation: none; mix-blend-mode: normal; }
+
+::view-transition-group(fund-header) { z-index: 3; }
+::view-transition-group(fund-tabs),
+::view-transition-group(fund-bottom-nav) { z-index: 2; }
+::view-transition-group(fund-content) { z-index: 1; }
+::view-transition-image-pair(fund-content) { isolation: isolate; }
+::view-transition-old(fund-content),
+::view-transition-new(fund-content) { mix-blend-mode: normal; }
+
 @media (prefers-reduced-motion: no-preference) {
-  .tab-enter-right { animation: tabEnterRight .3s cubic-bezier(.2,.8,.2,1) both; }
-  .tab-enter-left  { animation: tabEnterLeft  .3s cubic-bezier(.2,.8,.2,1) both; }
-  @keyframes tabEnterRight { from { transform: translate3d(100%,0,0); opacity: .4; } to { transform: none; opacity: 1; } }
-  @keyframes tabEnterLeft  { from { transform: translate3d(-100%,0,0); opacity: .4; } to { transform: none; opacity: 1; } }
+  ::view-transition-old(fund-content) { animation: fund-slide-out .3s cubic-bezier(.2,.8,.2,1) both; }
+  ::view-transition-new(fund-content) { animation: fund-slide-in .3s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes fund-slide-out { to { transform: translateX(var(--fund-slide-out)); } }
+  @keyframes fund-slide-in { from { transform: translateX(var(--fund-slide-in)); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(fund-content) { display: none; }
+  ::view-transition-new(fund-content) { animation: none; }
 }
 
 /* ── Quỹ tháng: ô tìm kiếm + dòng tiêu đề cột dính ngay dưới thanh tab ──

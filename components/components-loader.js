@@ -370,41 +370,11 @@
       return null;
     }
 
-    // ── Hiệu ứng chuyển trang theo chiều vuốt ──
-    // Nội dung (#page-content) trượt theo ngón tay; đủ xa/đủ nhanh thì trượt hẳn ra và
-    // trang mới trượt vào từ phía đối diện (ghi hướng vào sessionStorage cho trang sau).
-    const page = document.getElementById('page-content');
-    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    let drag = 0;            // 0 chưa rõ, 1 đang kéo ngang, -1 cuộn dọc / không cho kéo
-    let target = null;       // tab sẽ chuyển tới theo hướng kéo hiện tại
-    const setX = (x, anim) => {
-      if (!page || reduce) return;
-      page.style.transition = anim ? 'transform .2s ease-out, opacity .2s ease-out' : 'none';
-      page.style.transform = x ? `translate3d(${x}px,0,0)` : '';
+    const blocked = dx => {
+      if (!sx) return false;
+      const max = sx.scrollWidth - sx.clientWidth;
+      return dx < 0 ? sxLeft < max - 1 : sxLeft > 1;
     };
-    // bảng còn cuộn được theo hướng vuốt (tính từ lúc bắt đầu) → để bảng cuộn, không đổi tab
-    const blocked = dx => { if (!sx) return false; const max = sx.scrollWidth - sx.clientWidth; return dx < 0 ? sxLeft < max - 1 : sxLeft > 1; };
-    function go(next, dx) {
-      const dir = dx < 0 ? 'right' : 'left';   // trang mới vào từ phía đối diện hướng vuốt
-      try { sessionStorage.setItem('fc-tab-enter', dir); } catch (e) {}
-      if (page && !reduce) {
-        // slide: trang cũ trượt hết chiều ngang ra theo hướng chuyển
-        page.style.transition = 'transform .2s cubic-bezier(.4,0,1,1), opacity .2s ease-in';
-        page.style.transform = `translate3d(${dx < 0 ? '-100%' : '100%'},0,0)`;
-        page.style.opacity = '.4';
-        setTimeout(() => { location.href = next.getAttribute('href'); }, 190);
-      } else location.href = next.getAttribute('href');
-    }
-
-    // Bấm tab cũng chuyển trang dạng slide theo vị trí tab (tab bên phải → trượt sang trái).
-    // Gắn cho cả 2 bộ tab (thanh dưới header và bộ trong tiêu đề desktop).
-    document.querySelectorAll('.fund-tabs').forEach(n => {
-      const list = [...n.querySelectorAll('.fund-tab')], ci = list.findIndex(t => t.classList.contains('active'));
-      list.forEach((t, i) => t.addEventListener('click', e => {
-        if (i === ci || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
-        e.preventDefault(); go(t, i > ci ? -1 : 1);
-      }));
-    });
 
     document.addEventListener('touchstart', e => {
       on = false; drag = 0; target = null;
@@ -424,35 +394,21 @@
         drag = (Math.abs(dx) > Math.abs(dy) * 1.5 && target && !blocked(dx)) ? 1 : -1;
         if (drag === -1) return;
       }
-      // đổi hướng giữa chừng: chỉ kéo về phía có tab, phía kia khựng lại
-      const ok = (dx < 0) === (tabs.indexOf(target) > cur);
-      setX(ok ? dx * 0.45 : dx * 0.08, false);
     }, { passive: true });
 
     document.addEventListener('touchend', e => {
-      if (!on) return; on = false;
-      const p = e.changedTouches[0], dx = p.clientX - x0, dt = Date.now() - t0;
-      const wasDrag = drag === 1; drag = 0;
-      if (!wasDrag) return;
+      if (!on) return;
+      on = false;
+      const dx = e.changedTouches[0].clientX - x0;
+      const elapsed = Date.now() - t0;
       const next = tabs[cur + (dx < 0 ? 1 : -1)];
-      // kéo xa ≥ 80px, hoặc vuốt nhanh ≥ 40px trong 300ms
-      if (next && next === target && (Math.abs(dx) >= 80 || (Math.abs(dx) >= 40 && dt < 300))) go(next, dx);
-      else setX(0, true);   // chưa đủ → bật về
+      if (drag === 1 && next === target &&
+          (Math.abs(dx) >= 80 || (Math.abs(dx) >= 40 && elapsed < 300))) {
+        location.assign(next.href);
+      }
     }, { passive: true });
-    document.addEventListener('touchcancel', () => { if (drag === 1) setX(0, true); on = false; drag = 0; }, { passive: true });
 
-    // Quay lại bằng nút Back (trang lấy từ bộ nhớ đệm) → trả nội dung về chỗ cũ
-    window.addEventListener('pageshow', () => { if (page) { page.style.transition = 'none'; page.style.transform = ''; page.style.opacity = '1'; } });
-  }
-
-  // Trang vừa mở do vuốt đổi tab → nội dung trượt vào từ phía đối diện hướng vuốt
-  function playTabEnter() {
-    let dir = null;
-    try { dir = sessionStorage.getItem('fc-tab-enter'); sessionStorage.removeItem('fc-tab-enter'); } catch (e) {}
-    const page = document.getElementById('page-content');
-    if (!dir || !page || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-    page.classList.add(`tab-enter-${dir}`);
-    page.addEventListener('animationend', () => page.classList.remove(`tab-enter-${dir}`), { once: true });
+    document.addEventListener('touchcancel', () => { on = false; }, { passive: true });
   }
 
   // ── Vị trí các khối dính theo chiều cao thật ─────────────────
@@ -501,7 +457,6 @@
     initLoginModal();
     initInstallBtn();
     initTabSwipe();
-    playTabEnter();
     initStickOffsets();
 
     // Hide install section in PWA mode

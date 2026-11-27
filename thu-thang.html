@@ -23,6 +23,7 @@
   <link rel="preconnect" href="https://fc-sunday-8f932-default-rtdb.asia-southeast1.firebasedatabase.app" crossorigin>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
+  <style>@view-transition { navigation: auto; }</style>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" async></script>
   <style>
     .thu-thang-table td, .thu-thang-table th { min-width: 52px; text-align: center; }
@@ -64,18 +65,19 @@
         <a class="fund-tab" href="thu-phat.html"><span class="fund-tab__in"><span class="fund-tab__ic tf" aria-hidden="true">🍺</span>Quỹ bia</span></a>
       </nav>
     </div>
-    <main class="page" id="page-content" style="opacity:0">
+    <div class="fund-desktop-tabs">
+      <div class="section-overline">Thu quỹ</div>
+      <nav class="fund-tabs fund-tabs--inline" aria-label="Thu quỹ">
+        <a class="fund-tab active" href="thu-thang.html" aria-current="page"><span class="fund-tab__in"><span class="fund-tab__ic tf" aria-hidden="true">💰</span>Quỹ tháng</span></a>
+        <a class="fund-tab" href="thu-phat.html"><span class="fund-tab__in"><span class="fund-tab__ic tf" aria-hidden="true">🍺</span>Quỹ bia</span></a>
+      </nav>
+    </div>
+    <main class="page" id="page-content">
 
       <!-- Header row -->
       <div class="thu-thang-page-header">
         <div class="thu-thang-page-title">
           <h1 class="sr-only">Quỹ tháng</h1>
-          <!-- Desktop: tab nằm ở vị trí tiêu đề trang (thanh tab dưới header chỉ dùng trên điện thoại) -->
-          <div class="section-overline fund-inline-only">Thu quỹ</div>
-          <nav class="fund-tabs fund-tabs--inline" aria-label="Thu quỹ">
-            <a class="fund-tab active" href="thu-thang.html" aria-current="page"><span class="fund-tab__in"><span class="fund-tab__ic tf" aria-hidden="true">💰</span>Quỹ tháng</span></a>
-            <a class="fund-tab" href="thu-phat.html"><span class="fund-tab__in"><span class="fund-tab__ic tf" aria-hidden="true">🍺</span>Quỹ bia</span></a>
-          </nav>
           <div class="thu-thang-page-subtitle" style="font-size:12px;color:var(--text-muted)">200.000 / người / tháng</div>
         </div>
         <select class="year-selector thu-thang-year-selector" id="year-select">
@@ -426,7 +428,6 @@
         renderTable(_S);
       }
     });
-    document.getElementById('page-content').style.opacity = '1';
   };
 
   window._onDataReady = function(S) {
