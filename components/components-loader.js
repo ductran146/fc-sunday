@@ -20,7 +20,7 @@
   // bottom-nav, login-modal) rồi mới hiện khung. Giờ giữ bản đã tải trong
   // localStorage để chèn ngay, đồng thời tải lại ngầm cho lần sau.
   // Sửa nội dung thư mục components/ thì tăng FRAG_VERSION để bỏ bản cũ.
-  const FRAG_VERSION = '2';
+  const FRAG_VERSION = '4';
   const fragKey = name => `fc-frag-${FRAG_VERSION}-${name}`;
 
   function fetchFragment(name) {
@@ -370,8 +370,33 @@
       return null;
     }
 
+    // ── Hiệu ứng chuyển trang theo chiều vuốt ──
+    // Nội dung (#page-content) trượt theo ngón tay; đủ xa/đủ nhanh thì trượt hẳn ra và
+    // trang mới trượt vào từ phía đối diện (ghi hướng vào sessionStorage cho trang sau).
+    const page = document.getElementById('page-content');
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    let drag = 0;            // 0 chưa rõ, 1 đang kéo ngang, -1 cuộn dọc / không cho kéo
+    let target = null;       // tab sẽ chuyển tới theo hướng kéo hiện tại
+    const setX = (x, anim) => {
+      if (!page || reduce) return;
+      page.style.transition = anim ? 'transform .2s ease-out, opacity .2s ease-out' : 'none';
+      page.style.transform = x ? `translate3d(${x}px,0,0)` : '';
+    };
+    // bảng còn cuộn được theo hướng vuốt (tính từ lúc bắt đầu) → để bảng cuộn, không đổi tab
+    const blocked = dx => { if (!sx) return false; const max = sx.scrollWidth - sx.clientWidth; return dx < 0 ? sxLeft < max - 1 : sxLeft > 1; };
+    function go(next, dx) {
+      const dir = dx < 0 ? 'right' : 'left';   // trang mới vào từ phía đối diện hướng vuốt
+      try { sessionStorage.setItem('fc-tab-enter', dir); } catch (e) {}
+      if (page && !reduce) {
+        page.style.transition = 'transform .18s ease-in, opacity .18s ease-in';
+        page.style.transform = `translate3d(${dx < 0 ? '-40%' : '40%'},0,0)`;
+        page.style.opacity = '0';
+        setTimeout(() => { location.href = next.getAttribute('href'); }, 160);
+      } else location.href = next.getAttribute('href');
+    }
+
     document.addEventListener('touchstart', e => {
-      on = false;
+      on = false; drag = 0; target = null;
       if (e.touches.length !== 1) return;
       const t = e.target;
       if (t.closest('input, textarea, select, .sheet-backdrop, .modal, .sheet, [role="dialog"]')) return;
@@ -379,15 +404,44 @@
       sx = scrollerX(t); sxLeft = sx ? sx.scrollLeft : 0;   // ghi vị trí lúc bắt đầu vuốt
     }, { passive: true });
 
+    document.addEventListener('touchmove', e => {
+      if (!on || drag === -1) return;
+      const p = e.touches[0], dx = p.clientX - x0, dy = p.clientY - y0;
+      if (!drag) {
+        if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+        target = tabs[cur + (dx < 0 ? 1 : -1)] || null;
+        drag = (Math.abs(dx) > Math.abs(dy) * 1.5 && target && !blocked(dx)) ? 1 : -1;
+        if (drag === -1) return;
+      }
+      // đổi hướng giữa chừng: chỉ kéo về phía có tab, phía kia khựng lại
+      const ok = (dx < 0) === (tabs.indexOf(target) > cur);
+      setX(ok ? dx * 0.45 : dx * 0.08, false);
+    }, { passive: true });
+
     document.addEventListener('touchend', e => {
       if (!on) return; on = false;
-      const p = e.changedTouches[0], dx = p.clientX - x0, dy = p.clientY - y0;
-      if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.8 || Date.now() - t0 > 700) return;
-      // bảng còn cuộn được theo hướng vuốt (tính từ lúc bắt đầu) → để bảng cuộn, không đổi tab
-      if (sx) { const max = sx.scrollWidth - sx.clientWidth; if (dx < 0 ? sxLeft < max - 1 : sxLeft > 1) return; }
+      const p = e.changedTouches[0], dx = p.clientX - x0, dt = Date.now() - t0;
+      const wasDrag = drag === 1; drag = 0;
+      if (!wasDrag) return;
       const next = tabs[cur + (dx < 0 ? 1 : -1)];
-      if (next) location.href = next.getAttribute('href');
+      // kéo xa ≥ 80px, hoặc vuốt nhanh ≥ 40px trong 300ms
+      if (next && next === target && (Math.abs(dx) >= 80 || (Math.abs(dx) >= 40 && dt < 300))) go(next, dx);
+      else setX(0, true);   // chưa đủ → bật về
     }, { passive: true });
+    document.addEventListener('touchcancel', () => { if (drag === 1) setX(0, true); on = false; drag = 0; }, { passive: true });
+
+    // Quay lại bằng nút Back (trang lấy từ bộ nhớ đệm) → trả nội dung về chỗ cũ
+    window.addEventListener('pageshow', () => { if (page) { page.style.transition = 'none'; page.style.transform = ''; page.style.opacity = '1'; } });
+  }
+
+  // Trang vừa mở do vuốt đổi tab → nội dung trượt vào từ phía đối diện hướng vuốt
+  function playTabEnter() {
+    let dir = null;
+    try { dir = sessionStorage.getItem('fc-tab-enter'); sessionStorage.removeItem('fc-tab-enter'); } catch (e) {}
+    const page = document.getElementById('page-content');
+    if (!dir || !page || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    page.classList.add(`tab-enter-${dir}`);
+    page.addEventListener('animationend', () => page.classList.remove(`tab-enter-${dir}`), { once: true });
   }
 
   // ── Vị trí các khối dính theo chiều cao thật ─────────────────
@@ -436,6 +490,7 @@
     initLoginModal();
     initInstallBtn();
     initTabSwipe();
+    playTabEnter();
     initStickOffsets();
 
     // Hide install section in PWA mode
